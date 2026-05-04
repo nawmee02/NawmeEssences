@@ -15,13 +15,6 @@ A static e-commerce website for perfume decants, based in Bangladesh.
 - Buyer info form with validation
 - Mobile-responsive layout
 
-## Delivery Charges
-
-| Zone | Charge |
-|------|--------|
-| Dhaka | ৳70 |
-| Dhaka Suburb | ৳90 |
-| Outside Dhaka | ৳120 |
 
 ## Tech Stack
 
@@ -29,10 +22,6 @@ A static e-commerce website for perfume decants, based in Bangladesh.
 - No build tools or frameworks
 - Hosted on GitHub Pages via GitHub Actions
 
-## Contact
-
-- WhatsApp: +880 1738-221686
-- Messenger: [m.me/NawmeEssences](https://m.me/509978488868598)
 
 ## License
 
