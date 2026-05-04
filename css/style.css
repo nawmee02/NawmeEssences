@@ -596,6 +596,40 @@ input, select { font-family: var(--font-body); }
 .contact-fb { background: #1877f2; color: #fff; }
 .contact-fb:hover { background: #1465d6; }
 
+/* ===== STATS ===== */
+.stats-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 60px 20px;
+}
+.stats-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+.stat-number {
+  font-family: var(--font-head);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+@media (max-width: 600px) {
+  .stats-inner { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
+}
+
 /* ===== FOOTER ===== */
 .site-footer {
   background: var(--bg2);
