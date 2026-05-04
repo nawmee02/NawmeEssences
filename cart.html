@@ -106,7 +106,7 @@
       <button class="checkout-btn checkout-ms" onclick="checkoutMessenger()">
         <span>✉️</span> Order via Messenger
       </button>
-      <p class="messenger-note">Messenger: copy your order below and paste in chat</p>
+      <p class="messenger-note">Message is auto-copied — just paste it in Messenger</p>
 
       <div class="cart-policy">
         <strong style="color:#c9a465;">Payment Policy</strong><br>
@@ -118,11 +118,11 @@
     </div>
   </div>
 
-  <!-- MESSENGER COPY BOX (shown after clicking Messenger) -->
+  <!-- MESSENGER COPY BOX -->
   <div id="messenger-box" style="display:none;margin-top:28px;background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:20px;">
-    <p style="font-size:13px;color:#9a9488;margin-bottom:10px;">Copy this message and send it on <a href="https://m.me/509978488868598" target="_blank" style="color:#c9a465;">Messenger →</a></p>
+    <p style="font-size:13px;color:#9a9488;margin-bottom:10px;">✅ Message copied! Open Messenger and paste — or <button onclick="copyMessengerText()" style="background:none;border:none;color:#c9a465;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">copy again</button>. &nbsp;<a href="https://m.me/509978488868598" target="_blank" style="color:#c9a465;">Open Messenger →</a></p>
     <pre id="messenger-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:#f0ede6;line-height:1.7;"></pre>
-    <button onclick="copyMessengerText()" style="margin-top:12px;background:#c9a465;color:#000;border:none;border-radius:6px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;">📋 Copy Message</button>
+  </div>
   </div>
 </div>
 
@@ -291,13 +291,25 @@
 
     document.getElementById('messenger-text').textContent = text;
     document.getElementById('messenger-box').style.display = 'block';
+
+    // Auto-copy then open Messenger
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        showToast('✅ Message copied! Paste it in Messenger.');
+        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 800);
+      })
+      .catch(() => {
+        // Clipboard blocked (e.g. file:// in some browsers) — just open Messenger
+        showToast('Open Messenger and copy the message below.');
+        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 800);
+      });
+
     document.getElementById('messenger-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 600);
   }
 
   function copyMessengerText() {
     const text = document.getElementById('messenger-text').textContent;
-    navigator.clipboard.writeText(text).then(() => showToast('Message copied! Paste it on Messenger.'));
+    navigator.clipboard.writeText(text).then(() => showToast('Message copied! Paste it in Messenger.'));
   }
 
   document.getElementById('delivery-select').addEventListener('change', updateSummary);
