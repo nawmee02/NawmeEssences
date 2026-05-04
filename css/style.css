@@ -353,6 +353,26 @@ input, select { font-family: var(--font-body); }
   transition: border-color var(--transition);
 }
 .size-select:focus { border-color: var(--gold-dark); }
+
+/* ===== SIZE PILLS ===== */
+.size-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.size-pill {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+  font-family: var(--font-body);
+  line-height: 1;
+}
+.size-pill:hover { border-color: var(--gold-dark); color: var(--text); }
+.size-pill.active { border-color: var(--gold-dark); background: rgba(201,164,101,0.1); color: var(--gold); }
+.card-price-live { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; display: block; }
+
 .add-to-cart-btn {
   width: 100%;
   background: transparent;

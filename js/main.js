@@ -1,3 +1,10 @@
+function selectSize(id, btn) {
+  document.querySelectorAll('#size-' + id + ' .size-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const priceEl = document.getElementById('price-' + id);
+  if (priceEl) priceEl.textContent = '৳' + btn.dataset.price;
+}
+
 // Nav active link
 document.addEventListener("DOMContentLoaded", () => {
   updateCartBadge();

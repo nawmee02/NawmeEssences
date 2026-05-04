@@ -4,7 +4,7 @@ function renderCard(product, isExclusive = false) {
     const label = t === 'new' ? 'New' : t === 'restocked' ? 'Restocked' : t === 'limited' ? 'Limited' : t === 'discontinued' ? 'Discontinued' : t;
     return `<span class="tag tag-${t}">${label}</span>`;
   }).join('');
-  const sizeOptions = product.sizes.map(s => `<option value="${s.ml}" data-price="${s.price}">${s.ml}ml — ৳${s.price}</option>`).join('');
+  const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
   const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
   return `
     <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
@@ -17,10 +17,10 @@ function renderCard(product, isExclusive = false) {
       <div class="card-body">
         <div class="card-brand">${product.brand}</div>
         <div class="card-name">${product.name}</div>
-        <div class="card-from">from <strong>৳${minPrice}</strong></div>
       </div>
       <div class="card-footer">
-        <select class="size-select" id="size-${product.id}">${sizeOptions}</select>
+        <div class="size-pills" id="size-${product.id}">${sizePills}</div>
+        <span class="card-price-live" id="price-${product.id}">৳${minPrice}</span>
         <button class="add-to-cart-btn" ${!product.inStock ? 'disabled' : ''} onclick="handleAdd('${product.id}', ${isExclusive})">
           ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
         </button>
@@ -32,9 +32,9 @@ function renderCard(product, isExclusive = false) {
 function handleAdd(id, isExclusive) {
   const allProds = [...regularProducts, ...exclusiveProducts, ...specialItems];
   const product = allProds.find(p => p.id === id);
-  const sel = document.getElementById('size-' + id);
-  const ml = sel.value;
-  const price = sel.options[sel.selectedIndex].dataset.price;
+  const activePill = document.querySelector('#size-' + id + ' .size-pill.active');
+  const ml = activePill.dataset.ml;
+  const price = activePill.dataset.price;
   addToCart(id, ml, price, product.name, product.brand, isExclusive);
 }
 
