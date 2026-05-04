@@ -1,0 +1,117 @@
+function renderCard(product, isExclusive = false) {
+  const minPrice = Math.min(...product.sizes.map(s => s.price));
+  const tags = product.tags.map(t => {
+    const label = t === 'new' ? 'New' : t === 'restocked' ? 'Restocked' : t === 'limited' ? 'Limited' : t === 'discontinued' ? 'Discontinued' : t;
+    return `<span class="tag tag-${t}">${label}</span>`;
+  }).join('');
+  const sizeOptions = product.sizes.map(s => `<option value="${s.ml}" data-price="${s.price}">${s.ml}ml — ৳${s.price}</option>`).join('');
+  const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
+  return `
+    <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
+      <div class="card-img">
+        <img src="images/products/${product.id}.jpg" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-img-placeholder">🫧</div>
+        <div class="tag-badges">${tags}</div>
+        ${oosOverlay}
+      </div>
+      <div class="card-body">
+        <div class="card-brand">${product.brand}</div>
+        <div class="card-name">${product.name}</div>
+        <div class="card-from">from <strong>৳${minPrice}</strong></div>
+      </div>
+      <div class="card-footer">
+        <select class="size-select" id="size-${product.id}">${sizeOptions}</select>
+        <button class="add-to-cart-btn" ${!product.inStock ? 'disabled' : ''} onclick="handleAdd('${product.id}', ${isExclusive})">
+          ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
+        </button>
+      </div>
+      ${buildDetailsPanel(product.id)}
+    </div>`;
+}
+
+function handleAdd(id, isExclusive) {
+  const allProds = [...regularProducts, ...exclusiveProducts, ...specialItems];
+  const product = allProds.find(p => p.id === id);
+  const sel = document.getElementById('size-' + id);
+  const ml = sel.value;
+  const price = sel.options[sel.selectedIndex].dataset.price;
+  addToCart(id, ml, price, product.name, product.brand, isExclusive);
+}
+
+// Build brand filters
+const brandFilters = document.getElementById('brand-filters');
+if (brandFilters) {
+  allBrands.forEach(brand => {
+    brandFilters.innerHTML += `<label><input type="checkbox" value="${brand}" class="brand-filter" /> ${brand}</label>`;
+  });
+}
+
+// Build accord filters from productDetails
+const accordFilters = document.getElementById('accord-filters');
+if (accordFilters) {
+  const allAccords = [...new Set(
+    regularProducts.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || [])
+  )].sort();
+  allAccords.forEach(accord => {
+    accordFilters.innerHTML += `<label><input type="checkbox" value="${accord}" class="accord-filter" /> ${accord}</label>`;
+  });
+}
+
+function getActiveFilters() {
+  const search = document.getElementById('search-input').value.trim().toLowerCase();
+  const brands = [...document.querySelectorAll('.brand-filter:checked')].map(c => c.value);
+  const sizes = [...document.querySelectorAll('.size-filter:checked')].map(c => Number(c.value));
+  const tags = [...document.querySelectorAll('.tag-filter:checked')].map(c => c.value);
+  const accords = [...document.querySelectorAll('.accord-filter:checked')].map(c => c.value);
+  const inStockOnly = document.getElementById('instock-filter').checked;
+  const sort = document.getElementById('sort-select').value;
+  return { search, brands, sizes, tags, accords, inStockOnly, sort };
+}
+
+function applyFilters() {
+  const { search, brands, sizes, tags, accords, inStockOnly, sort } = getActiveFilters();
+  const grid = document.getElementById('shop-grid');
+  const noResults = document.getElementById('no-results');
+  const countEl = document.getElementById('result-count');
+
+  let filtered = regularProducts.filter(p => {
+    if (search && !p.name.toLowerCase().includes(search) && !p.brand.toLowerCase().includes(search)) return false;
+    if (brands.length && !brands.includes(p.brand)) return false;
+    if (sizes.length && !sizes.every(ml => p.sizes.some(s => s.ml === ml))) return false;
+    if (tags.length && !tags.some(t => p.tags.includes(t))) return false;
+    if (accords.length) {
+      const pd = productDetails[p.id];
+      if (!pd || !accords.some(a => pd.accords.includes(a))) return false;
+    }
+    if (inStockOnly && !p.inStock) return false;
+    return true;
+  });
+
+  if (sort === 'price-asc') filtered.sort((a, b) => Math.min(...a.sizes.map(s => s.price)) - Math.min(...b.sizes.map(s => s.price)));
+  else if (sort === 'price-desc') filtered.sort((a, b) => Math.min(...b.sizes.map(s => s.price)) - Math.min(...a.sizes.map(s => s.price)));
+  else if (sort === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+  grid.innerHTML = filtered.map(p => renderCard(p, false)).join('');
+  noResults.style.display = filtered.length === 0 ? 'block' : 'none';
+  countEl.textContent = `${filtered.length} fragrance${filtered.length !== 1 ? 's' : ''} found`;
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('.brand-filter, .size-filter, .tag-filter, .accord-filter').forEach(c => c.checked = false);
+  document.getElementById('instock-filter').checked = false;
+  document.getElementById('sort-select').value = 'default';
+  applyFilters();
+}
+
+// Attach listeners
+document.getElementById('search-input').addEventListener('input', applyFilters);
+document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
+document.getElementById('instock-filter').addEventListener('change', applyFilters);
+document.getElementById('sort-select').addEventListener('change', applyFilters);
+// Brand and accord filters need delegation since they're added dynamically
+document.getElementById('brand-filters').addEventListener('change', applyFilters);
+document.getElementById('accord-filters').addEventListener('change', applyFilters);
+
+// Initial render
+applyFilters();
