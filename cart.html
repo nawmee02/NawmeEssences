@@ -295,13 +295,12 @@
     // Auto-copy then open Messenger
     navigator.clipboard.writeText(text)
       .then(() => {
-        showToast('✅ Message copied! Paste it in Messenger.');
-        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 800);
+        showToast('✅ Message copied! Messenger opens in 3 seconds...');
+        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
       })
       .catch(() => {
-        // Clipboard blocked (e.g. file:// in some browsers) — just open Messenger
         showToast('Open Messenger and copy the message below.');
-        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 800);
+        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
       });
 
     document.getElementById('messenger-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
