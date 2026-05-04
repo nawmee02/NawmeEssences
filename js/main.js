@@ -35,24 +35,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsSection = document.querySelector(".stats-section");
   if (statsSection) {
     let animated = false;
+    function runStats() {
+      if (animated) return;
+      animated = true;
+      document.querySelectorAll(".stat-number").forEach(el => {
+        const target = parseInt(el.dataset.target, 10);
+        const suffix = el.dataset.suffix || "";
+        const duration = 1200;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(ease * target) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !animated) {
-        animated = true;
-        document.querySelectorAll(".stat-number").forEach(el => {
-          const target = parseInt(el.dataset.target, 10);
-          const suffix = el.dataset.suffix || "";
-          const duration = 1200;
-          const start = performance.now();
-          function tick(now) {
-            const progress = Math.min((now - start) / duration, 1);
-            const ease = 1 - Math.pow(1 - progress, 3);
-            el.textContent = Math.round(ease * target) + suffix;
-            if (progress < 1) requestAnimationFrame(tick);
-          }
-          requestAnimationFrame(tick);
-        });
-      }
-    }, { threshold: 0.3 });
+      if (entries[0].isIntersecting) runStats();
+    }, { threshold: 0 });
     observer.observe(statsSection);
   }
 });

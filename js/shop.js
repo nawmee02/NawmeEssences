@@ -38,10 +38,11 @@ function handleAdd(id, isExclusive) {
   addToCart(id, ml, price, product.name, product.brand, isExclusive);
 }
 
-// Build brand filters
+// Build brand filters — only from regular products (exclusive brands live on exclusive.html)
+const shopBrands = [...new Set(regularProducts.map(p => p.brand))].sort();
 const brandFilters = document.getElementById('brand-filters');
 if (brandFilters) {
-  allBrands.forEach(brand => {
+  shopBrands.forEach(brand => {
     brandFilters.innerHTML += `<label><input type="checkbox" value="${brand}" class="brand-filter" /> ${brand}</label>`;
   });
 }
