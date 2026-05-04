@@ -115,3 +115,13 @@ document.getElementById('accord-filters').addEventListener('change', applyFilter
 
 // Initial render
 applyFilters();
+
+// Mobile sidebar toggle
+function toggleSidebar() {
+  const sidebar = document.getElementById('filters-sidebar');
+  if (!sidebar) return;
+  const open = sidebar.classList.toggle('sidebar-open');
+  document.querySelectorAll('#filter-toggle-btn, #filter-toggle-btn2').forEach(btn => {
+    if (btn) btn.textContent = open ? '✕ Close Filters' : '☰ Filters';
+  });
+}

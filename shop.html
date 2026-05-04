@@ -54,8 +54,11 @@
   </div>
 
   <div class="shop-layout">
+    <!-- MOBILE FILTER TOGGLE -->
+    <button class="filter-toggle-btn" id="filter-toggle-btn" onclick="toggleSidebar()">&#9776; Filters</button>
+
     <!-- SIDEBAR FILTERS -->
-    <aside class="filters-sidebar">
+    <aside class="filters-sidebar" id="filters-sidebar">
       <div class="filter-group">
         <div class="filter-title">Search</div>
         <input type="text" class="search-bar" id="search-input" placeholder="Name or brand..." />
@@ -98,7 +101,10 @@
     <!-- PRODUCT MAIN -->
     <div class="shop-main">
       <div class="shop-top">
-        <span class="result-count" id="result-count">Loading...</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="filter-toggle-btn" id="filter-toggle-btn2" onclick="toggleSidebar()">&#9776; Filters</button>
+          <span class="result-count" id="result-count">Loading...</span>
+        </div>
         <select class="sort-select" id="sort-select">
           <option value="default">Sort: Default</option>
           <option value="price-asc">Price: Low to High</option>
