@@ -70,7 +70,7 @@ input, select { font-family: var(--font-body); }
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  height: 64px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -105,27 +105,27 @@ input, select { font-family: var(--font-body); }
 .nav-actions { display: flex; align-items: center; gap: 10px; }
 .cart-btn {
   position: relative;
-  background: var(--gold);
-  color: #000;
-  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 9px 18px;
+  padding: 8px 14px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 7px;
-  transition: background var(--transition);
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
 }
-.cart-btn:hover { background: var(--gold-light); }
+.cart-btn:hover { color: var(--gold); border-color: var(--gold-dark); background: rgba(201,164,101,0.06); }
 .cart-count {
-  background: #000;
-  color: var(--gold);
+  background: var(--gold);
+  color: #000;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  min-width: 18px;
-  height: 18px;
+  min-width: 16px;
+  height: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -226,6 +226,30 @@ input, select { font-family: var(--font-body); }
 .section-link { color: var(--gold); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
 .section-link:hover { text-decoration: underline; }
 .section-subtitle { color: var(--text-muted); font-size: 14px; margin-top: -24px; margin-bottom: 32px; }
+
+/* ===== BRAND STRIP ===== */
+.brand-strip {
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.brand-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: ticker 24s linear infinite;
+  padding: 14px 0;
+}
+.brand-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(154,148,136,0.55);
+  padding: 0 30px;
+  transition: color 0.2s;
+}
+.brand-sep { color: var(--gold-dark); opacity: 0.4; font-size: 8px; flex-shrink: 0; }
 
 /* ===== TRUST TICKER ===== */
 .trust-bar {
