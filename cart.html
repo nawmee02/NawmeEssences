@@ -155,9 +155,12 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js" onerror="void(0)"></script>
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
 <script>
   const WA_NUMBER = "8801738221686";
 
@@ -259,7 +262,18 @@
     if (!validateBuyer()) return;
     const zone = document.getElementById('delivery-select').value;
     const { name, phone, address } = getBuyerInfo();
+    const delivery = getDeliveryCharge();
+    const subtotal = getCartTotal();
     const msg = buildWhatsAppMessage(zone, name, phone, address);
+
+    // Save to Supabase silently in background
+    saveOrderToSupabase({
+      buyer_name: name, buyer_phone: phone, buyer_address: address,
+      delivery_zone: zone, delivery_charge: delivery,
+      subtotal, total: subtotal + delivery,
+      channel: 'whatsapp', cartItems: getCart()
+    });
+
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
@@ -303,6 +317,14 @@
         showToast('Open Messenger and copy the message below.');
         setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
       });
+
+    // Save to Supabase silently in background
+    saveOrderToSupabase({
+      buyer_name: name, buyer_phone: phone, buyer_address: address,
+      delivery_zone: zone, delivery_charge: delivery,
+      subtotal, total,
+      channel: 'messenger', cartItems: cart
+    });
 
     document.getElementById('messenger-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
