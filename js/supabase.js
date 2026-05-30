@@ -11,11 +11,8 @@
 //  Never put the service_role key here.
 // ─────────────────────────────────────────────────────────────
 
-// Values are injected by GitHub Actions at deploy time (see .github/workflows/deploy.yml).
-// For local dev, define them in js/supabase-config.js (gitignored).
-// Fallback to empty strings so the guard below skips silently if not set.
-const SUPABASE_URL      = (typeof __SUPABASE_URL__      !== "undefined") ? __SUPABASE_URL__      : "";
-const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== "undefined") ? __SUPABASE_ANON_KEY__ : "";
+const SUPABASE_URL      = "https://knviffeqzvzqwgztchks.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtudmlmZmVxenZ6cXdnenRjaGtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDc5MjgsImV4cCI6MjA5NTcyMzkyOH0.DfCYNnYRA28VWKlg_oyIcf8m0HX1c_AXsHAKICwWQkc";
 
 // Initialise client (SDK loaded via CDN in HTML files)
 let _sb = null;
