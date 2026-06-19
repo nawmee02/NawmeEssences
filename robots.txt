@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /cart.html
+
+Sitemap: https://nawmee02.github.io/NawmeEssences/sitemap.xml
