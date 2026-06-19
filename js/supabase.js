@@ -17,7 +17,7 @@
 // These are the production defaults so the deployed site works without an inject
 // step. A gitignored js/supabase-config.js may override them for local dev.
 const SUPABASE_URL_DEFAULT = "https://knviffeqzvzqwgztchks.supabase.co";
-const SUPABASE_ANON_KEY_DEFAULT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtudmlmZmVxenZ6cXdnenRjaGtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDc5MjgsImV4cCI6MjA5NTcyMzkyOH0.DfCYNnYRA28VWKlg_oyIcf8m0HX1c_AXsHAKICwWQkc";
+const SUPABASE_ANON_KEY_DEFAULT = "sb_publishable_olO3EcqKY0ssnfh2qzKB7g_2-zxc2Or";
 
 const SUPABASE_URL = (typeof __SUPABASE_URL__ !== 'undefined') ? __SUPABASE_URL__ :
   (typeof window !== 'undefined' && window.__SUPABASE_URL__) ? window.__SUPABASE_URL__ : SUPABASE_URL_DEFAULT;
