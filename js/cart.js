@@ -103,3 +103,23 @@ function showToast(message) {
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => toast.classList.remove("show"), 2800);
 }
+
+// -------------------------------
+// Last-order session helpers
+// -------------------------------
+function saveLastOrderToSession(orderObj) {
+  try {
+    sessionStorage.setItem('nawme_last_order', JSON.stringify(orderObj));
+  } catch (e) {
+    // ignore sessionStorage errors
+  }
+}
+
+function getLastOrderFromSession() {
+  try {
+    const raw = sessionStorage.getItem('nawme_last_order');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}

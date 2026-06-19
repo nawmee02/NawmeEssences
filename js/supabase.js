@@ -11,8 +11,18 @@
 //  Never put the service_role key here.
 // ─────────────────────────────────────────────────────────────
 
-const SUPABASE_URL      = "https://knviffeqzvzqwgztchks.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtudmlmZmVxenZ6cXdnenRjaGtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDc5MjgsImV4cCI6MjA5NTcyMzkyOH0.DfCYNnYRA28VWKlg_oyIcf8m0HX1c_AXsHAKICwWQkc";
+// Load credentials from a gitignored local config when available (js/supabase-config.js)
+// or from injected globals (window.__SUPABASE_URL__). If none present, leave empty
+// so saveOrderToSupabase becomes a no-op rather than exposing secrets in code.
+const SUPABASE_URL = (typeof __SUPABASE_URL__ !== 'undefined') ? __SUPABASE_URL__ :
+  (typeof window !== 'undefined' && window.__SUPABASE_URL__) ? window.__SUPABASE_URL__ : '';
+
+const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== 'undefined') ? __SUPABASE_ANON_KEY__ :
+  (typeof window !== 'undefined' && window.__SUPABASE_ANON_KEY__) ? window.__SUPABASE_ANON_KEY__ : '';
+
+// Optional webhook URL to notify on insert failures. Configure in gitignored config if desired.
+const NOTIFY_WEBHOOK_URL = (typeof __NOTIFY_WEBHOOK_URL__ !== 'undefined') ? __NOTIFY_WEBHOOK_URL__ :
+  (typeof window !== 'undefined' && window.__NOTIFY_WEBHOOK_URL__) ? window.__NOTIFY_WEBHOOK_URL__ : '';
 
 // Initialise client (SDK loaded via CDN in HTML files)
 let _sb = null;
@@ -79,6 +89,10 @@ async function saveOrderToSupabase({
 
     if (orderErr) {
       console.error("[Supabase] Order insert failed:", orderErr.message);
+      // Optionally notify an external webhook (owner/operator) about the failure
+      if (NOTIFY_WEBHOOK_URL) {
+        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_insert_failed', error: orderErr.message, order: { buyer_name, buyer_phone, buyer_address, total }}) }); } catch(e){}
+      }
       return;
     }
 
@@ -97,6 +111,9 @@ async function saveOrderToSupabase({
 
     if (itemsErr) {
       console.error("[Supabase] Order items insert failed:", itemsErr.message);
+      if (NOTIFY_WEBHOOK_URL) {
+        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_items_insert_failed', error: itemsErr.message, order_id: order.id, items}) }); } catch(e){}
+      }
     }
 
   } catch (err) {

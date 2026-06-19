@@ -106,7 +106,16 @@ function clearFilters() {
 }
 
 // Attach listeners
-document.getElementById('search-input').addEventListener('input', applyFilters);
+function debounce(fn, wait) {
+  let t = null;
+  return function(...args) {
+    if (t) clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
+const debouncedApplyFilters = debounce(applyFilters, 200);
+document.getElementById('search-input').addEventListener('input', debouncedApplyFilters);
 document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
 document.getElementById('instock-filter').addEventListener('change', applyFilters);
 document.getElementById('sort-select').addEventListener('change', applyFilters);

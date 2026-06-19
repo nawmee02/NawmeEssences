@@ -97,6 +97,8 @@
           <label for="buyer-address">Delivery Address <span style="color:#e05555;">*</span></label>
           <textarea id="buyer-address" rows="2" placeholder="Road, area, city..."></textarea>
         </div>
+        <!-- Honeypot field (invisible). If filled, treat as bot and block submission -->
+        <input type="text" id="hp-field" style="display:none" autocomplete="off" tabindex="-1">
       </div>
 
       <button class="checkout-btn checkout-wa" id="wa-btn" onclick="checkoutWhatsApp()">
@@ -253,6 +255,12 @@
     if (!nameEl.value.trim()) { nameEl.classList.add('field-error'); valid = false; }
     if (!phoneEl.value.trim()) { phoneEl.classList.add('field-error'); valid = false; }
     if (!addressEl.value.trim()) { addressEl.classList.add('field-error'); valid = false; }
+    // Honeypot check
+    const hp = document.getElementById('hp-field');
+    if (hp && hp.value.trim()) {
+      showToast('Bot detected — submission blocked.');
+      return false;
+    }
     if (!valid) { nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); showToast('Please fill in your name, phone and address.'); }
     return valid;
   }
@@ -272,6 +280,9 @@
       subtotal, total: subtotal + delivery,
       channel: 'whatsapp', cartItems: getCart()
     });
+
+    // Persist last order on client so user has confirmation after redirect
+    try { saveLastOrderToSession({ buyer_name: name, buyer_phone: phone, buyer_address: address, delivery_zone: zone, delivery_charge: delivery, subtotal, total: subtotal + delivery, channel: 'whatsapp', items: getCart() }); } catch(e){}
 
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
   }
@@ -325,6 +336,9 @@
       channel: 'messenger', cartItems: cart
     });
 
+    // Persist last order on client so user has confirmation after redirect
+    try { saveLastOrderToSession({ buyer_name: name, buyer_phone: phone, buyer_address: address, delivery_zone: zone, delivery_charge: delivery, subtotal, total, channel: 'messenger', items: cart }); } catch(e){}
+
     document.getElementById('messenger-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -336,6 +350,20 @@
   document.getElementById('delivery-select').addEventListener('change', updateSummary);
 
   // Initial render
+  // Show any last-order confirmation stored in the session
+  try {
+    const last = getLastOrderFromSession();
+    if (last) {
+      const banner = document.createElement('div');
+      banner.className = 'order-confirmation';
+      banner.style.marginBottom = '16px';
+      banner.innerHTML = `<div style="padding:12px;border:1px solid #c9a465;background:#0f1410;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;">✅ Last order saved (${last.channel}) — Total: ৳${last.total} <button style="background:none;border:1px solid rgba(201,164,101,0.2);color:#c9a465;padding:6px 10px;border-radius:6px;cursor:pointer;" id="dismiss-last-order">Dismiss</button></div>`;
+      const container = document.querySelector('.section');
+      if (container) container.insertBefore(banner, container.firstChild);
+      document.getElementById('dismiss-last-order').addEventListener('click', () => { sessionStorage.removeItem('nawme_last_order'); banner.remove(); });
+    }
+  } catch (e) {}
+
   renderCart();
 </script>
 </body>
