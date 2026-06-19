@@ -38,7 +38,7 @@ input, select { font-family: var(--font-body); }
 
 /* ===== ANNOUNCEMENT BAR ===== */
 .announcement-bar {
-  background: var(--gold-dark);
+  background: #6b5227;
   color: #fff;
   font-size: 12.5px;
   font-weight: 500;
@@ -245,7 +245,7 @@ input, select { font-family: var(--font-body); }
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(154,148,136,0.55);
+  color: rgba(154,148,136,0.85);
   padding: 0 30px;
   transition: color 0.2s;
 }
@@ -332,11 +332,11 @@ input, select { font-family: var(--font-body); }
   padding: 3px 7px;
   line-height: 1;
 }
-.tag-new { background: #1a5c2a; color: #4caf50; }
-.tag-restocked { background: #1a3c5c; color: #4a9fd4; }
-.tag-limited { background: #5c3a1a; color: #d4894a; }
-.tag-discontinued { background: #3a1a1a; color: #d44a4a; }
-.tag-exclusive { background: #3a2a0a; color: var(--gold); }
+.tag-new { background: #1a5c2a; color: #fff; }
+.tag-restocked { background: #1a3c5c; color: #fff; }
+.tag-limited { background: #5c3a1a; color: #fff; }
+.tag-discontinued { background: #3a1a1a; color: #fff; }
+.tag-exclusive { background: #3a2a0a; color: #e2c688; }
 .oos-badge { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
 .oos-badge span { background: rgba(0,0,0,0.8); color: var(--text-muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); }
 .card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
@@ -808,7 +808,8 @@ input, select { font-family: var(--font-body); }
   transition: color var(--transition), border-color var(--transition);
 }
 .social-link:hover { color: var(--gold); border-color: var(--gold-dark); }
-.footer-col h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
+.footer-col h4,
+.footer-col .footer-heading { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
 .footer-col a { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; transition: color var(--transition); }
 .footer-col a:hover { color: var(--text); }
 .footer-bottom {

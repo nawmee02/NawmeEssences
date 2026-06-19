@@ -61,7 +61,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -104,6 +106,7 @@
 </header>
 
 <!-- HERO -->
+<main>
 <section class="hero">
   <p class="hero-eyebrow">Discover authentic perfume decants in Bangladesh</p>
   <h1>Your Signature Scent<br><em>· Starts Here ·</em></h1>
@@ -221,6 +224,7 @@
 </div>
 
 <!-- FOOTER -->
+</main>
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -233,13 +237,13 @@
       </div>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
+      <p class="footer-heading">Shop</p>
       <a href="shop.html">All Fragrances</a>
       <a href="exclusive.html">Exclusive Collection</a>
       <a href="cart.html">My Cart</a>
     </div>
     <div class="footer-col">
-      <h4>Info</h4>
+      <p class="footer-heading">Info</p>
       <a href="about.html">Delivery &amp; Pickup</a>
       <a href="about.html#payment">Payment Policy</a>
       <a href="about.html#contact">Contact Us</a>
@@ -252,9 +256,9 @@
   </div>
 </footer>
 
-<script src="js/products.js"></script>
-<script src="js/cart.js"></script>
-<script src="js/main.js"></script>
+<script src="js/products.js" defer></script>
+<script src="js/cart.js" defer></script>
+<script src="js/main.js" defer></script>
 <script>
   function renderCard(product) {
     const minPrice = Math.min(...product.sizes.map(s => s.price));
@@ -292,17 +296,19 @@
     addToCart(id, ml, price, product.name, product.brand, isExclusive);
   }
 
-  // Render bestsellers
-  const bsGrid = document.getElementById('bestsellers-grid');
-  bestsellers.forEach(id => {
-    const p = regularProducts.find(pr => pr.id === id);
-    if (p) bsGrid.innerHTML += renderCard(p);
-  });
+  document.addEventListener('DOMContentLoaded', function() {
+    // Render bestsellers
+    const bsGrid = document.getElementById('bestsellers-grid');
+    bestsellers.forEach(id => {
+      const p = regularProducts.find(pr => pr.id === id);
+      if (p) bsGrid.innerHTML += renderCard(p);
+    });
 
-  // Render new releases
-  const newGrid = document.getElementById('new-grid');
-  regularProducts.filter(p => p.tags.includes('new')).forEach(p => {
-    newGrid.innerHTML += renderCard(p);
+    // Render new releases
+    const newGrid = document.getElementById('new-grid');
+    regularProducts.filter(p => p.tags.includes('new')).forEach(p => {
+      newGrid.innerHTML += renderCard(p);
+    });
   });
 </script>
 </body>
