@@ -283,6 +283,10 @@ input, select { font-family: var(--font-body); }
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
+/* Reserve space while JS renders cards — prevents CLS from zero-height → content jump */
+.product-grid:empty {
+  min-height: 400px;
+}
 
 /* ===== PRODUCT CARD ===== */
 .product-card {
