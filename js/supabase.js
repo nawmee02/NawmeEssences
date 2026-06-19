@@ -75,11 +75,15 @@ async function saveOrderToSupabase({
 
   try {
     const sb = getSupabaseClient();
+    const orderId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `order_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
     // 1. Insert order header
-    const { data: order, error: orderErr } = await sb
+    const { error: orderErr } = await sb
       .from("orders")
       .insert({
+        id: orderId,
         buyer_name,
         buyer_phone,
         buyer_address,
@@ -89,22 +93,20 @@ async function saveOrderToSupabase({
         total,
         channel,
         status: "pending"
-      })
-      .select("id")
-      .single();
+      });
 
     if (orderErr) {
       console.error("[Supabase] Order insert failed:", orderErr.message);
       // Optionally notify an external webhook (owner/operator) about the failure
       if (NOTIFY_WEBHOOK_URL) {
-        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_insert_failed', error: orderErr.message, order: { buyer_name, buyer_phone, buyer_address, total }}) }); } catch(e){}
+        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_insert_failed', error: orderErr.message, order: { id: orderId, buyer_name, buyer_phone, buyer_address, total }}) }); } catch(e){}
       }
       return { ok: false, error: "orders insert: " + orderErr.message };
     }
 
     // 2. Insert order items
     const items = cartItems.map(item => ({
-      order_id:      order.id,
+      order_id:      orderId,
       fragrance_id:  item.productId,
       fragrance_name: item.name,
       brand_name:    item.brand,
@@ -118,12 +120,12 @@ async function saveOrderToSupabase({
     if (itemsErr) {
       console.error("[Supabase] Order items insert failed:", itemsErr.message);
       if (NOTIFY_WEBHOOK_URL) {
-        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_items_insert_failed', error: itemsErr.message, order_id: order.id, items}) }); } catch(e){}
+        try { await fetch(NOTIFY_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({type:'order_items_insert_failed', error: itemsErr.message, order_id: orderId, items}) }); } catch(e){}
       }
-      return { ok: false, error: "order_items insert: " + itemsErr.message, order_id: order.id };
+      return { ok: false, error: "order_items insert: " + itemsErr.message, order_id: orderId };
     }
 
-    return { ok: true, order_id: order.id };
+    return { ok: true, order_id: orderId };
 
   } catch (err) {
     // Never block the checkout — log and move on
