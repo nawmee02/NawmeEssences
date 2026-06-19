@@ -161,6 +161,7 @@
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/main.js"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/supabase.js"></script>
 <script>
   const WA_NUMBER = "8801738221686";
@@ -265,26 +266,43 @@
     return valid;
   }
 
-  function checkoutWhatsApp() {
+  async function checkoutWhatsApp() {
     if (!validateBuyer()) return;
     const zone = document.getElementById('delivery-select').value;
     const { name, phone, address } = getBuyerInfo();
     const delivery = getDeliveryCharge();
     const subtotal = getCartTotal();
     const msg = buildWhatsAppMessage(zone, name, phone, address);
+    const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
 
-    // Save to Supabase silently in background
-    saveOrderToSupabase({
-      buyer_name: name, buyer_phone: phone, buyer_address: address,
-      delivery_zone: zone, delivery_charge: delivery,
-      subtotal, total: subtotal + delivery,
-      channel: 'whatsapp', cartItems: getCart()
-    });
+    // Open the WhatsApp tab synchronously inside the click gesture so the popup
+    // blocker allows it. We navigate it to the real URL only after the DB write,
+    // keeping THIS page alive so the in-flight insert isn't cancelled by the redirect.
+    const waWindow = window.open('about:blank', '_blank');
 
-    // Persist last order on client so user has confirmation after redirect
+    // Persist last order on client so user has confirmation after redirect (instant)
     try { saveLastOrderToSession({ buyer_name: name, buyer_phone: phone, buyer_address: address, delivery_zone: zone, delivery_charge: delivery, subtotal, total: subtotal + delivery, channel: 'whatsapp', items: getCart() }); } catch(e){}
 
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    // Wait for the Supabase write to finish before redirecting, but never hang
+    // the user — cap the wait so a slow/failed write still opens WhatsApp.
+    try {
+      const result = await Promise.race([
+        saveOrderToSupabase({
+          buyer_name: name, buyer_phone: phone, buyer_address: address,
+          delivery_zone: zone, delivery_charge: delivery,
+          subtotal, total: subtotal + delivery,
+          channel: 'whatsapp', cartItems: getCart()
+        }),
+        new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'timeout (>4s)' }), 4000))
+      ]);
+      // TEMP DIAGNOSTIC: surface why the DB write didn't happen
+      if (result && !result.ok) {
+        alert('Order NOT saved to database:\n\n' + result.error);
+      }
+    } catch (e) { alert('Order save threw:\n\n' + (e && e.message ? e.message : e)); }
+
+    if (waWindow && !waWindow.closed) waWindow.location.href = url;
+    else window.location.href = url; // popup blocked → navigate current tab (write already done)
   }
 
   function checkoutMessenger() {
