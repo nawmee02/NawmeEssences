@@ -17,7 +17,7 @@
   --font-body: 'Inter', system-ui, sans-serif;
   --radius: 8px;
   --transition: 0.22s ease;
-  --trust-ticker-duration: 22s; /* faster trust-bar scroll (tweak this) */
+  --trust-ticker-duration: 10s; /* faster trust-bar scroll (tweak this) */
 }
 
 html { scroll-behavior: smooth; }
