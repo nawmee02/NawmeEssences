@@ -1,0 +1,73 @@
+# NawmeEssences
+
+> Authentic luxury perfume decants in Bangladesh. Decanted from a personal collection of 80+ fragrances across 30 brands. Available in 3ml, 5ml, 10ml, 15ml and 30ml sizes. Order via WhatsApp or Messenger. Delivery nationwide.
+
+## About
+
+NawmeEssences is a personal fragrance decant business based in Dhaka, Bangladesh, run by Nawmee — a CSE student and fragrance enthusiast. All decants are taken directly from authentic personal bottles using a syringe for accurate measurement. Zero adulteration.
+
+- Owner: Nawmee (nawmee02)
+- Location: Dhaka, Bangladesh (pickup at Aftabnagar, Banasree, NSU)
+- Contact: WhatsApp +8801738221686 | Messenger facebook.com/NawmeEssences
+- Facebook Page: facebook.com/NawmeEssences
+
+## Pages
+
+- [Home](https://nawmee02.github.io/NawmeEssences/): Featured bestsellers and new releases
+- [Shop All Fragrances](https://nawmee02.github.io/NawmeEssences/shop.html): Full catalogue of 80+ regular decants with brand/size/tag filters
+- [Exclusive Collection](https://nawmee02.github.io/NawmeEssences/exclusive.html): Rare, discontinued and vintage fragrances — full advance required
+- [Policies & Info](https://nawmee02.github.io/NawmeEssences/about.html): Delivery charges, payment policy, pickup locations
+- [About Nawmee](https://nawmee02.github.io/NawmeEssences/about-me.html): The story behind the collection
+
+## Products
+
+### Regular Collection (80+ fragrances)
+
+Brands carried: Afnan, Al Haramain, Alfred Dunhill, Amouage, Armaf, Azzaro, Bentley, Bvlgari, Davidoff, Dior, Dolce & Gabbana, French Avenue, Giorgio Armani, Gucci, Gulf Orchid, Hugo Boss, Jean Paul Gaultier, Lalique, Lattafa, Mancera, Mercedes Benz, Nautica, Prada, Rasasi, Rayhaan, Riiffs, Yves Saint Laurent, and more.
+
+Standard sizes: 3ml · 5ml · 10ml · 15ml · 30ml
+
+### Exclusive Collection (rare & discontinued)
+
+Selected rare pieces including:
+- Jacques Bogart Silver Scent Pure
+- Alfred Dunhill Icon
+- Dolce & Gabbana Light Blue Eau Intense
+- JPG Le Male In The Navy (2018 formulation)
+- JPG Ultra Male (old formulation)
+- Giorgio Armani Acqua di Gio Profondo (2020)
+- Giorgio Armani Acqua di Gio Absolu
+- Dior Homme Sport (2017 formulation)
+- Dior Homme Intense
+- Gucci Guilty Elixir
+
+Full advance payment required for all exclusive items.
+
+## Pricing & Delivery
+
+| Size | Starting price (BDT) |
+|------|----------------------|
+| 3ml  | ৳150                 |
+| 5ml  | ৳220                 |
+| 10ml | ৳380                 |
+| 15ml | ৳560                 |
+| 30ml | ৳1,090               |
+
+Delivery charges:
+- Within Dhaka: ৳70
+- Dhaka Suburb: ৳90
+- Outside Dhaka (nationwide): ৳120
+
+Payment policy:
+- Minimum advance = delivery charge
+- Orders above ৳2,000: 30% advance required
+- Exclusive/rare items: 100% advance required
+- Prices are fixed — no negotiation
+
+## How to Order
+
+1. Browse the shop at nawmee02.github.io/NawmeEssences/shop.html
+2. Add items to cart and fill in name, phone, and delivery address
+3. Click "Order via WhatsApp" or "Order via Messenger"
+4. A pre-filled order message is sent — confirm availability and pay advance
+5. Order dispatched after advance confirmation
