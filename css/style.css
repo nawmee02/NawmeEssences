@@ -907,6 +907,8 @@ input, select { font-family: var(--font-body); }
     display: none;
   }
   .filters-sidebar.sidebar-open { display: block; }
+  /* Hide the standalone toggle above the sidebar — the one in .shop-top is enough */
+  #filter-toggle-btn { display: none; }
   .filter-toggle-btn {
     display: flex;
     align-items: center;
@@ -924,6 +926,12 @@ input, select { font-family: var(--font-body); }
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
+  /* Cart button: drop the border box on mobile — icon + badge is enough */
+  .cart-btn {
+    border-color: transparent;
+    background: transparent;
+    padding: 6px 8px;
+  }
   #nav-menu {
     display: none;
     flex-direction: column;
