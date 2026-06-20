@@ -927,16 +927,19 @@ input, select { font-family: var(--font-body); }
   #nav-menu {
     display: none;
     flex-direction: column;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(8,8,8,0.98);
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    gap: 6px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(8, 8, 8, 0.98);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0 16px;
+    align-items: stretch;
+    gap: 0;
   }
   #nav-menu.open { display: flex; }
-  #nav-menu .nav-link { font-size: 18px; padding: 12px 24px; }
+  #nav-menu .nav-link { font-size: 16px; padding: 14px 24px; border-radius: 0; }
   .burger { display: flex; }
   .footer-inner { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding: 72px 16px 56px; }
