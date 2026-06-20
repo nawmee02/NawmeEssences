@@ -1,0 +1,7 @@
+# Force LF line endings for XML and text files served by GitHub Pages
+*.xml  text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.txt  text eol=lf
+*.md   text eol=lf
