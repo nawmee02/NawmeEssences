@@ -807,7 +807,9 @@ input, select { font-family: var(--font-body); }
   color: var(--text-muted);
   transition: color var(--transition), border-color var(--transition);
 }
+.social-link svg { width: 17px; height: 17px; fill: currentColor; display: block; flex-shrink: 0; }
 .social-link:hover { color: var(--gold); border-color: var(--gold-dark); }
+.contact-btn svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
 .footer-col h4,
 .footer-col .footer-heading { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
 .footer-col a { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; transition: color var(--transition); }
