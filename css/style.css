@@ -17,6 +17,7 @@
   --font-body: 'Inter', system-ui, sans-serif;
   --radius: 8px;
   --transition: 0.22s ease;
+  --trust-ticker-duration: 22s; /* faster trust-bar scroll (tweak this) */
 }
 
 html { scroll-behavior: smooth; }
@@ -262,7 +263,7 @@ input, select { font-family: var(--font-body); }
 .trust-track {
   display: flex;
   white-space: nowrap;
-  animation: ticker 30s linear infinite;
+  animation: ticker var(--trust-ticker-duration) linear infinite;
 }
 .trust-item {
   display: inline-flex;
