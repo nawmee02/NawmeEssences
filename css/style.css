@@ -594,6 +594,7 @@ input, select { font-family: var(--font-body); }
   transition: background var(--transition), transform var(--transition);
 }
 .checkout-btn:hover { transform: translateY(-1px); }
+.checkout-btn svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
 .checkout-wa { background: #25d366; color: #000; }
 .checkout-wa:hover { background: #20c45c; }
 .checkout-ms { background: var(--bg3); color: var(--text); border: 1px solid var(--border) !important; }
