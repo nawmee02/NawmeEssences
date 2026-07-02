@@ -1,3 +1,5 @@
+let _shopProducts = [];
+
 function renderCard(product, isExclusive = false) {
   const minPrice = Math.min(...product.sizes.map(s => s.price));
   const tags = product.tags.map(t => {
@@ -6,10 +8,11 @@ function renderCard(product, isExclusive = false) {
   }).join('');
   const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
   const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
+  const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
   return `
     <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
       <div class="card-img">
-        <img src="images/products/${product.id}.jpg" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+        <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
         <div class="card-img-placeholder">🫧</div>
         <div class="tag-badges">${tags}</div>
         ${oosOverlay}
@@ -30,32 +33,14 @@ function renderCard(product, isExclusive = false) {
 }
 
 function handleAdd(id, isExclusive) {
-  const allProds = [...regularProducts, ...exclusiveProducts, ...specialItems];
+  const allProds = _shopProducts.length
+    ? _shopProducts
+    : [...regularProducts, ...exclusiveProducts, ...specialItems];
   const product = allProds.find(p => p.id === id);
   const activePill = document.querySelector('#size-' + id + ' .size-pill.active');
   const ml = activePill.dataset.ml;
   const price = activePill.dataset.price;
   addToCart(id, ml, price, product.name, product.brand, isExclusive);
-}
-
-// Build brand filters — only from regular products (exclusive brands live on exclusive.html)
-const shopBrands = [...new Set(regularProducts.map(p => p.brand))].sort();
-const brandFilters = document.getElementById('brand-filters');
-if (brandFilters) {
-  shopBrands.forEach(brand => {
-    brandFilters.innerHTML += `<label><input type="checkbox" value="${brand}" class="brand-filter" /> ${brand}</label>`;
-  });
-}
-
-// Build accord filters from productDetails
-const accordFilters = document.getElementById('accord-filters');
-if (accordFilters) {
-  const allAccords = [...new Set(
-    regularProducts.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || [])
-  )].sort();
-  allAccords.forEach(accord => {
-    accordFilters.innerHTML += `<label><input type="checkbox" value="${accord}" class="accord-filter" /> ${accord}</label>`;
-  });
 }
 
 function getActiveFilters() {
@@ -75,7 +60,7 @@ function applyFilters() {
   const noResults = document.getElementById('no-results');
   const countEl = document.getElementById('result-count');
 
-  let filtered = regularProducts.filter(p => {
+  let filtered = _shopProducts.filter(p => {
     if (search && !p.name.toLowerCase().includes(search) && !p.brand.toLowerCase().includes(search)) return false;
     if (brands.length && !brands.includes(p.brand)) return false;
     if (sizes.length && !sizes.every(ml => p.sizes.some(s => s.ml === ml))) return false;
@@ -105,7 +90,6 @@ function clearFilters() {
   applyFilters();
 }
 
-// Attach listeners
 function debounce(fn, wait) {
   let t = null;
   return function(...args) {
@@ -115,16 +99,14 @@ function debounce(fn, wait) {
 }
 
 const debouncedApplyFilters = debounce(applyFilters, 200);
+
+// Attach listeners
 document.getElementById('search-input').addEventListener('input', debouncedApplyFilters);
 document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
 document.getElementById('instock-filter').addEventListener('change', applyFilters);
 document.getElementById('sort-select').addEventListener('change', applyFilters);
-// Brand and accord filters need delegation since they're added dynamically
 document.getElementById('brand-filters').addEventListener('change', applyFilters);
 document.getElementById('accord-filters').addEventListener('change', applyFilters);
-
-// Initial render
-applyFilters();
 
 // Mobile sidebar toggle
 function toggleSidebar() {
@@ -135,3 +117,39 @@ function toggleSidebar() {
     if (btn) btn.textContent = open ? '✕ Close Filters' : '☰ Filters';
   });
 }
+
+async function init() {
+  const grid = document.getElementById('shop-grid');
+  grid.innerHTML = '<p style="padding:2rem;text-align:center;color:#888;">Loading fragrances…</p>';
+
+  try {
+    _shopProducts = await ProductAPI.getRegular();
+  } catch (e) {
+    console.warn('[api] Supabase fetch failed, falling back to local data:', e.message);
+    _shopProducts = regularProducts;
+  }
+
+  // Build brand filters
+  const shopBrands = [...new Set(_shopProducts.map(p => p.brand))].sort();
+  const brandFilters = document.getElementById('brand-filters');
+  if (brandFilters) {
+    shopBrands.forEach(brand => {
+      brandFilters.innerHTML += `<label><input type="checkbox" value="${brand}" class="brand-filter" /> ${brand}</label>`;
+    });
+  }
+
+  // Build accord filters
+  const accordFilters = document.getElementById('accord-filters');
+  if (accordFilters) {
+    const allAccords = [...new Set(
+      _shopProducts.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || [])
+    )].sort();
+    allAccords.forEach(accord => {
+      accordFilters.innerHTML += `<label><input type="checkbox" value="${accord}" class="accord-filter" /> ${accord}</label>`;
+    });
+  }
+
+  applyFilters();
+}
+
+init();

@@ -1,1 +1,13 @@
 # Local Supabase credentials — never commit this file
+
+# Generated image variants (reproducible from originals)
+assets/images/generated/
+
+# Upload manifest — local record of what's in Storage
+assets/images/.upload-manifest.json
+
+# Node
+node_modules/
+
+# Secrets — never commit
+.env

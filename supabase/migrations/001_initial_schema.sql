@@ -115,6 +115,13 @@ ALTER TABLE fragrances       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fragrance_sizes  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fragrance_tags   ENABLE ROW LEVEL SECURITY;
 
+-- Policies use DROP ... IF EXISTS first so this script is safely re-runnable
+-- (Postgres has no CREATE POLICY IF NOT EXISTS).
+DROP POLICY IF EXISTS "public read brands"          ON brands;
+DROP POLICY IF EXISTS "public read fragrances"      ON fragrances;
+DROP POLICY IF EXISTS "public read fragrance_sizes" ON fragrance_sizes;
+DROP POLICY IF EXISTS "public read fragrance_tags"  ON fragrance_tags;
+
 CREATE POLICY "public read brands"           ON brands           FOR SELECT USING (true);
 CREATE POLICY "public read fragrances"       ON fragrances       FOR SELECT USING (true);
 CREATE POLICY "public read fragrance_sizes"  ON fragrance_sizes  FOR SELECT USING (true);
@@ -124,11 +131,18 @@ CREATE POLICY "public read fragrance_tags"   ON fragrance_tags   FOR SELECT USIN
 ALTER TABLE orders      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "public insert orders"      ON orders;
+DROP POLICY IF EXISTS "public insert order_items" ON order_items;
+
 CREATE POLICY "public insert orders"      ON orders      FOR INSERT WITH CHECK (true);
 CREATE POLICY "public insert order_items" ON order_items FOR INSERT WITH CHECK (true);
 
 -- Profiles: owner can read and update their own row
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "owner read profile"   ON profiles;
+DROP POLICY IF EXISTS "owner update profile" ON profiles;
+DROP POLICY IF EXISTS "owner insert profile" ON profiles;
 
 CREATE POLICY "owner read profile"   ON profiles FOR SELECT USING  (auth.uid() = id);
 CREATE POLICY "owner update profile" ON profiles FOR UPDATE USING  (auth.uid() = id);

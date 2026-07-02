@@ -1,0 +1,17 @@
+{
+  "name": "nawme-essences",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "sync-catalog": "node scripts/sync-catalog.js",
+    "optimize-images": "node scripts/optimize-images.js",
+    "upload-images": "node scripts/upload-images.js",
+    "seed": "node scripts/seed-database.js",
+    "validate": "node scripts/validate-catalog.js"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "dotenv": "^17.4.2",
+    "sharp": "^0.35.2"
+  }
+}

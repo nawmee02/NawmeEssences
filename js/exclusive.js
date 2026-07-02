@@ -1,3 +1,6 @@
+let _exclusiveProducts = [];
+let _specialItems = [];
+
 function renderCard(product, isExclusive = true) {
   const minPrice = Math.min(...product.sizes.map(s => s.price));
   const tags = product.tags.map(t => {
@@ -5,10 +8,11 @@ function renderCard(product, isExclusive = true) {
     return `<span class="tag tag-${t}">${label}</span>`;
   }).join('');
   const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
+  const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
   return `
     <div class="product-card" data-id="${product.id}">
       <div class="card-img">
-        <img src="images/products/${product.id}.jpg" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+        <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
         <div class="card-img-placeholder">🫧</div>
         <div class="tag-badges">${tags}</div>
       </div>
@@ -26,7 +30,9 @@ function renderCard(product, isExclusive = true) {
 }
 
 function handleAdd(id, isExclusive) {
-  const allProds = [...exclusiveProducts, ...specialItems];
+  const allProds = [..._exclusiveProducts, ..._specialItems].length
+    ? [..._exclusiveProducts, ..._specialItems]
+    : [...exclusiveProducts, ...specialItems];
   const product = allProds.find(p => p.id === id);
   const activePill = document.querySelector('#size-' + id + ' .size-pill.active');
   const ml = activePill.dataset.ml;
@@ -34,10 +40,21 @@ function handleAdd(id, isExclusive) {
   addToCart(id, ml, price, product.name, product.brand, isExclusive);
 }
 
-// Render special items (YSL sample)
-const specialGrid = document.getElementById('special-grid');
-specialItems.forEach(p => { specialGrid.innerHTML += renderCard(p, true); });
+async function init() {
+  try {
+    _exclusiveProducts = await ProductAPI.getExclusive();
+    _specialItems      = await ProductAPI.getSpecial();
+  } catch (e) {
+    console.warn('[api] Supabase fetch failed, falling back to local data:', e.message);
+    _exclusiveProducts = exclusiveProducts;
+    _specialItems      = specialItems;
+  }
 
-// Render exclusive products
-const exclusiveGrid = document.getElementById('exclusive-grid');
-exclusiveProducts.forEach(p => { exclusiveGrid.innerHTML += renderCard(p, true); });
+  const specialGrid   = document.getElementById('special-grid');
+  const exclusiveGrid = document.getElementById('exclusive-grid');
+
+  if (specialGrid)   _specialItems.forEach(p => { specialGrid.innerHTML += renderCard(p, true); });
+  if (exclusiveGrid) _exclusiveProducts.forEach(p => { exclusiveGrid.innerHTML += renderCard(p, true); });
+}
+
+init();
