@@ -13,11 +13,11 @@ NawmeEssences is a personal fragrance decant business based in Dhaka, Bangladesh
 
 ## Pages
 
-- [Home](https://nawmee02.github.io/NawmeEssences/): Featured bestsellers and new releases
-- [Shop All Fragrances](https://nawmee02.github.io/NawmeEssences/shop.html): Full catalogue of 80+ regular decants with brand/size/tag filters
-- [Exclusive Collection](https://nawmee02.github.io/NawmeEssences/exclusive.html): Rare, discontinued and vintage fragrances — full advance required
-- [Policies & Info](https://nawmee02.github.io/NawmeEssences/about.html): Delivery charges, payment policy, pickup locations
-- [About Nawmee](https://nawmee02.github.io/NawmeEssences/about-me.html): The story behind the collection
+- [Home](https://nawmeessences.me/): Featured bestsellers and new releases
+- [Shop All Fragrances](https://nawmeessences.me/shop.html): Full catalogue of 80+ regular decants with brand/size/tag filters
+- [Exclusive Collection](https://nawmeessences.me/exclusive.html): Rare, discontinued and vintage fragrances — full advance required
+- [Policies & Info](https://nawmeessences.me/about.html): Delivery charges, payment policy, pickup locations
+- [About Nawmee](https://nawmeessences.me/about-me.html): The story behind the collection
 
 ## Products
 
@@ -66,7 +66,7 @@ Payment policy:
 
 ## How to Order
 
-1. Browse the shop at nawmee02.github.io/NawmeEssences/shop.html
+1. Browse the shop at nawmeessences.me/shop.html
 2. Add items to cart and fill in name, phone, and delivery address
 3. Click "Order via WhatsApp" or "Order via Messenger"
 4. A pre-filled order message is sent — confirm availability and pay advance

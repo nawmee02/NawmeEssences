@@ -4,7 +4,7 @@ A static e-commerce website for perfume decants, based in Bangladesh.
 
 ## Live Site
 
-[nawmee02.github.io/NawmeEssences](https://nawmee02.github.io/NawmeEssences/)
+[nawmeessences.me](https://nawmeessences.me/)
 
 ## Features
 

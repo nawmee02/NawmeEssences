@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /cart.html
 
-Sitemap: https://nawmee02.github.io/NawmeEssences/sitemap.xml
+Sitemap: https://nawmeessences.me/sitemap.xml
