@@ -32,6 +32,8 @@ jobs:
         run: node scripts/build-from-supabase.js
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Prune non-site files (node_modules symlinks break Pages processing)
+        run: rm -rf node_modules scripts supabase assets .github .git package.json package-lock.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
