@@ -13,7 +13,9 @@
 //  reads would work with the anon key, but the service role is
 //  needed to upload the optimized images.
 // ============================================================
-const sharp = require('sharp');
+// sharp is lazy-loaded only when an image actually needs optimizing — its
+// native binary isn't required (and won't crash the build) when every image
+// is already done or Storage writes are disabled.
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_URL, BUCKET } = require('./lib/catalog');
 const { generateFromData } = require('./generate-product-pages');
@@ -97,6 +99,7 @@ async function optimizeImages(allProducts) {
     if (!CAN_WRITE) { missing++; continue; }
 
     try {
+      const sharp = require('sharp'); // lazy — only load when optimizing
       const { data: blob, error: dlErr } = await sb.storage.from(BUCKET).download(`${p.id}/${original}`);
       if (dlErr) throw new Error(dlErr.message);
       const input = Buffer.from(await blob.arrayBuffer());
