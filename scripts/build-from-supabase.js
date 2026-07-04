@@ -14,7 +14,8 @@
 //  needed to upload the optimized images.
 // ============================================================
 const sharp = require('sharp');
-const { getSupabase, BUCKET } = require('./lib/catalog');
+const { createClient } = require('@supabase/supabase-js');
+const { SUPABASE_URL, BUCKET } = require('./lib/catalog');
 const { generateFromData } = require('./generate-product-pages');
 
 const SIZES = [
@@ -23,8 +24,17 @@ const SIZES = [
   { name: 'large',  width: 1600, quality: 90 },
 ];
 
+// The catalog is public-read, so reads work with the anon key even if the
+// service_role secret is absent. Writing optimized images to Storage needs the
+// service_role key — when it's missing we still read + generate pages (and just
+// skip image optimization) so the deploy never gets blocked.
+const PUBLIC_ANON = 'sb_publishable_olO3EcqKY0ssnfh2qzKB7g_2-zxc2Or';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const CAN_WRITE   = Boolean(SERVICE_KEY);
+const sb = createClient(SUPABASE_URL, SERVICE_KEY || process.env.SUPABASE_ANON_KEY || PUBLIC_ANON);
+
 // ─── Fetch catalog from Supabase ─────────────────────────────
-async function fetchCatalog(sb) {
+async function fetchCatalog() {
   const { data: frags, error } = await sb
     .from('fragrances')
     .select(`
@@ -68,7 +78,7 @@ async function fetchCatalog(sb) {
 }
 
 // ─── Optimize newly-uploaded originals → 3 WebP sizes ────────
-async function optimizeImages(sb, allProducts) {
+async function optimizeImages(allProducts) {
   const imageSet = new Set();
   let optimized = 0, skipped = 0, missing = 0, errors = 0;
 
@@ -81,6 +91,10 @@ async function optimizeImages(sb, allProducts) {
 
     const original = names.find(n => /^original\.(jpe?g|png|webp|avif|tiff)$/i.test(n));
     if (!original) { missing++; continue; }
+
+    // Optimizing requires Storage write access (service_role). Without it we
+    // leave the product image-less (page uses placeholder) rather than failing.
+    if (!CAN_WRITE) { missing++; continue; }
 
     try {
       const { data: blob, error: dlErr } = await sb.storage.from(BUCKET).download(`${p.id}/${original}`);
@@ -108,25 +122,27 @@ async function optimizeImages(sb, allProducts) {
 
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
-  const sb = getSupabase();
+  console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
 
   console.log('📥 Fetching catalog from Supabase...');
-  const { allProducts, productDetails } = await fetchCatalog(sb);
+  const { allProducts, productDetails } = await fetchCatalog();
   console.log(`   ${allProducts.length} products`);
 
   console.log('\n🖼️  Optimizing images...');
-  const { imageSet, errors } = await optimizeImages(sb, allProducts);
+  const { imageSet, errors } = await optimizeImages(allProducts);
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });
 
-  return { ok: errors === 0 && gen.ok, written: gen.written, imageErrors: errors };
+  // Image errors never block the deploy — the page just uses a placeholder.
+  if (errors) console.log(`\n⚠️  ${errors} image error(s) — those products fall back to placeholders.`);
+  return { ok: gen.ok, written: gen.written, imageErrors: errors };
 }
 
 module.exports = { run };
 
 if (require.main === module) {
   run()
-    .then(r => { console.log(`\n${r.ok ? '✅' : '⚠️'} build complete — ${r.written} pages`); process.exit(r.ok ? 0 : 1); })
+    .then(r => { console.log(`\n✅ build complete — ${r.written} pages`); process.exit(r.ok ? 0 : 1); })
     .catch(e => { console.error('\n❌ build-from-supabase failed:', e.message); process.exit(1); });
 }
