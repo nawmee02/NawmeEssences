@@ -11,16 +11,18 @@ function renderCard(product, isExclusive = false) {
   const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
   return `
     <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
-      <div class="card-img">
-        <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
-        <div class="card-img-placeholder">🫧</div>
-        <div class="tag-badges">${tags}</div>
-        ${oosOverlay}
-      </div>
-      <div class="card-body">
-        <div class="card-brand">${product.brand}</div>
-        <div class="card-name">${product.name}</div>
-      </div>
+      <a class="card-link" href="/product/${product.id}/">
+        <div class="card-img">
+          <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges">${tags}</div>
+          ${oosOverlay}
+        </div>
+        <div class="card-body">
+          <div class="card-brand">${product.brand}</div>
+          <div class="card-name">${product.name}</div>
+        </div>
+      </a>
       <div class="card-footer">
         <div class="size-pills" id="size-${product.id}">${sizePills}</div>
         <span class="card-price-live" id="price-${product.id}">৳${minPrice}</span>
@@ -28,7 +30,6 @@ function renderCard(product, isExclusive = false) {
           ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
         </button>
       </div>
-      ${buildDetailsPanel(product.id)}
     </div>`;
 }
 

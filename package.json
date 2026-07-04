@@ -7,7 +7,10 @@
     "optimize-images": "node scripts/optimize-images.js",
     "upload-images": "node scripts/upload-images.js",
     "seed": "node scripts/seed-database.js",
-    "validate": "node scripts/validate-catalog.js"
+    "validate": "node scripts/validate-catalog.js",
+    "generate-pages": "node scripts/generate-product-pages.js",
+    "build": "node scripts/build-from-supabase.js",
+    "upload-original": "node scripts/upload-original.js"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.108.2",

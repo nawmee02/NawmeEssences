@@ -2,7 +2,7 @@
 //  sync-catalog.js — One command to sync the whole catalog.
 //
 //    validate (local)  →  optimize  →  upload (changed)  →
-//    seed database      →  validate (remote)
+//    seed database  →  generate pages  →  validate (remote)
 //
 //  Fails fast: if any step reports an error, the pipeline stops
 //  and exits non-zero so problems never reach production.
@@ -15,6 +15,7 @@ const validate = require('./validate-catalog');
 const optimize = require('./optimize-images');
 const upload   = require('./upload-images');
 const seed     = require('./seed-database');
+const pages    = require('./generate-product-pages');
 
 function banner(n, total, label) {
   console.log(`\n━━━ [${n}/${total}] ${label} ${'━'.repeat(Math.max(0, 40 - label.length))}`);
@@ -22,7 +23,7 @@ function banner(n, total, label) {
 
 async function main() {
   const force = process.argv.includes('--force');
-  const total = 5;
+  const total = 6;
   const t0 = Date.now();
 
   banner(1, total, 'Validate (pre-flight)');
@@ -40,13 +41,17 @@ async function main() {
   banner(4, total, 'Seed database');
   await seed.run();
 
-  banner(5, total, 'Validate (remote)');
+  banner(5, total, 'Generate product pages');
+  const pg = pages.run();
+  if (!pg.ok) { console.error('\n⛔ Product page generation failed.'); process.exit(1); }
+
+  banner(6, total, 'Validate (remote)');
   const v2 = await validate.run({ remote: true });
   if (!v2.ok) { console.error('\n⛔ Post-seed validation failed — DB/Storage are out of sync.'); process.exit(1); }
 
   const secs = ((Date.now() - t0) / 1000).toFixed(1);
   console.log(`\n✅ Catalog synced in ${secs}s — `
-    + `${opt.generated} optimized, ${up.uploaded} uploaded, database up to date.`);
+    + `${opt.generated} optimized, ${up.uploaded} uploaded, ${pg.written} pages, database up to date.`);
 }
 
 main().catch(e => {

@@ -1,6 +1,13 @@
 const ProductAPI = (() => {
   let _cache = null;
 
+  // Image URLs are derived deterministically from the product id, so a product
+  // added in Supabase Studio needs no image_* columns — just the WebP files in
+  // Storage at product-images/{id}/{size}.webp.
+  function imgUrl(id, size) {
+    return `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/${size}.webp`;
+  }
+
   // ─── List shape (shop / index): only what cards render ───────
   function _normList(row) {
     return {
@@ -14,7 +21,7 @@ const ProductAPI = (() => {
       tags:          (row.fragrance_tags || []).map(t => t.tag),
       inStock:       row.in_stock,
       is_bestseller: row.is_bestseller,
-      image_thumb:   row.image_thumb,
+      image_thumb:   imgUrl(row.id, 'thumb'),
     };
   }
 
@@ -24,7 +31,7 @@ const ProductAPI = (() => {
     const { data, error } = await sb
       .from('fragrances')
       .select(`
-        id, name, collection, in_stock, is_bestseller, image_thumb,
+        id, name, collection, in_stock, is_bestseller,
         brands ( name ),
         fragrance_sizes ( ml, price ),
         fragrance_tags ( tag )
@@ -42,11 +49,10 @@ const ProductAPI = (() => {
       .from('fragrances')
       .select(`
         id, name, collection, in_stock,
-        image_thumb, image_medium, image_large,
         brands ( name ),
         fragrance_sizes ( ml, price ),
         fragrance_tags ( tag ),
-        fragrance_details ( top_notes, heart_notes, base_notes, accords, family )
+        fragrance_details ( top_notes, heart_notes, base_notes, accords, family, description )
       `)
       .eq('id', id)
       .single();
@@ -63,15 +69,16 @@ const ProductAPI = (() => {
                       .map(s => ({ ml: s.ml, price: s.price }))
                       .sort((a, b) => a.ml - b.ml),
       tags:         (data.fragrance_tags || []).map(t => t.tag),
-      image_thumb:  data.image_thumb,
-      image_medium: data.image_medium,
-      image_large:  data.image_large,
+      image_thumb:  imgUrl(data.id, 'thumb'),
+      image_medium: imgUrl(data.id, 'medium'),
+      image_large:  imgUrl(data.id, 'large'),
       details: d && {
         top:     d.top_notes,
         heart:   d.heart_notes,
         base:    d.base_notes,
         accords: d.accords,
         family:  d.family,
+        description: d.description || '',
       },
     };
   }
