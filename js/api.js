@@ -36,6 +36,7 @@ const ProductAPI = (() => {
         fragrance_sizes ( ml, price ),
         fragrance_tags ( tag )
       `)
+      .eq('status', 'published')
       .order('sort_order');
     if (error) throw error;
     _cache = data.map(_normList);

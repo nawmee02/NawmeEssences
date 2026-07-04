@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — NawmeEssences</title>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+
+<!-- LOGIN -->
+<section id="login-view" class="admin-login" style="display:none">
+  <form id="login-form" class="admin-login-card">
+    <h1>NawmeEssences <span>Admin</span></h1>
+    <p class="admin-muted">Sign in to manage the catalog.</p>
+    <label>Email<input type="email" id="login-email" required autocomplete="username" /></label>
+    <label>Password<input type="password" id="login-password" required autocomplete="current-password" /></label>
+    <button type="submit" class="btn-primary" id="login-btn">Log in</button>
+    <div id="login-error" class="admin-error"></div>
+  </form>
+</section>
+
+<!-- APP -->
+<section id="app-view" style="display:none">
+  <header class="admin-header">
+    <div class="admin-brand">NawmeEssences <span>Admin</span></div>
+    <div class="admin-header-right">
+      <a href="/" target="_blank" class="admin-link">View site ↗</a>
+      <span id="build-status" class="admin-build" title="Latest deploy">build: …</span>
+      <span id="admin-user" class="admin-muted"></span>
+      <button id="logout-btn" class="btn-outline btn-sm">Log out</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <!-- LIST -->
+    <div id="list-view">
+      <div class="admin-toolbar">
+        <h2>Products <span id="product-count" class="admin-muted"></span></h2>
+        <div>
+          <input type="search" id="list-search" placeholder="Filter by name/brand…" class="admin-search" />
+          <button id="add-btn" class="btn-primary">+ Add product</button>
+        </div>
+      </div>
+      <div id="product-list"></div>
+    </div>
+
+    <!-- FORM -->
+    <div id="form-view" style="display:none">
+      <div class="admin-toolbar">
+        <h2 id="form-title">Add product</h2>
+        <button id="cancel-btn" class="btn-outline btn-sm">← Back to list</button>
+      </div>
+      <form id="product-form" class="admin-form">
+        <div class="admin-grid">
+          <label>Name *<input type="text" id="f-name" required /></label>
+          <label>Product ID (slug)<input type="text" id="f-id" placeholder="auto from name" /><small class="admin-muted" id="id-hint"></small></label>
+          <label>Brand *<input type="text" id="f-brand" list="brand-list" required /><datalist id="brand-list"></datalist></label>
+          <label>Collection
+            <select id="f-collection">
+              <option value="regular">Regular</option>
+              <option value="exclusive">Exclusive</option>
+              <option value="special">Special</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="f-status">
+              <option value="draft">Draft (hidden)</option>
+              <option value="published">Published (live)</option>
+            </select>
+          </label>
+          <label>Olfactive family<input type="text" id="f-family" placeholder="e.g. Woody" /></label>
+        </div>
+
+        <div class="admin-checks">
+          <label class="admin-check"><input type="checkbox" id="f-instock" checked /> In stock</label>
+          <label class="admin-check"><input type="checkbox" id="f-bestseller" /> Bestseller</label>
+        </div>
+
+        <fieldset class="admin-fieldset">
+          <legend>Sizes *</legend>
+          <div id="sizes-rows"></div>
+          <button type="button" id="add-size" class="btn-outline btn-sm">+ Add size</button>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Tags</legend>
+          <div class="admin-checks">
+            <label class="admin-check"><input type="checkbox" class="f-tag" value="new" /> New</label>
+            <label class="admin-check"><input type="checkbox" class="f-tag" value="restocked" /> Restocked</label>
+            <label class="admin-check"><input type="checkbox" class="f-tag" value="limited" /> Limited</label>
+            <label class="admin-check"><input type="checkbox" class="f-tag" value="discontinued" /> Discontinued</label>
+            <label class="admin-check"><input type="checkbox" class="f-tag" value="exclusive" /> Exclusive</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Fragrance notes (comma-separated)</legend>
+          <label>Top<input type="text" id="f-top" placeholder="Bergamot, Pink Pepper" /></label>
+          <label>Heart<input type="text" id="f-heart" placeholder="Cedarwood, Iris" /></label>
+          <label>Base<input type="text" id="f-base" placeholder="Sandalwood, Musk" /></label>
+          <label>Accords<input type="text" id="f-accords" placeholder="Woody, Fresh, Spicy" /></label>
+        </fieldset>
+
+        <label>Description<textarea id="f-description" rows="4" placeholder="Optional — falls back to an auto blurb if empty"></textarea></label>
+
+        <fieldset class="admin-fieldset">
+          <legend>Image</legend>
+          <div id="current-image" class="admin-current-img"></div>
+          <input type="file" id="f-image" accept="image/jpeg,image/png,image/webp" />
+          <small class="admin-muted">JPG/PNG/WebP, ≤ 5 MB. Optimized to thumb/medium/large WebP in your browser.</small>
+        </fieldset>
+
+        <div id="form-error" class="admin-error"></div>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn-primary" id="save-btn">Save product</button>
+          <button type="button" id="cancel-btn-2" class="btn-outline">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</section>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="/js/supabase-config.js" defer></script>
+<script src="/js/supabase.js" defer></script>
+<script src="/js/admin.js" defer></script>
+</body>
+</html>

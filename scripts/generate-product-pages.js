@@ -407,9 +407,12 @@ function writeSitemap(all) {
     { loc: `${SITE}/about.html`,    freq: 'monthly', pri: '0.5' },
     { loc: `${SITE}/about-me.html`, freq: 'monthly', pri: '0.4' },
   ];
-  const products = all.map(p => ({ loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7' }));
+  const products = all.map(p => ({
+    loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7',
+    lastmod: p.updatedAt ? String(p.updatedAt).slice(0, 10) : null,
+  }));
   const urls = [...core, ...products].map(u =>
-    `  <url>\n    <loc>${u.loc}</loc>\n    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
+    `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);

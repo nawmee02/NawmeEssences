@@ -40,11 +40,12 @@ async function fetchCatalog() {
   const { data: frags, error } = await sb
     .from('fragrances')
     .select(`
-      id, name, collection, in_stock, is_bestseller,
+      id, name, collection, in_stock, is_bestseller, updated_at,
       brands ( name ),
       fragrance_sizes ( ml, price ),
       fragrance_tags ( tag )
     `)
+    .eq('status', 'published')
     .order('sort_order');
   if (error) throw new Error('fragrances: ' + error.message);
 
@@ -60,6 +61,7 @@ async function fetchCatalog() {
     collection:    f.collection,
     inStock:       f.in_stock,
     is_bestseller: f.is_bestseller,
+    updatedAt:     f.updated_at,
     sizes:         (f.fragrance_sizes || []).map(s => ({ ml: s.ml, price: s.price })).sort((a, b) => a.ml - b.ml),
     tags:          (f.fragrance_tags || []).map(t => t.tag),
   }));
