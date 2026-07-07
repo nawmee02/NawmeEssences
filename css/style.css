@@ -1046,6 +1046,12 @@ input, select { font-family: var(--font-body); }
   padding: 20px;
   margin-bottom: 24px;
 }
+.pd-stock { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+.pd-stock-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.pd-stock.in { color: #6fcf7f; }
+.pd-stock.in .pd-stock-dot { background: #6fcf7f; box-shadow: 0 0 0 3px rgba(111,207,127,0.18); }
+.pd-stock.oos { color: #e5786b; }
+.pd-stock.oos .pd-stock-dot { background: #e5786b; box-shadow: 0 0 0 3px rgba(229,120,107,0.18); }
 .pd-size-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
 .pd-size-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 .pd-price-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }

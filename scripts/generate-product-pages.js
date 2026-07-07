@@ -327,6 +327,7 @@ ${HEADER}
     <div class="pd-occasions">${occasionChips(d ? d.accords : [])}</div>
 
     <div class="pd-buy">
+      <div class="pd-stock ${oos ? 'oos' : 'in'}" id="pd-stock"><span class="pd-stock-dot"></span>${oos ? 'Out of Stock' : 'In Stock'}</div>
       <div class="pd-size-row">
         <span class="pd-size-label">Size</span>
         <div class="size-pills" id="size-${attr(p.id)}">${sizePills(p)}</div>
@@ -375,13 +376,16 @@ ${SCRIPTS}
       if (!p) return;
       const addBtn = document.getElementById('add-btn');
       const badge = document.getElementById('stock-badge');
+      const stock = document.getElementById('pd-stock');
       if (p.inStock === false) {
         addBtn.disabled = true; addBtn.textContent = 'Out of Stock';
         if (badge) badge.style.display = '';
+        if (stock) { stock.className = 'pd-stock oos'; stock.innerHTML = '<span class="pd-stock-dot"></span>Out of Stock'; }
       } else {
         addBtn.disabled = false;
         if (addBtn.textContent === 'Out of Stock') addBtn.textContent = 'Add to Cart';
         if (badge) badge.style.display = 'none';
+        if (stock) { stock.className = 'pd-stock in'; stock.innerHTML = '<span class="pd-stock-dot"></span>In Stock'; }
       }
       if (p.sizes && p.sizes.length) {
         p.sizes.forEach(s => {
