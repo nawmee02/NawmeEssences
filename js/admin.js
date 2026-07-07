@@ -72,6 +72,8 @@
     const a = $('new-pw').value, b = $('new-pw2').value;
     if (a.length < 8) { $('pw-msg').textContent = 'Password must be at least 8 characters.'; return; }
     if (a !== b) { $('pw-msg').textContent = 'Passwords do not match.'; return; }
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { $('pw-msg').textContent = 'You are not signed in. Close this, log in with your email and password, then try again.'; return; }
     $('pw-save').disabled = true;
     const { error } = await sb.auth.updateUser({ password: a });
     $('pw-save').disabled = false;
