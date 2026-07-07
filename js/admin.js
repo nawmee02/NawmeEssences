@@ -35,7 +35,10 @@
     sb = getSupabaseClient();
     const { data } = await sb.auth.getSession();
     await render(data.session);
-    sb.auth.onAuthStateChange((_e, session) => render(session));
+    sb.auth.onAuthStateChange((event, session) => {
+      render(session);
+      if (event === 'PASSWORD_RECOVERY') openPwModal();
+    });
   }
 
   async function render(session) {
@@ -60,6 +63,21 @@
     if (error) $('login-error').textContent = error.message;
   });
   $('logout-btn').addEventListener('click', () => sb.auth.signOut());
+
+  // ─── Change password ───────────────────────────────────────
+  function openPwModal() { $('pw-msg').textContent=''; $('new-pw').value=''; $('new-pw2').value=''; show('pw-modal', true); $('new-pw').focus(); }
+  $('change-pw-btn').addEventListener('click', openPwModal);
+  $('pw-cancel').addEventListener('click', () => show('pw-modal', false));
+  $('pw-save').addEventListener('click', async () => {
+    const a = $('new-pw').value, b = $('new-pw2').value;
+    if (a.length < 8) { $('pw-msg').textContent = 'Password must be at least 8 characters.'; return; }
+    if (a !== b) { $('pw-msg').textContent = 'Passwords do not match.'; return; }
+    $('pw-save').disabled = true;
+    const { error } = await sb.auth.updateUser({ password: a });
+    $('pw-save').disabled = false;
+    if (error) { $('pw-msg').textContent = error.message; return; }
+    toast('Password updated'); show('pw-modal', false);
+  });
 
   // ─── Build status widget ───────────────────────────────────
   async function loadBuildStatus() {
