@@ -167,7 +167,7 @@ const HEADER = `<div class="announcement-bar">
 </div>
 <header class="site-header">
   <nav class="nav-inner">
-    <a href="/" class="logo">NawmeEssences</a>
+    <a href="/" class="logo"><img src="/images/logo-header.png" alt="NawmeEssences" /></a>
     <div id="nav-menu">
       <a href="/" class="nav-link">Home</a>
       <a href="/shop.html" class="nav-link">Shop</a>
@@ -184,7 +184,7 @@ const HEADER = `<div class="announcement-bar">
 const FOOTER = `<footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="/" class="logo">NawmeEssences</a>
+      <a href="/" class="logo"><img src="/images/logo-header.png" alt="NawmeEssences" /></a>
       <p>Premium fragrance decants from authentic personal collection. Serving fragrance lovers across Bangladesh.</p>
     </div>
     <div class="footer-col">

@@ -86,6 +86,8 @@ input, select { font-family: var(--font-body); }
   flex-shrink: 0;
 }
 .logo span { color: var(--text-muted); font-size: 12px; display: block; font-family: var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; }
+.logo img { height: 30px; width: auto; display: block; }
+.footer-brand .logo img { height: 36px; }
 #nav-menu {
   display: flex;
   align-items: center;
