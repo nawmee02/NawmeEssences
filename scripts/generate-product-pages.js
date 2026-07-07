@@ -213,7 +213,8 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/main.js" defer></script>
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
-<script src="/js/api.js" defer></script>`;
+<script src="/js/api.js" defer></script>
+<script src="/js/search.js" defer></script>`;
 
 // ─── Page template ───────────────────────────────────────────
 function renderPage(p, all, detailsMap) {

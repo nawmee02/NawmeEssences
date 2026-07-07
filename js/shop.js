@@ -150,6 +150,10 @@ async function init() {
     });
   }
 
+  // Honor ?q= from the global header search (and the SEO SearchAction)
+  const q = new URLSearchParams(location.search).get('q');
+  if (q) document.getElementById('search-input').value = q;
+
   applyFilters();
 }
 

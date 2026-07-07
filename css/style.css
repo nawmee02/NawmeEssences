@@ -1178,3 +1178,47 @@ input, select { font-family: var(--font-body); }
 .pw-card input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); font-size: 14px; }
 .pw-card input:focus { outline: none; border-color: var(--gold-dark); }
 .pw-actions { display: flex; gap: 10px; margin-top: 4px; }
+
+/* ============================================================
+   GLOBAL SEARCH
+   ============================================================ */
+.search-open-btn {
+  background: transparent; border: none; color: var(--text);
+  cursor: pointer; padding: 6px; display: inline-flex; align-items: center;
+  transition: color var(--transition);
+}
+.search-open-btn:hover { color: var(--gold); }
+
+.search-overlay {
+  position: fixed; inset: 0; z-index: 2500;
+  background: rgba(0,0,0,0.85);
+  display: none; justify-content: center; align-items: flex-start;
+  padding: 12vh 20px 20px;
+}
+.search-overlay.open { display: flex; }
+.search-panel {
+  width: 100%; max-width: 560px;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.gs-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+.gs-bar input {
+  flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--font-body); font-size: 16px;
+}
+.search-close { background: none; border: none; color: var(--text-muted); font-size: 24px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.search-close:hover { color: var(--text); }
+.search-results { max-height: 60vh; overflow-y: auto; }
+.search-hint { color: var(--text-muted); padding: 20px; text-align: center; font-size: 14px; margin: 0; }
+.search-result {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  text-decoration: none; color: var(--text); border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+.search-result:hover { background: var(--bg); }
+.search-result img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; background: var(--bg); flex: 0 0 auto; }
+.search-result span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sr-brand { color: var(--gold); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+.sr-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-all { display: block; padding: 14px 16px; text-align: center; color: var(--gold); text-decoration: none; font-size: 14px; }
+.search-all:hover { background: var(--bg); }
