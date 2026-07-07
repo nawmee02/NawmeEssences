@@ -273,6 +273,7 @@ function renderPage(p, all, detailsMap) {
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
   <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <!-- Open Graph -->
   <meta property="og:type" content="product" />
   <meta name="application-name" content="NawmeEssences" />
