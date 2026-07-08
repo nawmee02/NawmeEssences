@@ -9,11 +9,13 @@ function renderCard(product, isExclusive = false) {
   const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
   const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
   const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
+  const imgMed = product.image_medium || imgSrc;
+  const imgSet = `srcset="${imgSrc} 300w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
   return `
     <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
       <a class="card-link" href="/product/${product.id}/">
         <div class="card-img">
-          <img src="${imgSrc}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
+          <img src="${imgSrc}" ${imgSet} alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
           <div class="card-img-placeholder">🫧</div>
           <div class="tag-badges">${tags}</div>
           ${oosOverlay}

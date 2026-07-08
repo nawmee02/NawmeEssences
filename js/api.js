@@ -22,6 +22,7 @@ const ProductAPI = (() => {
       inStock:       row.in_stock,
       is_bestseller: row.is_bestseller,
       image_thumb:   imgUrl(row.id, 'thumb'),
+      image_medium:  imgUrl(row.id, 'medium'),
     };
   }
 
