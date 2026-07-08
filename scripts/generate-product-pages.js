@@ -208,7 +208,6 @@ const FOOTER = `<footer class="site-footer">
 </footer>`;
 
 const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="/js/products.js" defer></script>
 <script src="/js/cart.js" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/supabase-config.js" defer></script>
