@@ -933,6 +933,10 @@ input, select { font-family: var(--font-body); }
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
+  /* Keep the header on one row: smaller logo + tighter spacing */
+  .nav-inner { padding: 0 12px; gap: 8px; }
+  .logo img { height: 24px; }
+  .nav-actions { gap: 4px; }
   /* Cart button: drop the border box on mobile — icon + badge is enough */
   .cart-btn {
     border-color: transparent;
