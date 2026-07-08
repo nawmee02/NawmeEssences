@@ -375,6 +375,26 @@ ${SCRIPTS}
     try {
       const p = await ProductAPI.getProduct(PRODUCT.id);
       if (!p) return;
+
+      // Live-swap the hero image if the baked page predates the Storage upload
+      // (e.g. image added in admin after the last build). Probe first so we only
+      // replace when the WebP actually exists — otherwise keep the placeholder.
+      if (p.image_large) {
+        const probe = new Image();
+        probe.onload = function () {
+          const hero = document.getElementById('pd-hero');
+          if (hero) {
+            hero.src = p.image_large;
+            hero.style.display = '';
+            const ph = hero.nextElementSibling;
+            if (ph && ph.classList.contains('pd-placeholder')) ph.style.display = 'none';
+          }
+          const lb = document.querySelector('#lightbox img');
+          if (lb) lb.src = p.image_large;
+        };
+        probe.src = p.image_large;
+      }
+
       const addBtn = document.getElementById('add-btn');
       const badge = document.getElementById('stock-badge');
       const stock = document.getElementById('pd-stock');
