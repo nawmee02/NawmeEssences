@@ -151,7 +151,6 @@ function relatedProducts(p, all, detailsMap) {
 }
 
 // ─── Shared header / footer ──────────────────────────────────
-const GTM_HEAD = `<script>/* GTM deferred to idle/first-interaction — off the critical path */(function(w,d){w.dataLayer=w.dataLayer||[];var loaded=false;function load(){if(loaded)return;loaded=true;w.dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});var j=d.createElement('script');j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id=GTM-KKCJCDTZ';d.head.appendChild(j);}var evs=['scroll','pointerdown','keydown','touchstart'];function onEvt(){evs.forEach(function(e){w.removeEventListener(e,onEvt);});load();}evs.forEach(function(e){w.addEventListener(e,onEvt,{once:true,passive:true});});if(d.readyState==='complete'){setTimeout(load,2500);}else{w.addEventListener('load',function(){(w.requestIdleCallback||function(cb){setTimeout(cb,2000);})(load);});}})(window,document);</script>`;
 
 const HEADER = `<div class="announcement-bar">
   <div class="ticker-track">
@@ -264,9 +263,6 @@ function renderPage(p, all, detailsMap) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google Tag Manager -->
-  ${GTM_HEAD}
-  <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)}</title>
@@ -298,9 +294,6 @@ function renderPage(p, all, detailsMap) {
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KKCJCDTZ" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
 ${HEADER}
 
