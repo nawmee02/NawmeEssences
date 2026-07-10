@@ -57,17 +57,22 @@
     try {
       const sb = getSupabaseClient();
       const { data } = await sb.from('fragrances')
-        .select('id, name, brands(name)')
+        .select('id, name, updated_at, brands(name)')
         .eq('status', 'published')
         .order('name');
-      catalog = (data || []).map(r => ({ id: r.id, name: r.name, brand: r.brands?.name || '' }));
+      catalog = (data || []).map(r => ({ id: r.id, name: r.name, brand: r.brands?.name || '', v: verToken(r.updated_at) }));
     } catch { catalog = null; }
   }
 
-  function thumb(id) {
-    return (typeof SUPABASE_URL !== 'undefined')
-      ? `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/thumb.webp`
-      : `/images/products/${id}.jpg`;
+  function verToken(updated_at) {
+    const t = updated_at ? Date.parse(updated_at) : NaN;
+    return Number.isFinite(t) ? Math.floor(t / 1000) : '';
+  }
+
+  function thumb(id, v) {
+    if (typeof SUPABASE_URL === 'undefined') return `/images/products/${id}.jpg`;
+    const base = `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/thumb.webp`;
+    return v ? `${base}?v=${v}` : base;
   }
 
   // ─── Render results ────────────────────────────────────────
@@ -91,7 +96,7 @@
 
     const rows = matches.slice(0, 8).map(p => `
       <a class="search-result" href="/product/${esc(p.id)}/">
-        <img src="${esc(thumb(p.id))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+        <img src="${esc(thumb(p.id, p.v))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
         <span><span class="sr-brand">${esc(p.brand)}</span><span class="sr-name">${esc(p.name)}</span></span>
       </a>`).join('');
     const more = matches.length > 8

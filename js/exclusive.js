@@ -10,7 +10,7 @@ function renderCard(product, isExclusive = true) {
   const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
   const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
   const imgMed = product.image_medium || imgSrc;
-  const imgSet = `srcset="${imgSrc} 300w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
+  const imgSet = `srcset="${imgSrc} 450w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
   return `
     <div class="product-card" data-id="${product.id}">
       <a class="card-link" href="/product/${product.id}/">

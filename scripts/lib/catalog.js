@@ -58,8 +58,15 @@ function storagePath(id, size) {
   return `${id}/${size}.webp`;
 }
 
-function publicUrl(id, size) {
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${storagePath(id, size)}`;
+function publicUrl(id, size, v) {
+  const base = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${storagePath(id, size)}`;
+  return v ? `${base}?v=${v}` : base;
+}
+
+// Cache-busting token from a product's updated_at (matches js/api.js `ver`).
+function imageVersion(updatedAt) {
+  const t = updatedAt ? Date.parse(updatedAt) : NaN;
+  return Number.isFinite(t) ? Math.floor(t / 1000) : '';
 }
 
 function generatedFilePath(id, size) {
@@ -114,6 +121,6 @@ function isUploaded(id, size, manifest) {
 module.exports = {
   ROOT, GENERATED_DIR, MANIFEST_PATH, SUPABASE_URL, BUCKET, SIZES,
   getSupabase, loadProducts,
-  brandSlug, storagePath, publicUrl, generatedFilePath, hasGeneratedImages,
+  brandSlug, storagePath, publicUrl, imageVersion, generatedFilePath, hasGeneratedImages,
   listGeneratedFiles, sha256, loadManifest, saveManifest, isUploaded,
 };

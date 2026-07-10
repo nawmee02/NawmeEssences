@@ -10,7 +10,7 @@ function renderCard(product, isExclusive = false) {
   const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
   const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
   const imgMed = product.image_medium || imgSrc;
-  const imgSet = `srcset="${imgSrc} 300w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
+  const imgSet = `srcset="${imgSrc} 450w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
   return `
     <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
       <a class="card-link" href="/product/${product.id}/">

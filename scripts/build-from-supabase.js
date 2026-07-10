@@ -21,10 +21,14 @@ const { SUPABASE_URL, BUCKET } = require('./lib/catalog');
 const { generateFromData } = require('./generate-product-pages');
 
 const SIZES = [
-  { name: 'thumb',  width: 300,  quality: 80 },
+  { name: 'thumb',  width: 450,  quality: 80 },
   { name: 'medium', width: 800,  quality: 85 },
   { name: 'large',  width: 1600, quality: 90 },
 ];
+// 1-year immutable cache so Cloudflare (which already fronts Supabase Storage)
+// serves images from the edge instead of revalidating every request. Image URLs
+// are versioned with ?v=<updated_at>, so replacements still bust the cache.
+const CACHE_CONTROL = '31536000';
 
 // The catalog is public-read, so reads work with the anon key even if the
 // service_role secret is absent. Writing optimized images to Storage needs the
@@ -109,7 +113,7 @@ async function optimizeImages(allProducts) {
       for (const { name, width, quality } of SIZES) {
         const out = await sharp(input).resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer();
         const { error: upErr } = await sb.storage.from(BUCKET)
-          .upload(`${p.id}/${name}.webp`, out, { contentType: 'image/webp', upsert: true });
+          .upload(`${p.id}/${name}.webp`, out, { contentType: 'image/webp', upsert: true, cacheControl: CACHE_CONTROL });
         if (upErr) throw new Error(`${name}: ${upErr.message}`);
       }
       imageSet.add(p.id);

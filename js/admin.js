@@ -9,10 +9,12 @@
   const GH_RUNS = 'https://api.github.com/repos/nawmee02/NawmeEssences/actions/runs?per_page=1';
   const GH_ACTIONS = 'https://github.com/nawmee02/NawmeEssences/actions';
   const IMG_SIZES = [
-    { name: 'thumb',  width: 300,  quality: 0.8 },
+    { name: 'thumb',  width: 450,  quality: 0.8 },
     { name: 'medium', width: 800,  quality: 0.85 },
     { name: 'large',  width: 1600, quality: 0.9 },
   ];
+  // 1-year immutable cache; ?v=<updated_at> versioning busts it on replace.
+  const CACHE_CONTROL = '31536000';
 
   let sb = null;
   let brands = [];
@@ -243,7 +245,7 @@
       $('f-family').value = d.family || '';
       $('f-description').value = d.description || '';
     }
-    const thumb = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${data.id}/thumb.webp`;
+    const thumb = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${data.id}/thumb.webp?v=${Date.now()}`;
     $('current-image').innerHTML = `<img src="${thumb}" alt="" onerror="this.style.display='none'"><span class="admin-muted">current image (upload to replace)</span>`;
   }
 
@@ -322,12 +324,12 @@
     if (existing?.length) await sb.storage.from(BUCKET).remove(existing.map(f => `${id}/${f.name}`));
 
     const ext = (file.name.match(/\.[a-z0-9]+$/i) || ['.jpg'])[0].toLowerCase();
-    await sb.storage.from(BUCKET).upload(`${id}/original${ext}`, file, { contentType: file.type, upsert: true });
+    await sb.storage.from(BUCKET).upload(`${id}/original${ext}`, file, { contentType: file.type, upsert: true, cacheControl: CACHE_CONTROL });
 
     const img = await loadImage(file);
     for (const { name, width, quality } of IMG_SIZES) {
       const blob = await resizeToWebp(img, width, quality);
-      const { error } = await sb.storage.from(BUCKET).upload(`${id}/${name}.webp`, blob, { contentType: 'image/webp', upsert: true });
+      const { error } = await sb.storage.from(BUCKET).upload(`${id}/${name}.webp`, blob, { contentType: 'image/webp', upsert: true, cacheControl: CACHE_CONTROL });
       if (error) throw new Error(`image ${name}: ${error.message}`);
     }
     URL.revokeObjectURL(img.src);

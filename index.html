@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KKCJCDTZ');</script>
+  <script>/* GTM deferred to idle/first-interaction — off the critical path */(function(w,d){w.dataLayer=w.dataLayer||[];var loaded=false;function load(){if(loaded)return;loaded=true;w.dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});var j=d.createElement('script');j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id=GTM-KKCJCDTZ';d.head.appendChild(j);}var evs=['scroll','pointerdown','keydown','touchstart'];function onEvt(){evs.forEach(function(e){w.removeEventListener(e,onEvt);});load();}evs.forEach(function(e){w.addEventListener(e,onEvt,{once:true,passive:true});});if(d.readyState==='complete'){setTimeout(load,2500);}else{w.addEventListener('load',function(){(w.requestIdleCallback||function(cb){setTimeout(cb,2000);})(load);});}})(window,document);</script>
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -305,7 +305,7 @@
     const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
     const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
     const imgMed = product.image_medium || imgSrc;
-    const imgSet = `srcset="${imgSrc} 300w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
+    const imgSet = `srcset="${imgSrc} 450w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
     return `
       <div class="product-card${!product.inStock ? ' out-of-stock' : ''}">
         <a class="card-link" href="/product/${product.id}/">

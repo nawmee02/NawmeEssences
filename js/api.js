@@ -4,12 +4,21 @@ const ProductAPI = (() => {
   // Image URLs are derived deterministically from the product id, so a product
   // added in Supabase Studio needs no image_* columns — just the WebP files in
   // Storage at product-images/{id}/{size}.webp.
-  function imgUrl(id, size) {
-    return `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/${size}.webp`;
+  function imgUrl(id, size, v) {
+    const base = `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/${size}.webp`;
+    return v ? `${base}?v=${v}` : base;
+  }
+
+  // Cache-busting version token from a row's updated_at (admin "save" bumps it).
+  // Images upload with a 1-year immutable cache; ?v changes only when the row does.
+  function ver(updated_at) {
+    const t = updated_at ? Date.parse(updated_at) : NaN;
+    return Number.isFinite(t) ? Math.floor(t / 1000) : '';
   }
 
   // ─── List shape (shop / index): only what cards render ───────
   function _normList(row) {
+    const v = ver(row.updated_at);
     return {
       id:            row.id,
       name:          row.name,
@@ -21,8 +30,8 @@ const ProductAPI = (() => {
       tags:          (row.fragrance_tags || []).map(t => t.tag),
       inStock:       row.in_stock,
       is_bestseller: row.is_bestseller,
-      image_thumb:   imgUrl(row.id, 'thumb'),
-      image_medium:  imgUrl(row.id, 'medium'),
+      image_thumb:   imgUrl(row.id, 'thumb', v),
+      image_medium:  imgUrl(row.id, 'medium', v),
     };
   }
 
@@ -32,7 +41,7 @@ const ProductAPI = (() => {
     const { data, error } = await sb
       .from('fragrances')
       .select(`
-        id, name, collection, in_stock, is_bestseller,
+        id, name, collection, in_stock, is_bestseller, updated_at,
         brands ( name ),
         fragrance_sizes ( ml, price ),
         fragrance_tags ( tag )
@@ -50,7 +59,7 @@ const ProductAPI = (() => {
     const { data, error } = await sb
       .from('fragrances')
       .select(`
-        id, name, collection, in_stock,
+        id, name, collection, in_stock, updated_at,
         brands ( name ),
         fragrance_sizes ( ml, price ),
         fragrance_tags ( tag ),
@@ -61,6 +70,7 @@ const ProductAPI = (() => {
     if (error) throw error;
     if (!data) return null;   // drafted / deleted id → caller keeps the baked page
 
+    const v = ver(data.updated_at);
     const d = (data.fragrance_details && data.fragrance_details[0]) || null;
     return {
       id:           data.id,
@@ -72,9 +82,9 @@ const ProductAPI = (() => {
                       .map(s => ({ ml: s.ml, price: s.price }))
                       .sort((a, b) => a.ml - b.ml),
       tags:         (data.fragrance_tags || []).map(t => t.tag),
-      image_thumb:  imgUrl(data.id, 'thumb'),
-      image_medium: imgUrl(data.id, 'medium'),
-      image_large:  imgUrl(data.id, 'large'),
+      image_thumb:  imgUrl(data.id, 'thumb', v),
+      image_medium: imgUrl(data.id, 'medium', v),
+      image_large:  imgUrl(data.id, 'large', v),
       details: d && {
         top:     d.top_notes,
         heart:   d.heart_notes,

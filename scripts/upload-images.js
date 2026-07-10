@@ -28,7 +28,7 @@ async function run({ force = false } = {}) {
     const buffer = fs.readFileSync(f.path);
     const { error } = await sb.storage
       .from(BUCKET)
-      .upload(f.storagePath, buffer, { contentType: 'image/webp', upsert: true });
+      .upload(f.storagePath, buffer, { contentType: 'image/webp', upsert: true, cacheControl: '31536000' });
 
     if (error) {
       console.error(`  ✗ ${f.storagePath}: ${error.message}`);

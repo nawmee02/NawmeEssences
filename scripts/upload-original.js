@@ -17,10 +17,11 @@ const sharp = require('sharp');
 const { getSupabase, BUCKET } = require('./lib/catalog');
 
 const SIZES = [
-  { name: 'thumb',  width: 300,  quality: 80 },
+  { name: 'thumb',  width: 450,  quality: 80 },
   { name: 'medium', width: 800,  quality: 85 },
   { name: 'large',  width: 1600, quality: 90 },
 ];
+const CACHE_CONTROL = '31536000'; // 1-year immutable; URLs versioned with ?v=
 
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.avif': 'image/avif', '.tiff': 'image/tiff' };
 
@@ -50,7 +51,7 @@ async function run(id, file) {
   // 1. Store the original (for future re-optimization)
   const origKey = `${id}/original${ext}`;
   const { error: origErr } = await sb.storage.from(BUCKET)
-    .upload(origKey, input, { contentType: MIME[ext], upsert: true });
+    .upload(origKey, input, { contentType: MIME[ext], upsert: true, cacheControl: CACHE_CONTROL });
   if (origErr) { console.error(`✗ original: ${origErr.message}`); process.exit(1); }
   console.log(`  ✓ ${origKey}`);
 
@@ -58,7 +59,7 @@ async function run(id, file) {
   for (const { name, width, quality } of SIZES) {
     const out = await sharp(input).resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer();
     const { error } = await sb.storage.from(BUCKET)
-      .upload(`${id}/${name}.webp`, out, { contentType: 'image/webp', upsert: true });
+      .upload(`${id}/${name}.webp`, out, { contentType: 'image/webp', upsert: true, cacheControl: CACHE_CONTROL });
     if (error) { console.error(`✗ ${name}.webp: ${error.message}`); process.exit(1); }
     console.log(`  ✓ ${id}/${name}.webp`);
   }

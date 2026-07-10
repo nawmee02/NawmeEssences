@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ROOT, loadProducts, publicUrl, hasGeneratedImages,
+  ROOT, loadProducts, publicUrl, imageVersion, hasGeneratedImages,
 } = require('./lib/catalog');
 
 const SITE = 'https://nawmeessences.me';
@@ -49,9 +49,9 @@ function occasionsFor(accords) {
 let hasImage = hasGeneratedImages;
 function setImageChecker(fn) { hasImage = fn; }
 
-function heroLarge(id)  { return hasImage(id) ? publicUrl(id, 'large')  : `${SITE}/images/products/${id}.jpg`; }
-function heroMedium(id) { return hasImage(id) ? publicUrl(id, 'medium') : `${SITE}/images/products/${id}.jpg`; }
-function ogImage(id)    { return hasImage(id) ? publicUrl(id, 'large')  : DEFAULT_OG; }
+function heroLarge(id, v)  { return hasImage(id) ? publicUrl(id, 'large',  v) : `${SITE}/images/products/${id}.jpg`; }
+function heroMedium(id, v) { return hasImage(id) ? publicUrl(id, 'medium', v) : `${SITE}/images/products/${id}.jpg`; }
+function ogImage(id, v)    { return hasImage(id) ? publicUrl(id, 'large',  v) : DEFAULT_OG; }
 
 // ─── Copy builders ───────────────────────────────────────────
 function sizeList(sizes) { return sizes.map(s => `${s.ml}ml`).join(', '); }
@@ -136,7 +136,7 @@ function relatedProducts(p, all, detailsMap) {
   const cards = scored.map(r => `
         <a class="related-card" href="/product/${attr(r.id)}/">
           <div class="related-img">
-            <img src="${attr(heroMedium(r.id))}" alt="${attr(r.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <img src="${attr(heroMedium(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="card-img-placeholder">🫧</div>
           </div>
           <div class="related-brand">${esc(r.brand)}</div>
@@ -151,7 +151,7 @@ function relatedProducts(p, all, detailsMap) {
 }
 
 // ─── Shared header / footer ──────────────────────────────────
-const GTM_HEAD = `<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KKCJCDTZ');</script>`;
+const GTM_HEAD = `<script>/* GTM deferred to idle/first-interaction — off the critical path */(function(w,d){w.dataLayer=w.dataLayer||[];var loaded=false;function load(){if(loaded)return;loaded=true;w.dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});var j=d.createElement('script');j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id=GTM-KKCJCDTZ';d.head.appendChild(j);}var evs=['scroll','pointerdown','keydown','touchstart'];function onEvt(){evs.forEach(function(e){w.removeEventListener(e,onEvt);});load();}evs.forEach(function(e){w.addEventListener(e,onEvt,{once:true,passive:true});});if(d.readyState==='complete'){setTimeout(load,2500);}else{w.addEventListener('load',function(){(w.requestIdleCallback||function(cb){setTimeout(cb,2000);})(load);});}})(window,document);</script>`;
 
 const HEADER = `<div class="announcement-bar">
   <div class="ticker-track">
@@ -219,6 +219,7 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 function renderPage(p, all, detailsMap) {
   const d = detailsMap[p.id] || null;
   const url = `${SITE}/product/${p.id}/`;
+  const v = imageVersion(p.updatedAt);   // ?v= cache-buster for this product's images
   const isExclusive = p.collection !== 'regular';
   const parent = isExclusive
     ? { name: 'Exclusive Collection', url: `${SITE}/exclusive.html` }
@@ -234,7 +235,7 @@ function renderPage(p, all, detailsMap) {
     '@type': 'Product',
     name: p.name,
     brand: { '@type': 'Brand', name: p.brand },
-    image: [heroLarge(p.id), heroMedium(p.id)],
+    image: [heroLarge(p.id, v), heroMedium(p.id, v)],
     description: metaDesc,
     sku: p.id,
     category: d ? d.family : 'Fragrance',
@@ -280,13 +281,13 @@ function renderPage(p, all, detailsMap) {
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="${attr(p.name + ' — ' + p.brand)}" />
   <meta property="og:description" content="${attr(metaDesc)}" />
-  <meta property="og:image" content="${attr(ogImage(p.id))}" />
+  <meta property="og:image" content="${attr(ogImage(p.id, v))}" />
   <meta property="og:locale" content="en_US" />
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${attr(p.name + ' — ' + p.brand)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
-  <meta name="twitter:image" content="${attr(ogImage(p.id))}" />
+  <meta name="twitter:image" content="${attr(ogImage(p.id, v))}" />
   <!-- Structured data -->
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
@@ -313,7 +314,7 @@ ${HEADER}
 <div class="product-detail">
   <div class="pd-media">
     <div class="pd-image${oos ? ' out-of-stock' : ''}">
-      <img id="pd-hero" src="${attr(heroLarge(p.id))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
+      <img id="pd-hero" src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
            onclick="openLightbox()" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-img-placeholder pd-placeholder">🫧</div>
       <div class="tag-badges">${tagBadges(p.tags)}</div>
@@ -349,7 +350,7 @@ ${relatedProducts(p, all, detailsMap)}
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <span class="lightbox-close" aria-label="Close">&times;</span>
-  <img src="${attr(heroLarge(p.id))}" alt="${attr(p.name)}" />
+  <img src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name)}" />
 </div>
 
 ${FOOTER}
