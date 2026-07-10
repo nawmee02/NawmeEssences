@@ -57,8 +57,9 @@ const ProductAPI = (() => {
         fragrance_details ( top_notes, heart_notes, base_notes, accords, family, description )
       `)
       .eq('id', id)
-      .single();
+      .maybeSingle();
     if (error) throw error;
+    if (!data) return null;   // drafted / deleted id → caller keeps the baked page
 
     const d = (data.fragrance_details && data.fragrance_details[0]) || null;
     return {

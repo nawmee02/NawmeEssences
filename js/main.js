@@ -31,9 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
     link.addEventListener("click", () => navMenu && navMenu.classList.remove("open"));
   });
 
-  // Stats counter animation
+  // Stats counter animation.
+  // The real numbers are already in the HTML (so crawlers / no-JS / slow
+  // connections never see "0% Authentic"). Only when we can and should animate
+  // do we reset to 0 and count up; otherwise the real numbers stay untouched.
   const statsSection = document.querySelector(".stats-section");
-  if (statsSection) {
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (statsSection && ("IntersectionObserver" in window) && !reduceMotion) {
     let animated = false;
     function runStats() {
       if (animated) return;

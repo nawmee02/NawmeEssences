@@ -23,6 +23,13 @@ A static e-commerce website for perfume decants, based in Bangladesh.
 - Hosted on GitHub Pages via GitHub Actions
 
 
+## Database & schema
+
+Catalog and orders live in Supabase. **The schema lives in `supabase/migrations/`** — run
+the files in numeric order (`001` → `005`) in the Supabase SQL Editor, and nowhere else.
+Product pages and `sitemap.xml` are regenerated from Supabase in CI by
+`scripts/build-from-supabase.js` (nightly and on every push).
+
 ## License
 
 All Rights Reserved © NawmeEssences

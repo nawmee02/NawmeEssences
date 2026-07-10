@@ -125,6 +125,45 @@ async function optimizeImages(allProducts) {
   return { imageSet, errors };
 }
 
+// ─── Validate the published catalog (fail the build, not the site) ──
+// Reuses the already-fetched catalog + the imageSet optimizeImages() built
+// (products that have thumb.webp). A red build beats a live broken card.
+function validateCatalog(allProducts, imageSet) {
+  const errors = [];
+  const warnings = [];
+  let bestsellers = 0;
+
+  for (const p of allProducts) {
+    if (p.is_bestseller) bestsellers++;
+
+    if (!p.sizes || p.sizes.length === 0) {
+      errors.push(`${p.id}: no sizes`);
+    } else {
+      for (const s of p.sizes) {
+        if (!(s.price > 0)) errors.push(`${p.id}: price not > 0 — ${JSON.stringify(s)}`);
+        if (!(s.ml > 0))    errors.push(`${p.id}: ml not > 0 — ${JSON.stringify(s)}`);
+      }
+    }
+
+    // A published product with no thumb.webp renders a placeholder hero (the
+    // SEO-4 / B-2 bug). Hard error when we could have generated it (service
+    // role present); otherwise just warn, since optimization was disabled.
+    if (!imageSet.has(p.id)) {
+      const msg = `${p.id}: no thumb.webp in Storage — upload original.* or set status='draft'`;
+      (CAN_WRITE ? errors : warnings).push(msg);
+    }
+  }
+
+  if (bestsellers > 8) warnings.push(`${bestsellers} bestsellers flagged (home shows ~8)`);
+
+  warnings.forEach(w => console.log(`  ⚠️  ${w}`));
+  if (errors.length) {
+    errors.forEach(e => console.log(`  ❌ ${e}`));
+    throw new Error(`catalog validation failed — ${errors.length} error(s)`);
+  }
+  console.log(`✓ catalog valid — ${allProducts.length} published products`);
+}
+
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
@@ -135,6 +174,9 @@ async function run() {
 
   console.log('\n🖼️  Optimizing images...');
   const { imageSet, errors } = await optimizeImages(allProducts);
+
+  console.log('\n🔎 Validating catalog...');
+  validateCatalog(allProducts, imageSet);
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });
