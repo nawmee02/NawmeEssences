@@ -16,8 +16,11 @@
 // sharp is lazy-loaded only when an image actually needs optimizing — its
 // native binary isn't required (and won't crash the build) when every image
 // is already done or Storage writes are disabled.
+const fs = require('fs');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const { SUPABASE_URL, BUCKET } = require('./lib/catalog');
+const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/catalog');
+const { renderCard } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
 
 const SIZES = [
@@ -168,6 +171,51 @@ function validateCatalog(allProducts, imageSet) {
   console.log(`✓ catalog valid — ${allProducts.length} published products`);
 }
 
+// ─── Inject server-rendered grids into the static HTML ──────────
+// Renders the shop / home / exclusive cards from the same catalog the
+// build already fetched, so product content is in the HTML (crawlable +
+// paints without JS). The browser then filters/hydrates these nodes.
+// Content is replaced between re-runnable <!--GRID:name:start/end--> markers.
+function injectGrids(allProducts, productDetails) {
+  const card = (p, isExclusive) => renderCard({
+    ...p,
+    accords: (productDetails[p.id] && productDetails[p.id].accords) || [],
+    image_thumb:  publicUrl(p.id, 'thumb',  imageVersion(p.updatedAt)),
+    image_medium: publicUrl(p.id, 'medium', imageVersion(p.updatedAt)),
+  }, { isExclusive });
+
+  const cards = (list, isExclusive) => list.map(p => card(p, isExclusive)).join('\n');
+
+  const grids = {
+    bestsellers: cards(allProducts.filter(p => p.is_bestseller).slice(0, 8), false),
+    new:         cards(allProducts.filter(p => (p.tags || []).includes('new')), false),
+    shop:        cards(allProducts.filter(p => p.collection === 'regular'), false),
+    special:     cards(allProducts.filter(p => p.collection === 'special'), true),
+    exclusive:   cards(allProducts.filter(p => p.collection === 'exclusive'), true),
+  };
+
+  const pages = {
+    'index.html':     ['bestsellers', 'new'],
+    'shop.html':      ['shop'],
+    'exclusive.html': ['special', 'exclusive'],
+  };
+
+  let total = 0;
+  for (const [file, names] of Object.entries(pages)) {
+    const fp = path.join(ROOT, file);
+    let html = fs.readFileSync(fp, 'utf8');
+    for (const name of names) {
+      const re = new RegExp(`(<!--GRID:${name}:start-->)[\\s\\S]*?(<!--GRID:${name}:end-->)`);
+      if (!re.test(html)) throw new Error(`marker GRID:${name} not found in ${file}`);
+      html = html.replace(re, `$1\n${grids[name]}\n      $2`);
+      total += (grids[name].match(/class="product-card/g) || []).length;
+    }
+    fs.writeFileSync(fp, html);
+    console.log(`  injected → ${file}`);
+  }
+  console.log(`🧩 grids — ${total} cards injected`);
+}
+
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
@@ -181,6 +229,9 @@ async function run() {
 
   console.log('\n🔎 Validating catalog...');
   validateCatalog(allProducts, imageSet);
+
+  console.log('\n🧩 Injecting static grids...');
+  injectGrids(allProducts, productDetails);
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });

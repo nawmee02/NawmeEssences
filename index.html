@@ -216,7 +216,7 @@
     <h2 class="section-title">Most <span>Loved</span></h2>
     <a href="shop.html" class="section-link">View all →</a>
   </div>
-  <div class="product-grid" id="bestsellers-grid"></div>
+  <div class="product-grid" id="bestsellers-grid"><!--GRID:bestsellers:start--><!--GRID:bestsellers:end--></div>
 </div>
 
 <hr class="divider" />
@@ -227,7 +227,7 @@
     <h2 class="section-title">New <span>Releases</span></h2>
     <a href="shop.html" class="section-link">View all →</a>
   </div>
-  <div class="product-grid" id="new-grid"></div>
+  <div class="product-grid" id="new-grid"><!--GRID:new:start--><!--GRID:new:end--></div>
 </div>
 
 <hr class="divider" />
@@ -298,79 +298,24 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="js/products.js" defer></script>
-<script src="js/cart.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script><script src="js/cart.js" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/search.js" defer></script>
 <script src="js/supabase-config.js" defer></script>
 <script src="js/supabase.js" defer></script>
 <script src="js/api.js" defer></script>
 <script defer>
-  let _indexProducts = [];
-
-  function renderCard(product) {
-    const minPrice = Math.min(...product.sizes.map(s => s.price));
-    const tags = product.tags.map(t => `<span class="tag tag-${t}">${t === 'new' ? 'New' : t === 'restocked' ? 'Restocked' : t === 'limited' ? 'Limited' : t}</span>`).join('');
-    const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
-    const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
-    const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
-    const imgMed = product.image_medium || imgSrc;
-    const imgSet = `srcset="${imgSrc} 450w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
-    return `
-      <div class="product-card${!product.inStock ? ' out-of-stock' : ''}">
-        <a class="card-link" href="/product/${product.id}/">
-          <div class="card-img">
-            <img src="${imgSrc}" ${imgSet} alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
-            <div class="card-img-placeholder">🫧</div>
-            <div class="tag-badges">${tags}</div>
-            ${oosOverlay}
-          </div>
-          <div class="card-body">
-            <div class="card-brand">${product.brand}</div>
-            <div class="card-name">${product.name}</div>
-          </div>
-        </a>
-        <div class="card-footer">
-          <div class="size-pills" id="size-${product.id}">${sizePills}</div>
-          <span class="card-price-live" id="price-${product.id}">৳${minPrice}</span>
-          <button class="add-to-cart-btn" ${!product.inStock ? 'disabled' : ''} onclick="handleAdd('${product.id}', false)">
-            ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
-          </button>
-        </div>
-      </div>`;
-  }
-
+  // The Most-Loved + New-Releases grids are server-rendered at build time; this
+  // script only wires add-to-cart (reading the DOM) and hydrates live stock.
   function handleAdd(id, isExclusive) {
-    const allProds = _indexProducts.length
-      ? _indexProducts
-      : [...regularProducts, ...exclusiveProducts, ...specialItems];
-    const product = allProds.find(p => p.id === id);
-    const activePill = document.querySelector('#size-' + id + ' .size-pill.active');
-    const ml = activePill.dataset.ml;
-    const price = activePill.dataset.price;
-    addToCart(id, ml, price, product.name, product.brand, isExclusive);
+    const card = document.querySelector('.product-card[data-id="' + id + '"]');
+    const pill = document.querySelector('#size-' + id + ' .size-pill.active');
+    if (!card || !pill) return;
+    const name = card.querySelector('.card-name').textContent.trim();
+    addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
   }
 
-  document.addEventListener('DOMContentLoaded', async function() {
-    try {
-      _indexProducts = await ProductAPI.getRegular();
-    } catch (e) {
-      _indexProducts = regularProducts;
-    }
-
-    const bsIds = bestsellers;
-    const bsGrid = document.getElementById('bestsellers-grid');
-    bsIds.forEach(id => {
-      const p = _indexProducts.find(pr => pr.id === id);
-      if (p) bsGrid.innerHTML += renderCard(p);
-    });
-
-    const newGrid = document.getElementById('new-grid');
-    _indexProducts.filter(p => p.tags.includes('new')).forEach(p => {
-      newGrid.innerHTML += renderCard(p);
-    });
-  });
+  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
 </script>
 </body>
 </html>

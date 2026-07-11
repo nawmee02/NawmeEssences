@@ -1,88 +1,69 @@
-let _shopProducts = [];
+// Cards are server-rendered into #shop-grid at build time. This script no longer
+// builds cards — it filters/sorts the existing nodes in place (so product content
+// is crawlable + paints without JS) and hydrates live stock after load.
 
-function renderCard(product, isExclusive = false) {
-  const minPrice = Math.min(...product.sizes.map(s => s.price));
-  const tags = product.tags.map(t => {
-    const label = t === 'new' ? 'New' : t === 'restocked' ? 'Restocked' : t === 'limited' ? 'Limited' : t === 'discontinued' ? 'Discontinued' : t;
-    return `<span class="tag tag-${t}">${label}</span>`;
-  }).join('');
-  const sizePills = product.sizes.map((s, i) => `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${product.id}', this)">${s.ml}ml</button>`).join('');
-  const oosOverlay = !product.inStock ? `<div class="oos-badge"><span>Out of Stock</span></div>` : '';
-  const imgSrc = product.image_thumb || `images/products/${product.id}.jpg`;
-  const imgMed = product.image_medium || imgSrc;
-  const imgSet = `srcset="${imgSrc} 450w, ${imgMed} 800w" sizes="(max-width:640px) 46vw, 300px"`;
-  return `
-    <div class="product-card${!product.inStock ? ' out-of-stock' : ''}" data-id="${product.id}">
-      <a class="card-link" href="/product/${product.id}/">
-        <div class="card-img">
-          <img src="${imgSrc}" ${imgSet} alt="${product.name}" loading="lazy" onerror="this.style.display='none'">
-          <div class="card-img-placeholder">🫧</div>
-          <div class="tag-badges">${tags}</div>
-          ${oosOverlay}
-        </div>
-        <div class="card-body">
-          <div class="card-brand">${product.brand}</div>
-          <div class="card-name">${product.name}</div>
-        </div>
-      </a>
-      <div class="card-footer">
-        <div class="size-pills" id="size-${product.id}">${sizePills}</div>
-        <span class="card-price-live" id="price-${product.id}">৳${minPrice}</span>
-        <button class="add-to-cart-btn" ${!product.inStock ? 'disabled' : ''} onclick="handleAdd('${product.id}', ${isExclusive})">
-          ${product.inStock ? 'Add to Cart' : 'Out of Stock'}
-        </button>
-      </div>
-    </div>`;
-}
+let _cards = [];  // product-card nodes in their original (build) order
 
 function handleAdd(id, isExclusive) {
-  const allProds = _shopProducts.length
-    ? _shopProducts
-    : [...regularProducts, ...exclusiveProducts, ...specialItems];
-  const product = allProds.find(p => p.id === id);
-  const activePill = document.querySelector('#size-' + id + ' .size-pill.active');
-  const ml = activePill.dataset.ml;
-  const price = activePill.dataset.price;
-  addToCart(id, ml, price, product.name, product.brand, isExclusive);
+  const card = document.querySelector('.product-card[data-id="' + id + '"]');
+  const pill = document.querySelector('#size-' + id + ' .size-pill.active');
+  if (!card || !pill) return;
+  const name = card.querySelector('.card-name').textContent.trim();
+  addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
 }
 
 function getActiveFilters() {
-  const search = document.getElementById('search-input').value.trim().toLowerCase();
-  const brands = [...document.querySelectorAll('.brand-filter:checked')].map(c => c.value);
-  const sizes = [...document.querySelectorAll('.size-filter:checked')].map(c => Number(c.value));
-  const tags = [...document.querySelectorAll('.tag-filter:checked')].map(c => c.value);
-  const accords = [...document.querySelectorAll('.accord-filter:checked')].map(c => c.value);
-  const inStockOnly = document.getElementById('instock-filter').checked;
-  const sort = document.getElementById('sort-select').value;
-  return { search, brands, sizes, tags, accords, inStockOnly, sort };
+  return {
+    search: document.getElementById('search-input').value.trim().toLowerCase(),
+    brands: [...document.querySelectorAll('.brand-filter:checked')].map(c => c.value),
+    sizes: [...document.querySelectorAll('.size-filter:checked')].map(c => Number(c.value)),
+    tags: [...document.querySelectorAll('.tag-filter:checked')].map(c => c.value),
+    accords: [...document.querySelectorAll('.accord-filter:checked')].map(c => c.value),
+    inStockOnly: document.getElementById('instock-filter').checked,
+    sort: document.getElementById('sort-select').value,
+  };
+}
+
+function cardMatches(card, f) {
+  const d = card.dataset;
+  if (f.search && !d.name.includes(f.search) && !d.brand.toLowerCase().includes(f.search)) return false;
+  if (f.brands.length && !f.brands.includes(d.brand)) return false;
+  if (f.sizes.length) {
+    const ml = d.sizes.split(' ').map(Number);
+    if (!f.sizes.every(s => ml.includes(s))) return false;
+  }
+  if (f.tags.length) {
+    const tags = d.tags ? d.tags.split(' ') : [];
+    if (!f.tags.some(t => tags.includes(t))) return false;
+  }
+  if (f.accords.length) {
+    const accords = d.accords ? d.accords.split('|') : [];
+    if (!f.accords.some(a => accords.includes(a))) return false;
+  }
+  if (f.inStockOnly && d.instock !== 'true') return false;
+  return true;
 }
 
 function applyFilters() {
-  const { search, brands, sizes, tags, accords, inStockOnly, sort } = getActiveFilters();
+  const f = getActiveFilters();
   const grid = document.getElementById('shop-grid');
-  const noResults = document.getElementById('no-results');
-  const countEl = document.getElementById('result-count');
+  let visible = 0;
 
-  let filtered = _shopProducts.filter(p => {
-    if (search && !p.name.toLowerCase().includes(search) && !p.brand.toLowerCase().includes(search)) return false;
-    if (brands.length && !brands.includes(p.brand)) return false;
-    if (sizes.length && !sizes.every(ml => p.sizes.some(s => s.ml === ml))) return false;
-    if (tags.length && !tags.some(t => p.tags.includes(t))) return false;
-    if (accords.length) {
-      const pd = productDetails[p.id];
-      if (!pd || !accords.some(a => pd.accords.includes(a))) return false;
-    }
-    if (inStockOnly && !p.inStock) return false;
-    return true;
+  _cards.forEach(card => {
+    const show = cardMatches(card, f);
+    card.hidden = !show;
+    if (show) visible++;
   });
 
-  if (sort === 'price-asc') filtered.sort((a, b) => Math.min(...a.sizes.map(s => s.price)) - Math.min(...b.sizes.map(s => s.price)));
-  else if (sort === 'price-desc') filtered.sort((a, b) => Math.min(...b.sizes.map(s => s.price)) - Math.min(...a.sizes.map(s => s.price)));
-  else if (sort === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+  // Reorder DOM nodes for sort ('default' restores original build order).
+  let order = _cards;
+  if (f.sort === 'price-asc')  order = _cards.slice().sort((a, b) => (+a.dataset.price) - (+b.dataset.price));
+  else if (f.sort === 'price-desc') order = _cards.slice().sort((a, b) => (+b.dataset.price) - (+a.dataset.price));
+  else if (f.sort === 'name-asc')   order = _cards.slice().sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+  order.forEach(c => grid.appendChild(c));
 
-  grid.innerHTML = filtered.map(p => renderCard(p, false)).join('');
-  noResults.style.display = filtered.length === 0 ? 'block' : 'none';
-  countEl.textContent = `${filtered.length} fragrance${filtered.length !== 1 ? 's' : ''} found`;
+  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+  document.getElementById('result-count').textContent = `${visible} fragrance${visible !== 1 ? 's' : ''} found`;
 }
 
 function clearFilters() {
@@ -95,21 +76,12 @@ function clearFilters() {
 
 function debounce(fn, wait) {
   let t = null;
-  return function(...args) {
+  return function (...args) {
     if (t) clearTimeout(t);
     t = setTimeout(() => fn.apply(this, args), wait);
   };
 }
-
 const debouncedApplyFilters = debounce(applyFilters, 200);
-
-// Attach listeners
-document.getElementById('search-input').addEventListener('input', debouncedApplyFilters);
-document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
-document.getElementById('instock-filter').addEventListener('change', applyFilters);
-document.getElementById('sort-select').addEventListener('change', applyFilters);
-document.getElementById('brand-filters').addEventListener('change', applyFilters);
-document.getElementById('accord-filters').addEventListener('change', applyFilters);
 
 // Mobile sidebar toggle
 function toggleSidebar() {
@@ -121,42 +93,37 @@ function toggleSidebar() {
   });
 }
 
-async function init() {
-  const grid = document.getElementById('shop-grid');
-  grid.innerHTML = '<p style="padding:2rem;text-align:center;color:#888;">Loading fragrances…</p>';
+function init() {
+  _cards = [...document.querySelectorAll('#shop-grid .product-card')];
 
-  try {
-    _shopProducts = await ProductAPI.getRegular();
-  } catch (e) {
-    console.warn('[api] Supabase fetch failed, falling back to local data:', e.message);
-    _shopProducts = regularProducts;
-  }
-
-  // Build brand filters
-  const shopBrands = [...new Set(_shopProducts.map(p => p.brand))].sort();
+  // Build brand + accord filter checkboxes from the rendered cards' data-* attributes.
+  const brands = [...new Set(_cards.map(c => c.dataset.brand))].filter(Boolean).sort();
   const brandFilters = document.getElementById('brand-filters');
-  if (brandFilters) {
-    shopBrands.forEach(brand => {
-      brandFilters.innerHTML += `<label><input type="checkbox" value="${brand}" class="brand-filter" /> ${brand}</label>`;
-    });
-  }
+  if (brandFilters) brands.forEach(b => {
+    brandFilters.innerHTML += `<label><input type="checkbox" value="${b}" class="brand-filter" /> ${b}</label>`;
+  });
 
-  // Build accord filters
+  const accords = [...new Set(_cards.flatMap(c => c.dataset.accords ? c.dataset.accords.split('|') : []))].filter(Boolean).sort();
   const accordFilters = document.getElementById('accord-filters');
-  if (accordFilters) {
-    const allAccords = [...new Set(
-      _shopProducts.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || [])
-    )].sort();
-    allAccords.forEach(accord => {
-      accordFilters.innerHTML += `<label><input type="checkbox" value="${accord}" class="accord-filter" /> ${accord}</label>`;
-    });
-  }
+  if (accordFilters) accords.forEach(a => {
+    accordFilters.innerHTML += `<label><input type="checkbox" value="${a}" class="accord-filter" /> ${a}</label>`;
+  });
 
-  // Honor ?q= from the global header search (and the SEO SearchAction)
+  // Honor ?q= from the header search / SEO SearchAction.
   const q = new URLSearchParams(location.search).get('q');
   if (q) document.getElementById('search-input').value = q;
 
   applyFilters();
+  // Deferred: refresh live stock on the server-rendered cards, then re-filter.
+  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards().then(c => { if (c) applyFilters(); });
 }
+
+// Listeners (elements exist in the static HTML; checkbox changes bubble to the containers)
+document.getElementById('search-input').addEventListener('input', debouncedApplyFilters);
+document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
+document.getElementById('instock-filter').addEventListener('change', applyFilters);
+document.getElementById('sort-select').addEventListener('change', applyFilters);
+document.getElementById('brand-filters').addEventListener('change', applyFilters);
+document.getElementById('accord-filters').addEventListener('change', applyFilters);
 
 init();

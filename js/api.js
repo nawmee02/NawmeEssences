@@ -96,7 +96,41 @@ const ProductAPI = (() => {
     };
   }
 
+  // Sync the server-rendered .product-card nodes with live stock (called after
+  // load by shop/home/exclusive). Only touches cards whose stock changed since
+  // the build, so the DOM barely mutates. Returns true if anything changed.
+  async function hydrateCards() {
+    let products;
+    try { products = await _load(); } catch { return false; }
+    const byId = {};
+    products.forEach(p => { byId[p.id] = p; });
+    let changed = false;
+    document.querySelectorAll('.product-card[data-id]').forEach(card => {
+      const p = byId[card.dataset.id];
+      if (!p) return;
+      const oos = !p.inStock;
+      if ((card.dataset.instock === 'true') !== oos) return;   // already correct
+      card.dataset.instock = oos ? 'false' : 'true';
+      card.classList.toggle('out-of-stock', oos);
+      const imgWrap = card.querySelector('.card-img');
+      let badge = card.querySelector('.oos-badge');
+      if (oos && !badge && imgWrap) {
+        badge = document.createElement('div');
+        badge.className = 'oos-badge';
+        badge.innerHTML = '<span>Out of Stock</span>';
+        imgWrap.appendChild(badge);
+      } else if (!oos && badge) {
+        badge.remove();
+      }
+      const btn = card.querySelector('.add-to-cart-btn');
+      if (btn) { btn.disabled = oos; btn.textContent = oos ? 'Out of Stock' : 'Add to Cart'; }
+      changed = true;
+    });
+    return changed;
+  }
+
   return {
+    hydrateCards,
     async getAll()         { return _load(); },
     async getRegular()     { return (await _load()).filter(p => p.collection === 'regular'); },
     async getExclusive()   { return (await _load()).filter(p => p.collection === 'exclusive'); },
