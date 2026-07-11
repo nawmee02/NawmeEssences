@@ -285,6 +285,7 @@ function renderPage(p, all, detailsMap) {
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImage(p.id, v))}" />
   <!-- Structured data -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801738221686"]}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
