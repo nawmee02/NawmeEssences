@@ -10,8 +10,9 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ROOT, loadProducts, publicUrl, imageVersion, hasGeneratedImages,
+  ROOT, loadProducts, publicUrl, imageVersion, brandSlug, hasGeneratedImages,
 } = require('./lib/catalog');
+const { renderCard } = require('./lib/render-card');
 
 const SITE = 'https://nawmeessences.me';
 const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
@@ -170,6 +171,7 @@ const HEADER = `<div class="announcement-bar">
     <div id="nav-menu">
       <a href="/" class="nav-link">Home</a>
       <a href="/shop.html" class="nav-link">Shop</a>
+      <a href="/brands/" class="nav-link">Brands</a>
       <a href="/exclusive.html" class="nav-link exclusive-link">✦ Exclusive</a>
       <a href="/about.html" class="nav-link">Policies</a>
     </div>
@@ -214,15 +216,16 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/api.js" defer></script>
 <script src="/js/search.js" defer></script>`;
 
+// Shared Organization JSON-LD (same #organization entity as the homepage).
+const ORG_LD = '{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801738221686"]}';
+
 // ─── Page template ───────────────────────────────────────────
 function renderPage(p, all, detailsMap) {
   const d = detailsMap[p.id] || null;
   const url = `${SITE}/product/${p.id}/`;
   const v = imageVersion(p.updatedAt);   // ?v= cache-buster for this product's images
   const isExclusive = p.collection !== 'regular';
-  const parent = isExclusive
-    ? { name: 'Exclusive Collection', url: `${SITE}/exclusive.html` }
-    : { name: 'Shop', url: `${SITE}/shop.html` };
+  const bSlug = brandSlug(p.brand);
   const desc = description(p, d);
   const metaDesc = metaDescription(p, d);
   const title = `${p.name} — ${p.brand} Perfume Decant in Bangladesh | NawmeEssences`;
@@ -253,8 +256,9 @@ function renderPage(p, all, detailsMap) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-      { '@type': 'ListItem', position: 2, name: parent.name, item: parent.url },
-      { '@type': 'ListItem', position: 3, name: p.name, item: url },
+      { '@type': 'ListItem', position: 2, name: 'Brands', item: `${SITE}/brands/` },
+      { '@type': 'ListItem', position: 3, name: p.brand, item: `${SITE}/brands/${bSlug}/` },
+      { '@type': 'ListItem', position: 4, name: p.name, item: url },
     ],
   };
 
@@ -285,7 +289,7 @@ function renderPage(p, all, detailsMap) {
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImage(p.id, v))}" />
   <!-- Structured data -->
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801738221686"]}</script>
+  <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -301,7 +305,8 @@ ${HEADER}
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
   <a href="/">Home</a> <span>›</span>
-  <a href="${attr(parent.url.replace(SITE, ''))}">${esc(parent.name)}</a> <span>›</span>
+  <a href="/brands/">Brands</a> <span>›</span>
+  <a href="/brands/${attr(bSlug)}/">${esc(p.brand)}</a> <span>›</span>
   <span class="crumb-current">${esc(p.name)}</span>
 </nav>
 
@@ -418,20 +423,234 @@ ${SCRIPTS}
 `;
 }
 
+// ─── Brand hub pages ─────────────────────────────────────────
+// Normalize a product for the shared card renderer (versioned image URLs + accords).
+function cardData(p, detailsMap) {
+  const v = imageVersion(p.updatedAt);
+  return {
+    ...p,
+    accords: (detailsMap[p.id] && detailsMap[p.id].accords) || [],
+    image_thumb:  publicUrl(p.id, 'thumb',  v),
+    image_medium: publicUrl(p.id, 'medium', v),
+  };
+}
+
+function groupByBrand(allProducts) {
+  const map = new Map();
+  for (const p of allProducts) {
+    const name = p.brand || 'Other';
+    if (!map.has(name)) map.set(name, []);
+    map.get(name).push(p);
+  }
+  return [...map.entries()]
+    .map(([name, products]) => ({ name, slug: brandSlug(name), products }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Add-to-cart from the DOM + deferred live-stock hydration (same as the exclusive page).
+const BRAND_INLINE = `<script>
+  function handleAdd(id, isExclusive) {
+    const card = document.querySelector('.product-card[data-id="' + id + '"]');
+    const pill = document.querySelector('#size-' + id + ' .size-pill.active');
+    if (!card || !pill) return;
+    const name = card.querySelector('.card-name').textContent.trim();
+    addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
+  }
+  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
+</script>`;
+
+function renderBrandPage(brand, detailsMap) {
+  const { name, slug, products } = brand;
+  const url = `${SITE}/brands/${slug}/`;
+  const count = products.length;
+  const lo = Math.min(...products.map(p => minPrice(p.sizes)));
+  const title = `${name} Perfume Decants in Bangladesh | NawmeEssences`;
+  const metaDesc = `Shop ${count} authentic ${name} perfume decant${count !== 1 ? 's' : ''} in Bangladesh — 3ml, 5ml, 10ml, 15ml & 30ml sizes from ৳${lo}. Delivery across Dhaka, pickup at Aftabnagar, Banasree & NSU.`;
+  const intro = `Shop authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh — ${count} fragrance${count !== 1 ? 's' : ''} available in 3ml, 5ml, 10ml, 15ml and 30ml sizes, decanted from genuine originals. Delivery across Dhaka &amp; Bangladesh with pickup at Aftabnagar, Banasree &amp; NSU.`;
+
+  const collectionLd = {
+    '@context': 'https://schema.org', '@type': 'CollectionPage',
+    name: `${name} Perfume Decants in Bangladesh`, url,
+    isPartOf: { '@id': `${SITE}/#website` },
+    about: { '@type': 'Brand', name },
+    mainEntity: {
+      '@type': 'ItemList', numberOfItems: count,
+      itemListElement: products.map((p, i) => ({
+        '@type': 'ListItem', position: i + 1, name: p.name, url: `${SITE}/product/${p.id}/`,
+      })),
+    },
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Brands', item: `${SITE}/brands/` },
+      { '@type': 'ListItem', position: 3, name, item: url },
+    ],
+  };
+
+  const cards = products
+    .map(p => renderCard(cardData(p, detailsMap), { isExclusive: p.collection !== 'regular' }))
+    .join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(metaDesc)}" />
+  <link rel="canonical" href="${attr(url)}" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta name="application-name" content="NawmeEssences" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:url" content="${attr(url)}" />
+  <meta property="og:title" content="${attr(name + ' Perfume Decants in Bangladesh')}" />
+  <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:locale" content="en_US" />
+  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> <span>›</span>
+  <a href="/brands/">Brands</a> <span>›</span>
+  <span class="crumb-current">${esc(name)}</span>
+</nav>
+
+<div class="section" style="padding-top:20px;">
+  <h1 class="brand-h1">${esc(name)} <span>Perfume Decants</span></h1>
+  <p class="brand-intro">${intro}</p>
+  <div class="product-grid">
+${cards}
+  </div>
+</div>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+${BRAND_INLINE}
+</body>
+</html>
+`;
+}
+
+function renderBrandsIndex(groups) {
+  const url = `${SITE}/brands/`;
+  const title = `Perfume Decant Brands in Bangladesh | NawmeEssences`;
+  const metaDesc = `Browse ${groups.length} fragrance brands at NawmeEssences — Rasasi, Lattafa, Armaf, Afnan, Dior, Amouage & more. Authentic perfume decants in 3ml–30ml, delivered across Bangladesh.`;
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Brands', item: url },
+    ],
+  };
+  const listLd = {
+    '@context': 'https://schema.org', '@type': 'CollectionPage',
+    name: 'Perfume Decant Brands', url,
+    isPartOf: { '@id': `${SITE}/#website` },
+    mainEntity: {
+      '@type': 'ItemList', numberOfItems: groups.length,
+      itemListElement: groups.map((g, i) => ({
+        '@type': 'ListItem', position: i + 1, name: g.name, url: `${SITE}/brands/${g.slug}/`,
+      })),
+    },
+  };
+
+  const tiles = groups.map(g => {
+    const thumb = publicUrl(g.products[0].id, 'thumb', imageVersion(g.products[0].updatedAt));
+    const n = g.products.length;
+    return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
+      <span class="brand-tile-img"><img src="${attr(thumb)}" alt="${attr(g.name)} perfume decants" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></span>
+      <span class="brand-tile-name">${esc(g.name)}</span>
+      <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
+    </a>`;
+  }).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(metaDesc)}" />
+  <link rel="canonical" href="${attr(url)}" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta name="application-name" content="NawmeEssences" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:url" content="${attr(url)}" />
+  <meta property="og:title" content="Perfume Decant Brands in Bangladesh" />
+  <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:locale" content="en_US" />
+  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${JSON.stringify(listLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> <span>›</span>
+  <span class="crumb-current">Brands</span>
+</nav>
+
+<div class="section" style="padding-top:20px;">
+  <h1 class="brand-h1">Shop Perfume Decants <span>by Brand</span></h1>
+  <p class="brand-intro">Browse NawmeEssences by fragrance house — ${groups.length} brands, from Rasasi and Lattafa to Dior and Amouage. Every bottle is an authentic decant in 3ml–30ml sizes, delivered across Bangladesh.</p>
+  <div class="brands-grid">
+${tiles}
+  </div>
+</div>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+</body>
+</html>
+`;
+}
+
 // ─── Sitemap ─────────────────────────────────────────────────
-function writeSitemap(all) {
+function writeSitemap(all, groups = []) {
   const core = [
     { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0' },
     { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9' },
+    { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7' },
     { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8' },
     { loc: `${SITE}/about.html`,    freq: 'monthly', pri: '0.5' },
     { loc: `${SITE}/about-me.html`, freq: 'monthly', pri: '0.4' },
   ];
+  const brandUrls = groups.map(g => ({ loc: `${SITE}/brands/${g.slug}/`, freq: 'weekly', pri: '0.6' }));
   const products = all.map(p => ({
     loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7',
     lastmod: p.updatedAt ? String(p.updatedAt).slice(0, 10) : null,
   }));
-  const urls = [...core, ...products].map(u =>
+  const urls = [...core, ...brandUrls, ...products].map(u =>
     `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
@@ -452,10 +671,21 @@ function generateFromData(allProducts, productDetails, opts = {}) {
     fs.writeFileSync(path.join(dir, 'index.html'), renderPage(p, allProducts, productDetails));
     written++;
   }
-  writeSitemap(allProducts);
+  // Brand hub pages
+  const groups = groupByBrand(allProducts);
+  const brandsRoot = path.join(ROOT, 'brands');
+  fs.mkdirSync(brandsRoot, { recursive: true });
+  fs.writeFileSync(path.join(brandsRoot, 'index.html'), renderBrandsIndex(groups));
+  for (const g of groups) {
+    const dir = path.join(brandsRoot, g.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), renderBrandPage(g, productDetails));
+  }
 
-  console.log(`✓ generated ${written} product pages + sitemap.xml (${allProducts.length} urls + 5 core)`);
-  return { ok: true, written };
+  writeSitemap(allProducts, groups);
+
+  console.log(`✓ generated ${written} product pages + ${groups.length} brand pages + sitemap.xml`);
+  return { ok: true, written, brands: groups.length };
 }
 
 // ─── Main (local products.js source) ─────────────────────────

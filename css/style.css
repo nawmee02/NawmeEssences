@@ -304,6 +304,19 @@ input, select { font-family: var(--font-body); }
 .product-card:hover { border-color: var(--gold-dark); transform: translateY(-3px); }
 .product-card.out-of-stock { opacity: 0.6; }
 .product-card[hidden] { display: none !important; }   /* filtered-out cards (display:flex would beat the hidden attr) */
+
+/* ===== BRAND HUB PAGES ===== */
+.brand-h1 { font-family: var(--font-head); font-size: clamp(26px, 4.5vw, 44px); font-weight: 600; margin: 0 0 10px; }
+.brand-h1 span { color: var(--gold); }
+.brand-intro { color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6; margin: 0 0 28px; }
+.brand-intro strong { color: var(--text); }
+.brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.brand-tile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: inherit; transition: border-color var(--transition), transform var(--transition); }
+.brand-tile:hover { border-color: var(--gold-dark); transform: translateY(-3px); }
+.brand-tile-img { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--bg3); }
+.brand-tile-img img { width: 100%; height: 100%; object-fit: cover; }
+.brand-tile-name { font-family: var(--font-head); font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.brand-tile-count { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); }
 .card-link { text-decoration: none; color: inherit; display: block; }
 .card-img {
   position: relative;
