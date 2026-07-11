@@ -573,10 +573,8 @@ function renderBrandsIndex(groups) {
   };
 
   const tiles = groups.map(g => {
-    const thumb = publicUrl(g.products[0].id, 'thumb', imageVersion(g.products[0].updatedAt));
     const n = g.products.length;
     return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
-      <span class="brand-tile-img"><img src="${attr(thumb)}" alt="${attr(g.name)} perfume decants" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'"></span>
       <span class="brand-tile-name">${esc(g.name)}</span>
       <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
     </a>`;
