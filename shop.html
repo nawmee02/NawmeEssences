@@ -49,6 +49,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -77,7 +78,8 @@
       <a href="about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Switch to light theme" title="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <a href="cart.html" class="cart-btn">🛒 <span class="cart-label">Cart</span> <span class="cart-count" style="display:none">0</span></a>
       <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -148,7 +150,1408 @@
           <option value="name-asc">Name A–Z</option>
         </select>
       </div>
-      <div class="product-grid" id="shop-grid"><!--GRID:shop:start--><!--GRID:shop:end--></div>
+      <div class="product-grid" id="shop-grid"><!--GRID:shop:start-->
+
+    <div class="product-card" data-id="gulf-orchid-naseem" data-name="gulf orchid naseem" data-brand="Gulf Orchid" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/gulf-orchid-naseem/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gulf-orchid-naseem/thumb.webp?v=1783679869" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gulf-orchid-naseem/thumb.webp?v=1783679869 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gulf-orchid-naseem/medium.webp?v=1783679869 800w" sizes="(max-width:640px) 46vw, 300px" alt="Gulf Orchid Naseem Gulf Orchid perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Gulf Orchid</div>
+          <h3 class="card-name">Gulf Orchid Naseem</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-gulf-orchid-naseem"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('gulf-orchid-naseem', this)">3ml</button><button class="size-pill" data-ml="5" data-price="220" onclick="selectSize('gulf-orchid-naseem', this)">5ml</button><button class="size-pill" data-ml="10" data-price="380" onclick="selectSize('gulf-orchid-naseem', this)">10ml</button><button class="size-pill" data-ml="15" data-price="560" onclick="selectSize('gulf-orchid-naseem', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1090" onclick="selectSize('gulf-orchid-naseem', this)">30ml</button></div>
+        <span class="card-price-live" id="price-gulf-orchid-naseem">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('gulf-orchid-naseem', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rayhaan-azul" data-name="rayhaan azul" data-brand="Rayhaan" data-tags="new" data-sizes="3 5 10" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/rayhaan-azul/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-azul/thumb.webp?v=1783617948" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-azul/thumb.webp?v=1783617948 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-azul/medium.webp?v=1783617948 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rayhaan Azul Rayhaan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-new">New</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rayhaan</div>
+          <h3 class="card-name">Rayhaan Azul</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rayhaan-azul"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('rayhaan-azul', this)">3ml</button><button class="size-pill" data-ml="5" data-price="200" onclick="selectSize('rayhaan-azul', this)">5ml</button><button class="size-pill" data-ml="10" data-price="350" onclick="selectSize('rayhaan-azul', this)">10ml</button></div>
+        <span class="card-price-live" id="price-rayhaan-azul">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rayhaan-azul', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rayhaan-aquatica" data-name="rayhaan aquatica" data-brand="Rayhaan" data-tags="restocked" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/rayhaan-aquatica/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-aquatica/thumb.webp?v=1783704592" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-aquatica/thumb.webp?v=1783704592 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-aquatica/medium.webp?v=1783704592 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rayhaan Aquatica Rayhaan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-restocked">Restocked</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rayhaan</div>
+          <h3 class="card-name">Rayhaan Aquatica</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rayhaan-aquatica"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('rayhaan-aquatica', this)">3ml</button><button class="size-pill" data-ml="5" data-price="220" onclick="selectSize('rayhaan-aquatica', this)">5ml</button><button class="size-pill" data-ml="10" data-price="380" onclick="selectSize('rayhaan-aquatica', this)">10ml</button><button class="size-pill" data-ml="15" data-price="560" onclick="selectSize('rayhaan-aquatica', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1090" onclick="selectSize('rayhaan-aquatica', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rayhaan-aquatica">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rayhaan-aquatica', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rayhaan-lion" data-name="rayhaan lion" data-brand="Rayhaan" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/rayhaan-lion/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-lion/thumb.webp?v=1783691729" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-lion/thumb.webp?v=1783691729 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-lion/medium.webp?v=1783691729 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rayhaan Lion Rayhaan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rayhaan</div>
+          <h3 class="card-name">Rayhaan Lion</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rayhaan-lion"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('rayhaan-lion', this)">3ml</button><button class="size-pill" data-ml="5" data-price="220" onclick="selectSize('rayhaan-lion', this)">5ml</button><button class="size-pill" data-ml="10" data-price="380" onclick="selectSize('rayhaan-lion', this)">10ml</button><button class="size-pill" data-ml="15" data-price="560" onclick="selectSize('rayhaan-lion', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1090" onclick="selectSize('rayhaan-lion', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rayhaan-lion">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rayhaan-lion', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rayhaan-terra" data-name="rayhaan terra" data-brand="Rayhaan" data-tags="new" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/rayhaan-terra/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-terra/thumb.webp?v=1783686946" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-terra/thumb.webp?v=1783686946 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rayhaan-terra/medium.webp?v=1783686946 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rayhaan Terra Rayhaan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-new">New</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rayhaan</div>
+          <h3 class="card-name">Rayhaan Terra</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rayhaan-terra"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('rayhaan-terra', this)">3ml</button><button class="size-pill" data-ml="5" data-price="220" onclick="selectSize('rayhaan-terra', this)">5ml</button><button class="size-pill" data-ml="10" data-price="380" onclick="selectSize('rayhaan-terra', this)">10ml</button><button class="size-pill" data-ml="15" data-price="560" onclick="selectSize('rayhaan-terra', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1090" onclick="selectSize('rayhaan-terra', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rayhaan-terra">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rayhaan-terra', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="davidoff-cool-water" data-name="davidoff cool water" data-brand="Davidoff" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="150">
+      <a class="card-link" href="/product/davidoff-cool-water/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-cool-water/thumb.webp?v=1783697198" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-cool-water/thumb.webp?v=1783697198 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-cool-water/medium.webp?v=1783697198 800w" sizes="(max-width:640px) 46vw, 300px" alt="Davidoff Cool Water Davidoff perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Davidoff</div>
+          <h3 class="card-name">Davidoff Cool Water</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-davidoff-cool-water"><button class="size-pill active" data-ml="3" data-price="150" onclick="selectSize('davidoff-cool-water', this)">3ml</button><button class="size-pill" data-ml="5" data-price="220" onclick="selectSize('davidoff-cool-water', this)">5ml</button><button class="size-pill" data-ml="10" data-price="400" onclick="selectSize('davidoff-cool-water', this)">10ml</button><button class="size-pill" data-ml="15" data-price="600" onclick="selectSize('davidoff-cool-water', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1190" onclick="selectSize('davidoff-cool-water', this)">30ml</button></div>
+        <span class="card-price-live" id="price-davidoff-cool-water">৳150</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('davidoff-cool-water', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="riiffs-fareed" data-name="riiffs fareed" data-brand="Riiffs" data-tags="" data-sizes="3 5 10 15 30" data-accords="Aromatic|Spicy|Woody|Fresh" data-instock="true" data-price="160">
+      <a class="card-link" href="/product/riiffs-fareed/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/riiffs-fareed/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/riiffs-fareed/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/riiffs-fareed/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Riiffs Fareed Riiffs perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Riiffs</div>
+          <h3 class="card-name">Riiffs Fareed</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-riiffs-fareed"><button class="size-pill active" data-ml="3" data-price="160" onclick="selectSize('riiffs-fareed', this)">3ml</button><button class="size-pill" data-ml="5" data-price="230" onclick="selectSize('riiffs-fareed', this)">5ml</button><button class="size-pill" data-ml="10" data-price="420" onclick="selectSize('riiffs-fareed', this)">10ml</button><button class="size-pill" data-ml="15" data-price="610" onclick="selectSize('riiffs-fareed', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1190" onclick="selectSize('riiffs-fareed', this)">30ml</button></div>
+        <span class="card-price-live" id="price-riiffs-fareed">৳160</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('riiffs-fareed', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="nautica-voyage" data-name="nautica voyage" data-brand="Nautica" data-tags="" data-sizes="3 5 10 15 30" data-accords="Aquatic|Fresh|Woody|Green" data-instock="true" data-price="160">
+      <a class="card-link" href="/product/nautica-voyage/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/nautica-voyage/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/nautica-voyage/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/nautica-voyage/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Nautica Voyage Nautica perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Nautica</div>
+          <h3 class="card-name">Nautica Voyage</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-nautica-voyage"><button class="size-pill active" data-ml="3" data-price="160" onclick="selectSize('nautica-voyage', this)">3ml</button><button class="size-pill" data-ml="5" data-price="230" onclick="selectSize('nautica-voyage', this)">5ml</button><button class="size-pill" data-ml="10" data-price="420" onclick="selectSize('nautica-voyage', this)">10ml</button><button class="size-pill" data-ml="15" data-price="610" onclick="selectSize('nautica-voyage', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1190" onclick="selectSize('nautica-voyage', this)">30ml</button></div>
+        <span class="card-price-live" id="price-nautica-voyage">৳160</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('nautica-voyage', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lattafa-angham" data-name="lattafa angham" data-brand="Lattafa" data-tags="" data-sizes="3 5 10 15 30" data-accords="Gourmand|Sweet|Vanilla|Floral" data-instock="true" data-price="160">
+      <a class="card-link" href="/product/lattafa-angham/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-angham/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-angham/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-angham/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lattafa Angham Lattafa perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lattafa</div>
+          <h3 class="card-name">Lattafa Angham</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lattafa-angham"><button class="size-pill active" data-ml="3" data-price="160" onclick="selectSize('lattafa-angham', this)">3ml</button><button class="size-pill" data-ml="5" data-price="260" onclick="selectSize('lattafa-angham', this)">5ml</button><button class="size-pill" data-ml="10" data-price="460" onclick="selectSize('lattafa-angham', this)">10ml</button><button class="size-pill" data-ml="15" data-price="680" onclick="selectSize('lattafa-angham', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1330" onclick="selectSize('lattafa-angham', this)">30ml</button></div>
+        <span class="card-price-live" id="price-lattafa-angham">৳160</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lattafa-angham', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lattafa-khamrah-qahwa" data-name="lattafa khamrah qahwa" data-brand="Lattafa" data-tags="" data-sizes="3 5 10 15 30" data-accords="Oriental|Gourmand|Spicy|Sweet" data-instock="true" data-price="160">
+      <a class="card-link" href="/product/lattafa-khamrah-qahwa/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-khamrah-qahwa/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-khamrah-qahwa/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-khamrah-qahwa/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lattafa Khamrah Qahwa Lattafa perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lattafa</div>
+          <h3 class="card-name">Lattafa Khamrah Qahwa</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lattafa-khamrah-qahwa"><button class="size-pill active" data-ml="3" data-price="160" onclick="selectSize('lattafa-khamrah-qahwa', this)">3ml</button><button class="size-pill" data-ml="5" data-price="260" onclick="selectSize('lattafa-khamrah-qahwa', this)">5ml</button><button class="size-pill" data-ml="10" data-price="460" onclick="selectSize('lattafa-khamrah-qahwa', this)">10ml</button><button class="size-pill" data-ml="15" data-price="680" onclick="selectSize('lattafa-khamrah-qahwa', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1330" onclick="selectSize('lattafa-khamrah-qahwa', this)">30ml</button></div>
+        <span class="card-price-live" id="price-lattafa-khamrah-qahwa">৳160</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lattafa-khamrah-qahwa', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armaf-cdni-edp" data-name="armaf club de nuit intense man edp" data-brand="Armaf" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/armaf-cdni-edp/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-edp/thumb.webp?v=1783523673" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-edp/thumb.webp?v=1783523673 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-edp/medium.webp?v=1783523673 800w" sizes="(max-width:640px) 46vw, 300px" alt="Armaf Club de Nuit Intense Man EDP Armaf perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Armaf</div>
+          <h3 class="card-name">Armaf Club de Nuit Intense Man EDP</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armaf-cdni-edp"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('armaf-cdni-edp', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('armaf-cdni-edp', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('armaf-cdni-edp', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('armaf-cdni-edp', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('armaf-cdni-edp', this)">30ml</button></div>
+        <span class="card-price-live" id="price-armaf-cdni-edp">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armaf-cdni-edp', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="davidoff-indigo" data-name="davidoff indigo" data-brand="Davidoff" data-tags="" data-sizes="3 5 10 15 30" data-accords="Aquatic|Fresh|Fruity" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/davidoff-indigo/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-indigo/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-indigo/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/davidoff-indigo/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Davidoff Indigo Davidoff perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Davidoff</div>
+          <h3 class="card-name">Davidoff Indigo</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-davidoff-indigo"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('davidoff-indigo', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('davidoff-indigo', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('davidoff-indigo', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('davidoff-indigo', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('davidoff-indigo', this)">30ml</button></div>
+        <span class="card-price-live" id="price-davidoff-indigo">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('davidoff-indigo', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lattafa-maahir-legacy" data-name="lattafa maahir legacy" data-brand="Lattafa" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Aromatic|Woody|Citrus" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/lattafa-maahir-legacy/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-maahir-legacy/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-maahir-legacy/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-maahir-legacy/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lattafa Maahir Legacy Lattafa perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lattafa</div>
+          <h3 class="card-name">Lattafa Maahir Legacy</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lattafa-maahir-legacy"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('lattafa-maahir-legacy', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('lattafa-maahir-legacy', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('lattafa-maahir-legacy', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('lattafa-maahir-legacy', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('lattafa-maahir-legacy', this)">30ml</button></div>
+        <span class="card-price-live" id="price-lattafa-maahir-legacy">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lattafa-maahir-legacy', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-shuhrah-elixir" data-name="rasasi shuhrah elixir" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="Spicy|Woody|Citrus|Aromatic" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/rasasi-shuhrah-elixir/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-shuhrah-elixir/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-shuhrah-elixir/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-shuhrah-elixir/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Shuhrah Elixir Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Shuhrah Elixir</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-shuhrah-elixir"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('rasasi-shuhrah-elixir', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('rasasi-shuhrah-elixir', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('rasasi-shuhrah-elixir', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('rasasi-shuhrah-elixir', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('rasasi-shuhrah-elixir', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-shuhrah-elixir">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-shuhrah-elixir', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas" data-name="rasasi hawas" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/rasasi-hawas/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas/thumb.webp?v=1783704888" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas/thumb.webp?v=1783704888 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas/medium.webp?v=1783704888 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('rasasi-hawas', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('rasasi-hawas', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('rasasi-hawas', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('rasasi-hawas', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('rasasi-hawas', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-black" data-name="rasasi hawas black" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Chypre|Woody|Citrus" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/rasasi-hawas-black/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-black/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-black/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-black/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Black Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Black</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-black"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('rasasi-hawas-black', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('rasasi-hawas-black', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('rasasi-hawas-black', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('rasasi-hawas-black', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('rasasi-hawas-black', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-black">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-black', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-elixir" data-name="rasasi hawas elixir" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="Gourmand|Sweet|Minty|Oriental" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/rasasi-hawas-elixir/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-elixir/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-elixir/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-elixir/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Elixir Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Elixir</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-elixir"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('rasasi-hawas-elixir', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('rasasi-hawas-elixir', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('rasasi-hawas-elixir', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('rasasi-hawas-elixir', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('rasasi-hawas-elixir', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-elixir">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-elixir', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-ice" data-name="rasasi hawas ice" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="170">
+      <a class="card-link" href="/product/rasasi-hawas-ice/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-ice/thumb.webp?v=1783693974" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-ice/thumb.webp?v=1783693974 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-ice/medium.webp?v=1783693974 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Ice Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Ice</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-ice"><button class="size-pill active" data-ml="3" data-price="170" onclick="selectSize('rasasi-hawas-ice', this)">3ml</button><button class="size-pill" data-ml="5" data-price="270" onclick="selectSize('rasasi-hawas-ice', this)">5ml</button><button class="size-pill" data-ml="10" data-price="490" onclick="selectSize('rasasi-hawas-ice', this)">10ml</button><button class="size-pill" data-ml="15" data-price="730" onclick="selectSize('rasasi-hawas-ice', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1450" onclick="selectSize('rasasi-hawas-ice', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-ice">৳170</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-ice', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="afnan-modest-une" data-name="afnan modest une" data-brand="Afnan" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="180">
+      <a class="card-link" href="/product/afnan-modest-une/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-modest-une/thumb.webp?v=1783516607" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-modest-une/thumb.webp?v=1783516607 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-modest-une/medium.webp?v=1783516607 800w" sizes="(max-width:640px) 46vw, 300px" alt="Afnan Modest Une Afnan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Afnan</div>
+          <h3 class="card-name">Afnan Modest Une</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-afnan-modest-une"><button class="size-pill active" data-ml="3" data-price="180" onclick="selectSize('afnan-modest-une', this)">3ml</button><button class="size-pill" data-ml="5" data-price="280" onclick="selectSize('afnan-modest-une', this)">5ml</button><button class="size-pill" data-ml="10" data-price="500" onclick="selectSize('afnan-modest-une', this)">10ml</button><button class="size-pill" data-ml="15" data-price="750" onclick="selectSize('afnan-modest-une', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1470" onclick="selectSize('afnan-modest-une', this)">30ml</button></div>
+        <span class="card-price-live" id="price-afnan-modest-une">৳180</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('afnan-modest-une', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="afnan-9pm" data-name="afnan 9pm" data-brand="Afnan" data-tags="" data-sizes="3 5 10 15 30" data-accords="Sweet|Spicy|Fruity|Woody" data-instock="true" data-price="180">
+      <a class="card-link" href="/product/afnan-9pm/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-9pm/thumb.webp?v=1783190987" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-9pm/thumb.webp?v=1783190987 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-9pm/medium.webp?v=1783190987 800w" sizes="(max-width:640px) 46vw, 300px" alt="Afnan 9PM Afnan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Afnan</div>
+          <h3 class="card-name">Afnan 9PM</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-afnan-9pm"><button class="size-pill active" data-ml="3" data-price="180" onclick="selectSize('afnan-9pm', this)">3ml</button><button class="size-pill" data-ml="5" data-price="290" onclick="selectSize('afnan-9pm', this)">5ml</button><button class="size-pill" data-ml="10" data-price="520" onclick="selectSize('afnan-9pm', this)">10ml</button><button class="size-pill" data-ml="15" data-price="770" onclick="selectSize('afnan-9pm', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1490" onclick="selectSize('afnan-9pm', this)">30ml</button></div>
+        <span class="card-price-live" id="price-afnan-9pm">৳180</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('afnan-9pm', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lattafa-teriaq-intense" data-name="lattafa teriaq intense" data-brand="Lattafa" data-tags="" data-sizes="3 5 10 15" data-accords="Oriental|Spicy|Boozy|Sweet" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/lattafa-teriaq-intense/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-teriaq-intense/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-teriaq-intense/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-teriaq-intense/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lattafa Teriaq Intense Lattafa perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lattafa</div>
+          <h3 class="card-name">Lattafa Teriaq Intense</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lattafa-teriaq-intense"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('lattafa-teriaq-intense', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('lattafa-teriaq-intense', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('lattafa-teriaq-intense', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('lattafa-teriaq-intense', this)">15ml</button></div>
+        <span class="card-price-live" id="price-lattafa-teriaq-intense">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lattafa-teriaq-intense', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lattafa-dynasty" data-name="lattafa dynasty" data-brand="Lattafa" data-tags="" data-sizes="3 5 10 15" data-accords="Spicy|Woody|Tea|Fresh" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/lattafa-dynasty/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-dynasty/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-dynasty/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lattafa-dynasty/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lattafa Dynasty Lattafa perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lattafa</div>
+          <h3 class="card-name">Lattafa Dynasty</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lattafa-dynasty"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('lattafa-dynasty', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('lattafa-dynasty', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('lattafa-dynasty', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('lattafa-dynasty', this)">15ml</button></div>
+        <span class="card-price-live" id="price-lattafa-dynasty">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lattafa-dynasty', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-kobra" data-name="rasasi hawas kobra" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15" data-accords="Fresh|Aromatic|Tea|Citrus" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/rasasi-hawas-kobra/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-kobra/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-kobra/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-kobra/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Kobra Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Kobra</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-kobra"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('rasasi-hawas-kobra', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('rasasi-hawas-kobra', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('rasasi-hawas-kobra', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('rasasi-hawas-kobra', this)">15ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-kobra">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-kobra', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-malibu" data-name="rasasi hawas malibu" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15" data-accords="Tropical|Fruity|Floral|Sweet" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/rasasi-hawas-malibu/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-malibu/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-malibu/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-malibu/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Malibu Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Malibu</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-malibu"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('rasasi-hawas-malibu', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('rasasi-hawas-malibu', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('rasasi-hawas-malibu', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('rasasi-hawas-malibu', this)">15ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-malibu">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-malibu', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-tropical" data-name="rasasi hawas tropical" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15" data-accords="Tropical|Coconut|Green|Fresh" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/rasasi-hawas-tropical/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-tropical/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-tropical/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-tropical/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Tropical Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Tropical</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-tropical"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('rasasi-hawas-tropical', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('rasasi-hawas-tropical', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('rasasi-hawas-tropical', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('rasasi-hawas-tropical', this)">15ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-tropical">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-tropical', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armaf-cdni-milestone" data-name="armaf club de nuit milestone" data-brand="Armaf" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/armaf-cdni-milestone/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-milestone/thumb.webp?v=1783523822" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-milestone/thumb.webp?v=1783523822 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-milestone/medium.webp?v=1783523822 800w" sizes="(max-width:640px) 46vw, 300px" alt="Armaf Club de Nuit Milestone Armaf perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Armaf</div>
+          <h3 class="card-name">Armaf Club de Nuit Milestone</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armaf-cdni-milestone"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('armaf-cdni-milestone', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('armaf-cdni-milestone', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('armaf-cdni-milestone', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('armaf-cdni-milestone', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1570" onclick="selectSize('armaf-cdni-milestone', this)">30ml</button></div>
+        <span class="card-price-live" id="price-armaf-cdni-milestone">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armaf-cdni-milestone', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="bentley-silverlake" data-name="bentley silverlake" data-brand="Bentley" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Aromatic|Woody|Citrus" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/bentley-silverlake/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bentley-silverlake/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bentley-silverlake/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bentley-silverlake/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Bentley Silverlake Bentley perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Bentley</div>
+          <h3 class="card-name">Bentley Silverlake</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-bentley-silverlake"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('bentley-silverlake', this)">3ml</button><button class="size-pill" data-ml="5" data-price="330" onclick="selectSize('bentley-silverlake', this)">5ml</button><button class="size-pill" data-ml="10" data-price="590" onclick="selectSize('bentley-silverlake', this)">10ml</button><button class="size-pill" data-ml="15" data-price="880" onclick="selectSize('bentley-silverlake', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1690" onclick="selectSize('bentley-silverlake', this)">30ml</button></div>
+        <span class="card-price-live" id="price-bentley-silverlake">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('bentley-silverlake', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armaf-cdni-iconic" data-name="armaf club de nuit iconic" data-brand="Armaf" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/armaf-cdni-iconic/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-iconic/thumb.webp?v=1783529923" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-iconic/thumb.webp?v=1783529923 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-iconic/medium.webp?v=1783529923 800w" sizes="(max-width:640px) 46vw, 300px" alt="Armaf Club de Nuit Iconic Armaf perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Armaf</div>
+          <h3 class="card-name">Armaf Club de Nuit Iconic</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armaf-cdni-iconic"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('armaf-cdni-iconic', this)">3ml</button><button class="size-pill" data-ml="5" data-price="330" onclick="selectSize('armaf-cdni-iconic', this)">5ml</button><button class="size-pill" data-ml="10" data-price="590" onclick="selectSize('armaf-cdni-iconic', this)">10ml</button><button class="size-pill" data-ml="15" data-price="880" onclick="selectSize('armaf-cdni-iconic', this)">15ml</button></div>
+        <span class="card-price-live" id="price-armaf-cdni-iconic">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armaf-cdni-iconic', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-aether" data-name="french avenue aether" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15 30" data-accords="Aromatic|Woody|Fresh|Spicy" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/french-avenue-aether/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-aether/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-aether/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-aether/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Aether French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Aether</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-aether"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('french-avenue-aether', this)">3ml</button><button class="size-pill" data-ml="5" data-price="330" onclick="selectSize('french-avenue-aether', this)">5ml</button><button class="size-pill" data-ml="10" data-price="590" onclick="selectSize('french-avenue-aether', this)">10ml</button><button class="size-pill" data-ml="15" data-price="880" onclick="selectSize('french-avenue-aether', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1690" onclick="selectSize('french-avenue-aether', this)">30ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-aether">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-aether', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-liquid-brun" data-name="french avenue liquid brun" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15 30" data-accords="Oriental|Spicy|Woody|Leather" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/french-avenue-liquid-brun/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-liquid-brun/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-liquid-brun/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-liquid-brun/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Liquid Brun French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Liquid Brun</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-liquid-brun"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('french-avenue-liquid-brun', this)">3ml</button><button class="size-pill" data-ml="5" data-price="330" onclick="selectSize('french-avenue-liquid-brun', this)">5ml</button><button class="size-pill" data-ml="10" data-price="590" onclick="selectSize('french-avenue-liquid-brun', this)">10ml</button><button class="size-pill" data-ml="15" data-price="880" onclick="selectSize('french-avenue-liquid-brun', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1690" onclick="selectSize('french-avenue-liquid-brun', this)">30ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-liquid-brun">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-liquid-brun', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="lalique-encre-noire-sport" data-name="lalique encre noire sport" data-brand="Lalique" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Woody|Citrus|Aromatic" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/lalique-encre-noire-sport/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lalique-encre-noire-sport/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lalique-encre-noire-sport/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/lalique-encre-noire-sport/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Lalique Encre Noire Sport Lalique perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Lalique</div>
+          <h3 class="card-name">Lalique Encre Noire Sport</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-lalique-encre-noire-sport"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('lalique-encre-noire-sport', this)">3ml</button><button class="size-pill" data-ml="5" data-price="330" onclick="selectSize('lalique-encre-noire-sport', this)">5ml</button><button class="size-pill" data-ml="10" data-price="590" onclick="selectSize('lalique-encre-noire-sport', this)">10ml</button><button class="size-pill" data-ml="15" data-price="880" onclick="selectSize('lalique-encre-noire-sport', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1690" onclick="selectSize('lalique-encre-noire-sport', this)">30ml</button></div>
+        <span class="card-price-live" id="price-lalique-encre-noire-sport">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('lalique-encre-noire-sport', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-lava-gold" data-name="rasasi hawas lava gold" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="Oriental|Fruity|Leather|Sweet" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/rasasi-hawas-lava-gold/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-lava-gold/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-lava-gold/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-lava-gold/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Lava Gold Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Lava Gold</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-lava-gold"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('rasasi-hawas-lava-gold', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('rasasi-hawas-lava-gold', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('rasasi-hawas-lava-gold', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('rasasi-hawas-lava-gold', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1570" onclick="selectSize('rasasi-hawas-lava-gold', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-lava-gold">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-lava-gold', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="rasasi-hawas-thunder" data-name="rasasi hawas thunder" data-brand="Rasasi" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Spicy|Woody|Aromatic" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/rasasi-hawas-thunder/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-thunder/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-thunder/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/rasasi-hawas-thunder/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Rasasi Hawas Thunder Rasasi perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Rasasi</div>
+          <h3 class="card-name">Rasasi Hawas Thunder</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-rasasi-hawas-thunder"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('rasasi-hawas-thunder', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('rasasi-hawas-thunder', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('rasasi-hawas-thunder', this)">10ml</button><button class="size-pill" data-ml="15" data-price="810" onclick="selectSize('rasasi-hawas-thunder', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1570" onclick="selectSize('rasasi-hawas-thunder', this)">30ml</button></div>
+        <span class="card-price-live" id="price-rasasi-hawas-thunder">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('rasasi-hawas-thunder', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-vulcan-feu" data-name="french avenue vulcan feu" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15 30" data-accords="Spicy|Oriental|Woody|Leather" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/french-avenue-vulcan-feu/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-feu/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-feu/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-feu/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Vulcan Feu French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Vulcan Feu</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-vulcan-feu"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('french-avenue-vulcan-feu', this)">3ml</button><button class="size-pill" data-ml="5" data-price="340" onclick="selectSize('french-avenue-vulcan-feu', this)">5ml</button><button class="size-pill" data-ml="10" data-price="620" onclick="selectSize('french-avenue-vulcan-feu', this)">10ml</button><button class="size-pill" data-ml="15" data-price="910" onclick="selectSize('french-avenue-vulcan-feu', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1750" onclick="selectSize('french-avenue-vulcan-feu', this)">30ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-vulcan-feu">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-vulcan-feu', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-vulcan-sable" data-name="french avenue vulcan sable" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Aromatic|Woody|Citrus" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/french-avenue-vulcan-sable/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-sable/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-sable/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-sable/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Vulcan Sable French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Vulcan Sable</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-vulcan-sable"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('french-avenue-vulcan-sable', this)">3ml</button><button class="size-pill" data-ml="5" data-price="340" onclick="selectSize('french-avenue-vulcan-sable', this)">5ml</button><button class="size-pill" data-ml="10" data-price="620" onclick="selectSize('french-avenue-vulcan-sable', this)">10ml</button><button class="size-pill" data-ml="15" data-price="910" onclick="selectSize('french-avenue-vulcan-sable', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1750" onclick="selectSize('french-avenue-vulcan-sable', this)">30ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-vulcan-sable">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-vulcan-sable', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-atlantis" data-name="french avenue atlantis" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="200">
+      <a class="card-link" href="/product/french-avenue-atlantis/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-atlantis/thumb.webp?v=1783704440" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-atlantis/thumb.webp?v=1783704440 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-atlantis/medium.webp?v=1783704440 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Atlantis French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Atlantis</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-atlantis"><button class="size-pill active" data-ml="3" data-price="200" onclick="selectSize('french-avenue-atlantis', this)">3ml</button><button class="size-pill" data-ml="5" data-price="340" onclick="selectSize('french-avenue-atlantis', this)">5ml</button><button class="size-pill" data-ml="10" data-price="620" onclick="selectSize('french-avenue-atlantis', this)">10ml</button><button class="size-pill" data-ml="15" data-price="910" onclick="selectSize('french-avenue-atlantis', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1750" onclick="selectSize('french-avenue-atlantis', this)">30ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-atlantis">৳200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-atlantis', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="afnan-supremacy-not-only-intense" data-name="afnan supremacy not only intense" data-brand="Afnan" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="220">
+      <a class="card-link" href="/product/afnan-supremacy-not-only-intense/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-not-only-intense/thumb.webp?v=1783516957" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-not-only-intense/thumb.webp?v=1783516957 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-not-only-intense/medium.webp?v=1783516957 800w" sizes="(max-width:640px) 46vw, 300px" alt="Afnan Supremacy Not Only Intense Afnan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Afnan</div>
+          <h3 class="card-name">Afnan Supremacy Not Only Intense</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-afnan-supremacy-not-only-intense"><button class="size-pill active" data-ml="3" data-price="220" onclick="selectSize('afnan-supremacy-not-only-intense', this)">3ml</button><button class="size-pill" data-ml="5" data-price="350" onclick="selectSize('afnan-supremacy-not-only-intense', this)">5ml</button><button class="size-pill" data-ml="10" data-price="650" onclick="selectSize('afnan-supremacy-not-only-intense', this)">10ml</button><button class="size-pill" data-ml="15" data-price="950" onclick="selectSize('afnan-supremacy-not-only-intense', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1840" onclick="selectSize('afnan-supremacy-not-only-intense', this)">30ml</button></div>
+        <span class="card-price-live" id="price-afnan-supremacy-not-only-intense">৳220</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('afnan-supremacy-not-only-intense', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="afnan-turathi-brown" data-name="afnan turathi brown" data-brand="Afnan" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="220">
+      <a class="card-link" href="/product/afnan-turathi-brown/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-turathi-brown/thumb.webp?v=1783517646" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-turathi-brown/thumb.webp?v=1783517646 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-turathi-brown/medium.webp?v=1783517646 800w" sizes="(max-width:640px) 46vw, 300px" alt="Afnan Turathi Brown Afnan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Afnan</div>
+          <h3 class="card-name">Afnan Turathi Brown</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-afnan-turathi-brown"><button class="size-pill active" data-ml="3" data-price="220" onclick="selectSize('afnan-turathi-brown', this)">3ml</button><button class="size-pill" data-ml="5" data-price="350" onclick="selectSize('afnan-turathi-brown', this)">5ml</button><button class="size-pill" data-ml="10" data-price="650" onclick="selectSize('afnan-turathi-brown', this)">10ml</button><button class="size-pill" data-ml="15" data-price="950" onclick="selectSize('afnan-turathi-brown', this)">15ml</button><button class="size-pill" data-ml="30" data-price="1840" onclick="selectSize('afnan-turathi-brown', this)">30ml</button></div>
+        <span class="card-price-live" id="price-afnan-turathi-brown">৳220</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('afnan-turathi-brown', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-magnetiq" data-name="french avenue x aromatix magnetiq" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="220">
+      <a class="card-link" href="/product/french-avenue-magnetiq/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-magnetiq/thumb.webp?v=1783704525" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-magnetiq/thumb.webp?v=1783704525 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-magnetiq/medium.webp?v=1783704525 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue X Aromatix Magnetiq French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue X Aromatix Magnetiq</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-magnetiq"><button class="size-pill active" data-ml="3" data-price="220" onclick="selectSize('french-avenue-magnetiq', this)">3ml</button><button class="size-pill" data-ml="5" data-price="350" onclick="selectSize('french-avenue-magnetiq', this)">5ml</button><button class="size-pill" data-ml="10" data-price="650" onclick="selectSize('french-avenue-magnetiq', this)">10ml</button><button class="size-pill" data-ml="15" data-price="950" onclick="selectSize('french-avenue-magnetiq', this)">15ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-magnetiq">৳220</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-magnetiq', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-platine-blanc" data-name="french avenue x aromatix platine blanc" data-brand="French Avenue" data-tags="" data-sizes="3 5 10 15" data-accords="Fresh|Floral|Citrus|Woody" data-instock="true" data-price="220">
+      <a class="card-link" href="/product/french-avenue-platine-blanc/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-platine-blanc/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-platine-blanc/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-platine-blanc/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue X Aromatix Platine Blanc French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue X Aromatix Platine Blanc</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-platine-blanc"><button class="size-pill active" data-ml="3" data-price="220" onclick="selectSize('french-avenue-platine-blanc', this)">3ml</button><button class="size-pill" data-ml="5" data-price="350" onclick="selectSize('french-avenue-platine-blanc', this)">5ml</button><button class="size-pill" data-ml="10" data-price="650" onclick="selectSize('french-avenue-platine-blanc', this)">10ml</button><button class="size-pill" data-ml="15" data-price="950" onclick="selectSize('french-avenue-platine-blanc', this)">15ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-platine-blanc">৳220</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-platine-blanc', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="french-avenue-vulcan-black-friday" data-name="french avenue vulcan black friday le" data-brand="French Avenue" data-tags="limited" data-sizes="3 5 10 15" data-accords="Spicy|Leather|Oriental|Dark" data-instock="true" data-price="230">
+      <a class="card-link" href="/product/french-avenue-vulcan-black-friday/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-black-friday/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-black-friday/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/french-avenue-vulcan-black-friday/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="French Avenue Vulcan Black Friday LE French Avenue perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-limited">Limited</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">French Avenue</div>
+          <h3 class="card-name">French Avenue Vulcan Black Friday LE</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-french-avenue-vulcan-black-friday"><button class="size-pill active" data-ml="3" data-price="230" onclick="selectSize('french-avenue-vulcan-black-friday', this)">3ml</button><button class="size-pill" data-ml="5" data-price="370" onclick="selectSize('french-avenue-vulcan-black-friday', this)">5ml</button><button class="size-pill" data-ml="10" data-price="680" onclick="selectSize('french-avenue-vulcan-black-friday', this)">10ml</button><button class="size-pill" data-ml="15" data-price="990" onclick="selectSize('french-avenue-vulcan-black-friday', this)">15ml</button></div>
+        <span class="card-price-live" id="price-french-avenue-vulcan-black-friday">৳230</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('french-avenue-vulcan-black-friday', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="al-haramain-amber-oud-gold" data-name="al haramain amber oud gold edition" data-brand="Al Haramain" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="240">
+      <a class="card-link" href="/product/al-haramain-amber-oud-gold/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-gold/thumb.webp?v=1783522142" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-gold/thumb.webp?v=1783522142 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-gold/medium.webp?v=1783522142 800w" sizes="(max-width:640px) 46vw, 300px" alt="Al Haramain Amber Oud Gold Edition Al Haramain perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Al Haramain</div>
+          <h3 class="card-name">Al Haramain Amber Oud Gold Edition</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-al-haramain-amber-oud-gold"><button class="size-pill active" data-ml="3" data-price="240" onclick="selectSize('al-haramain-amber-oud-gold', this)">3ml</button><button class="size-pill" data-ml="5" data-price="390" onclick="selectSize('al-haramain-amber-oud-gold', this)">5ml</button><button class="size-pill" data-ml="10" data-price="740" onclick="selectSize('al-haramain-amber-oud-gold', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1090" onclick="selectSize('al-haramain-amber-oud-gold', this)">15ml</button></div>
+        <span class="card-price-live" id="price-al-haramain-amber-oud-gold">৳240</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('al-haramain-amber-oud-gold', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="hugo-boss-bottled-infinite" data-name="hugo boss bottled infinite" data-brand="Hugo Boss" data-tags="" data-sizes="3 5 10 15" data-accords="Spicy|Woody|Fruity|Aromatic" data-instock="true" data-price="240">
+      <a class="card-link" href="/product/hugo-boss-bottled-infinite/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-infinite/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-infinite/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-infinite/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Hugo Boss Bottled Infinite Hugo Boss perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Hugo Boss</div>
+          <h3 class="card-name">Hugo Boss Bottled Infinite</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-hugo-boss-bottled-infinite"><button class="size-pill active" data-ml="3" data-price="240" onclick="selectSize('hugo-boss-bottled-infinite', this)">3ml</button><button class="size-pill" data-ml="5" data-price="390" onclick="selectSize('hugo-boss-bottled-infinite', this)">5ml</button><button class="size-pill" data-ml="10" data-price="740" onclick="selectSize('hugo-boss-bottled-infinite', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1090" onclick="selectSize('hugo-boss-bottled-infinite', this)">15ml</button></div>
+        <span class="card-price-live" id="price-hugo-boss-bottled-infinite">৳240</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('hugo-boss-bottled-infinite', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-male" data-name="jpg le male" data-brand="Jean Paul Gaultier" data-tags="restocked" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="240">
+      <a class="card-link" href="/product/jpg-le-male/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male/thumb.webp?v=1783693712" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male/thumb.webp?v=1783693712 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male/medium.webp?v=1783693712 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Male Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-restocked">Restocked</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Male</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-male"><button class="size-pill active" data-ml="3" data-price="240" onclick="selectSize('jpg-le-male', this)">3ml</button><button class="size-pill" data-ml="5" data-price="390" onclick="selectSize('jpg-le-male', this)">5ml</button><button class="size-pill" data-ml="10" data-price="740" onclick="selectSize('jpg-le-male', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1090" onclick="selectSize('jpg-le-male', this)">15ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-male">৳240</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-male', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="mercedes-club-black" data-name="mercedes benz club black edt" data-brand="Mercedes Benz" data-tags="" data-sizes="3 5 10 15" data-accords="Aromatic|Woody|Fresh|Dark" data-instock="true" data-price="240">
+      <a class="card-link" href="/product/mercedes-club-black/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mercedes-club-black/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mercedes-club-black/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mercedes-club-black/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Mercedes Benz Club Black EDT Mercedes Benz perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Mercedes Benz</div>
+          <h3 class="card-name">Mercedes Benz Club Black EDT</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-mercedes-club-black"><button class="size-pill active" data-ml="3" data-price="240" onclick="selectSize('mercedes-club-black', this)">3ml</button><button class="size-pill" data-ml="5" data-price="390" onclick="selectSize('mercedes-club-black', this)">5ml</button><button class="size-pill" data-ml="10" data-price="740" onclick="selectSize('mercedes-club-black', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1090" onclick="selectSize('mercedes-club-black', this)">15ml</button></div>
+        <span class="card-price-live" id="price-mercedes-club-black">৳240</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('mercedes-club-black', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="missoni-wave" data-name="missoni wave" data-brand="Missoni" data-tags="" data-sizes="3 5 10 15" data-accords="Fresh|Aromatic|Citrus|Woody" data-instock="true" data-price="240">
+      <a class="card-link" href="/product/missoni-wave/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-wave/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-wave/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-wave/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Missoni Wave Missoni perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Missoni</div>
+          <h3 class="card-name">Missoni Wave</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-missoni-wave"><button class="size-pill active" data-ml="3" data-price="240" onclick="selectSize('missoni-wave', this)">3ml</button><button class="size-pill" data-ml="5" data-price="390" onclick="selectSize('missoni-wave', this)">5ml</button><button class="size-pill" data-ml="10" data-price="740" onclick="selectSize('missoni-wave', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1090" onclick="selectSize('missoni-wave', this)">15ml</button></div>
+        <span class="card-price-live" id="price-missoni-wave">৳240</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('missoni-wave', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="al-haramain-amber-oud-aqua-dubai" data-name="al haramain amber oud aqua dubai" data-brand="Al Haramain" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="260">
+      <a class="card-link" href="/product/al-haramain-amber-oud-aqua-dubai/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-aqua-dubai/thumb.webp?v=1783522111" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-aqua-dubai/thumb.webp?v=1783522111 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-aqua-dubai/medium.webp?v=1783522111 800w" sizes="(max-width:640px) 46vw, 300px" alt="Al Haramain Amber Oud Aqua Dubai Al Haramain perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Al Haramain</div>
+          <h3 class="card-name">Al Haramain Amber Oud Aqua Dubai</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-al-haramain-amber-oud-aqua-dubai"><button class="size-pill active" data-ml="3" data-price="260" onclick="selectSize('al-haramain-amber-oud-aqua-dubai', this)">3ml</button><button class="size-pill" data-ml="5" data-price="420" onclick="selectSize('al-haramain-amber-oud-aqua-dubai', this)">5ml</button><button class="size-pill" data-ml="10" data-price="790" onclick="selectSize('al-haramain-amber-oud-aqua-dubai', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1170" onclick="selectSize('al-haramain-amber-oud-aqua-dubai', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2290" onclick="selectSize('al-haramain-amber-oud-aqua-dubai', this)">30ml</button></div>
+        <span class="card-price-live" id="price-al-haramain-amber-oud-aqua-dubai">৳260</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('al-haramain-amber-oud-aqua-dubai', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="al-haramain-amber-oud-dubai-night" data-name="al haramain amber oud dubai night" data-brand="Al Haramain" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="260">
+      <a class="card-link" href="/product/al-haramain-amber-oud-dubai-night/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-dubai-night/thumb.webp?v=1783522277" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-dubai-night/thumb.webp?v=1783522277 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-dubai-night/medium.webp?v=1783522277 800w" sizes="(max-width:640px) 46vw, 300px" alt="Al Haramain Amber Oud Dubai Night Al Haramain perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Al Haramain</div>
+          <h3 class="card-name">Al Haramain Amber Oud Dubai Night</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-al-haramain-amber-oud-dubai-night"><button class="size-pill active" data-ml="3" data-price="260" onclick="selectSize('al-haramain-amber-oud-dubai-night', this)">3ml</button><button class="size-pill" data-ml="5" data-price="420" onclick="selectSize('al-haramain-amber-oud-dubai-night', this)">5ml</button><button class="size-pill" data-ml="10" data-price="790" onclick="selectSize('al-haramain-amber-oud-dubai-night', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1170" onclick="selectSize('al-haramain-amber-oud-dubai-night', this)">15ml</button></div>
+        <span class="card-price-live" id="price-al-haramain-amber-oud-dubai-night">৳260</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('al-haramain-amber-oud-dubai-night', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="al-haramain-amber-oud-999" data-name="al haramain amber oud gold 999.9 dubai edition" data-brand="Al Haramain" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="260">
+      <a class="card-link" href="/product/al-haramain-amber-oud-999/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-999/thumb.webp?v=1783521306" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-999/thumb.webp?v=1783521306 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-999/medium.webp?v=1783521306 800w" sizes="(max-width:640px) 46vw, 300px" alt="Al Haramain Amber Oud Gold 999.9 Dubai Edition Al Haramain perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Al Haramain</div>
+          <h3 class="card-name">Al Haramain Amber Oud Gold 999.9 Dubai Edition</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-al-haramain-amber-oud-999"><button class="size-pill active" data-ml="3" data-price="260" onclick="selectSize('al-haramain-amber-oud-999', this)">3ml</button><button class="size-pill" data-ml="5" data-price="420" onclick="selectSize('al-haramain-amber-oud-999', this)">5ml</button><button class="size-pill" data-ml="10" data-price="790" onclick="selectSize('al-haramain-amber-oud-999', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1170" onclick="selectSize('al-haramain-amber-oud-999', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2290" onclick="selectSize('al-haramain-amber-oud-999', this)">30ml</button></div>
+        <span class="card-price-live" id="price-al-haramain-amber-oud-999">৳260</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('al-haramain-amber-oud-999', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-beau" data-name="jpg le beau" data-brand="Jean Paul Gaultier" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="260">
+      <a class="card-link" href="/product/jpg-le-beau/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau/thumb.webp?v=1783693741" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau/thumb.webp?v=1783693741 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau/medium.webp?v=1783693741 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Beau Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Beau</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-beau"><button class="size-pill active" data-ml="3" data-price="260" onclick="selectSize('jpg-le-beau', this)">3ml</button><button class="size-pill" data-ml="5" data-price="420" onclick="selectSize('jpg-le-beau', this)">5ml</button><button class="size-pill" data-ml="10" data-price="790" onclick="selectSize('jpg-le-beau', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1170" onclick="selectSize('jpg-le-beau', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2250" onclick="selectSize('jpg-le-beau', this)">30ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-beau">৳260</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-beau', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-male-le-parfum" data-name="jpg le male le parfum" data-brand="Jean Paul Gaultier" data-tags="" data-sizes="3 5 10 15 30" data-accords="Oriental|Aromatic|Sweet|Leather" data-instock="true" data-price="260">
+      <a class="card-link" href="/product/jpg-le-male-le-parfum/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-le-parfum/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-le-parfum/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-le-parfum/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Male Le Parfum Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Male Le Parfum</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-male-le-parfum"><button class="size-pill active" data-ml="3" data-price="260" onclick="selectSize('jpg-le-male-le-parfum', this)">3ml</button><button class="size-pill" data-ml="5" data-price="420" onclick="selectSize('jpg-le-male-le-parfum', this)">5ml</button><button class="size-pill" data-ml="10" data-price="790" onclick="selectSize('jpg-le-male-le-parfum', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1170" onclick="selectSize('jpg-le-male-le-parfum', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2300" onclick="selectSize('jpg-le-male-le-parfum', this)">30ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-male-le-parfum">৳260</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-male-le-parfum', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="afnan-supremacy-collectors" data-name="afnan supremacy collector&#39;s edition" data-brand="Afnan" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="280">
+      <a class="card-link" href="/product/afnan-supremacy-collectors/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-collectors/thumb.webp?v=1783517846" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-collectors/thumb.webp?v=1783517846 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/afnan-supremacy-collectors/medium.webp?v=1783517846 800w" sizes="(max-width:640px) 46vw, 300px" alt="Afnan Supremacy Collector&#39;s Edition Afnan perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Afnan</div>
+          <h3 class="card-name">Afnan Supremacy Collector&#39;s Edition</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-afnan-supremacy-collectors"><button class="size-pill active" data-ml="3" data-price="280" onclick="selectSize('afnan-supremacy-collectors', this)">3ml</button><button class="size-pill" data-ml="5" data-price="450" onclick="selectSize('afnan-supremacy-collectors', this)">5ml</button><button class="size-pill" data-ml="10" data-price="850" onclick="selectSize('afnan-supremacy-collectors', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1250" onclick="selectSize('afnan-supremacy-collectors', this)">15ml</button></div>
+        <span class="card-price-live" id="price-afnan-supremacy-collectors">৳280</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('afnan-supremacy-collectors', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="al-haramain-amber-oud-future" data-name="al haramain amber oud future dubai" data-brand="Al Haramain" data-tags="new" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="280">
+      <a class="card-link" href="/product/al-haramain-amber-oud-future/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-future/thumb.webp?v=1783522201" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-future/thumb.webp?v=1783522201 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/al-haramain-amber-oud-future/medium.webp?v=1783522201 800w" sizes="(max-width:640px) 46vw, 300px" alt="Al Haramain Amber Oud Future Dubai Al Haramain perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-new">New</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Al Haramain</div>
+          <h3 class="card-name">Al Haramain Amber Oud Future Dubai</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-al-haramain-amber-oud-future"><button class="size-pill active" data-ml="3" data-price="280" onclick="selectSize('al-haramain-amber-oud-future', this)">3ml</button><button class="size-pill" data-ml="5" data-price="450" onclick="selectSize('al-haramain-amber-oud-future', this)">5ml</button><button class="size-pill" data-ml="10" data-price="850" onclick="selectSize('al-haramain-amber-oud-future', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1250" onclick="selectSize('al-haramain-amber-oud-future', this)">15ml</button></div>
+        <span class="card-price-live" id="price-al-haramain-amber-oud-future">৳280</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('al-haramain-amber-oud-future', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="hugo-boss-bottled-bold-citrus" data-name="hugo boss bottled bold citrus" data-brand="Hugo Boss" data-tags="" data-sizes="3 5 10 15 30" data-accords="Citrus|Fresh|Aromatic|Woody" data-instock="true" data-price="300">
+      <a class="card-link" href="/product/hugo-boss-bottled-bold-citrus/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-bold-citrus/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-bold-citrus/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-bold-citrus/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Hugo Boss Bottled Bold Citrus Hugo Boss perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Hugo Boss</div>
+          <h3 class="card-name">Hugo Boss Bottled Bold Citrus</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-hugo-boss-bottled-bold-citrus"><button class="size-pill active" data-ml="3" data-price="300" onclick="selectSize('hugo-boss-bottled-bold-citrus', this)">3ml</button><button class="size-pill" data-ml="5" data-price="490" onclick="selectSize('hugo-boss-bottled-bold-citrus', this)">5ml</button><button class="size-pill" data-ml="10" data-price="950" onclick="selectSize('hugo-boss-bottled-bold-citrus', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1400" onclick="selectSize('hugo-boss-bottled-bold-citrus', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2760" onclick="selectSize('hugo-boss-bottled-bold-citrus', this)">30ml</button></div>
+        <span class="card-price-live" id="price-hugo-boss-bottled-bold-citrus">৳300</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('hugo-boss-bottled-bold-citrus', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="mancera-instant-crush" data-name="mancera instant crush" data-brand="Mancera" data-tags="" data-sizes="3 5 10 15 30" data-accords="Spicy|Woody|Leather|Fresh" data-instock="true" data-price="300">
+      <a class="card-link" href="/product/mancera-instant-crush/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-instant-crush/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-instant-crush/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-instant-crush/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Mancera Instant Crush Mancera perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Mancera</div>
+          <h3 class="card-name">Mancera Instant Crush</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-mancera-instant-crush"><button class="size-pill active" data-ml="3" data-price="300" onclick="selectSize('mancera-instant-crush', this)">3ml</button><button class="size-pill" data-ml="5" data-price="490" onclick="selectSize('mancera-instant-crush', this)">5ml</button><button class="size-pill" data-ml="10" data-price="950" onclick="selectSize('mancera-instant-crush', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1400" onclick="selectSize('mancera-instant-crush', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2760" onclick="selectSize('mancera-instant-crush', this)">30ml</button></div>
+        <span class="card-price-live" id="price-mancera-instant-crush">৳300</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('mancera-instant-crush', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="missoni-parfum-homme" data-name="missoni parfum pour homme" data-brand="Missoni" data-tags="" data-sizes="3 5 10 15" data-accords="Aromatic|Fresh|Woody|Floral" data-instock="true" data-price="300">
+      <a class="card-link" href="/product/missoni-parfum-homme/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-parfum-homme/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-parfum-homme/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/missoni-parfum-homme/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Missoni Parfum Pour Homme Missoni perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Missoni</div>
+          <h3 class="card-name">Missoni Parfum Pour Homme</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-missoni-parfum-homme"><button class="size-pill active" data-ml="3" data-price="300" onclick="selectSize('missoni-parfum-homme', this)">3ml</button><button class="size-pill" data-ml="5" data-price="490" onclick="selectSize('missoni-parfum-homme', this)">5ml</button><button class="size-pill" data-ml="10" data-price="950" onclick="selectSize('missoni-parfum-homme', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1400" onclick="selectSize('missoni-parfum-homme', this)">15ml</button></div>
+        <span class="card-price-live" id="price-missoni-parfum-homme">৳300</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('missoni-parfum-homme', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-beau-paradise-garden" data-name="jpg le beau paradise garden" data-brand="Jean Paul Gaultier" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="320">
+      <a class="card-link" href="/product/jpg-le-beau-paradise-garden/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau-paradise-garden/thumb.webp?v=1783693755" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau-paradise-garden/thumb.webp?v=1783693755 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-beau-paradise-garden/medium.webp?v=1783693755 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Beau Paradise Garden Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Beau Paradise Garden</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-beau-paradise-garden"><button class="size-pill active" data-ml="3" data-price="320" onclick="selectSize('jpg-le-beau-paradise-garden', this)">3ml</button><button class="size-pill" data-ml="5" data-price="530" onclick="selectSize('jpg-le-beau-paradise-garden', this)">5ml</button><button class="size-pill" data-ml="10" data-price="990" onclick="selectSize('jpg-le-beau-paradise-garden', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1490" onclick="selectSize('jpg-le-beau-paradise-garden', this)">15ml</button><button class="size-pill" data-ml="30" data-price="2940" onclick="selectSize('jpg-le-beau-paradise-garden', this)">30ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-beau-paradise-garden">৳320</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-beau-paradise-garden', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="azzaro-most-wanted-edp-intense" data-name="azzaro the most wanted edp intense" data-brand="Azzaro" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="350">
+      <a class="card-link" href="/product/azzaro-most-wanted-edp-intense/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-edp-intense/thumb.webp?v=1783705075" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-edp-intense/thumb.webp?v=1783705075 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-edp-intense/medium.webp?v=1783705075 800w" sizes="(max-width:640px) 46vw, 300px" alt="Azzaro The Most Wanted EDP Intense Azzaro perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Azzaro</div>
+          <h3 class="card-name">Azzaro The Most Wanted EDP Intense</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-azzaro-most-wanted-edp-intense"><button class="size-pill active" data-ml="3" data-price="350" onclick="selectSize('azzaro-most-wanted-edp-intense', this)">3ml</button><button class="size-pill" data-ml="5" data-price="570" onclick="selectSize('azzaro-most-wanted-edp-intense', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1090" onclick="selectSize('azzaro-most-wanted-edp-intense', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1580" onclick="selectSize('azzaro-most-wanted-edp-intense', this)">15ml</button><button class="size-pill" data-ml="30" data-price="3050" onclick="selectSize('azzaro-most-wanted-edp-intense', this)">30ml</button></div>
+        <span class="card-price-live" id="price-azzaro-most-wanted-edp-intense">৳350</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('azzaro-most-wanted-edp-intense', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="mancera-french-riviera" data-name="mancera french riviera" data-brand="Mancera" data-tags="" data-sizes="3 5 10 15 30" data-accords="Fresh|Citrus|Floral|Marine" data-instock="true" data-price="350">
+      <a class="card-link" href="/product/mancera-french-riviera/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-french-riviera/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-french-riviera/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/mancera-french-riviera/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Mancera French Riviera Mancera perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Mancera</div>
+          <h3 class="card-name">Mancera French Riviera</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-mancera-french-riviera"><button class="size-pill active" data-ml="3" data-price="350" onclick="selectSize('mancera-french-riviera', this)">3ml</button><button class="size-pill" data-ml="5" data-price="570" onclick="selectSize('mancera-french-riviera', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1090" onclick="selectSize('mancera-french-riviera', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1580" onclick="selectSize('mancera-french-riviera', this)">15ml</button><button class="size-pill" data-ml="30" data-price="3050" onclick="selectSize('mancera-french-riviera', this)">30ml</button></div>
+        <span class="card-price-live" id="price-mancera-french-riviera">৳350</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('mancera-french-riviera', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="prada-luna-rossa-ocean-edp" data-name="prada luna rossa ocean edp" data-brand="Prada" data-tags="" data-sizes="3 5 10 15" data-accords="Aquatic|Woody|Fresh|Marine" data-instock="true" data-price="350">
+      <a class="card-link" href="/product/prada-luna-rossa-ocean-edp/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/prada-luna-rossa-ocean-edp/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/prada-luna-rossa-ocean-edp/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/prada-luna-rossa-ocean-edp/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Prada Luna Rossa Ocean EDP Prada perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Prada</div>
+          <h3 class="card-name">Prada Luna Rossa Ocean EDP</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-prada-luna-rossa-ocean-edp"><button class="size-pill active" data-ml="3" data-price="350" onclick="selectSize('prada-luna-rossa-ocean-edp', this)">3ml</button><button class="size-pill" data-ml="5" data-price="570" onclick="selectSize('prada-luna-rossa-ocean-edp', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1090" onclick="selectSize('prada-luna-rossa-ocean-edp', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1580" onclick="selectSize('prada-luna-rossa-ocean-edp', this)">15ml</button></div>
+        <span class="card-price-live" id="price-prada-luna-rossa-ocean-edp">৳350</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('prada-luna-rossa-ocean-edp', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armaf-cdni-extrait" data-name="armaf club de nuit intense man extrait" data-brand="Armaf" data-tags="" data-sizes="3 5 10 15" data-accords="" data-instock="true" data-price="370">
+      <a class="card-link" href="/product/armaf-cdni-extrait/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-extrait/thumb.webp?v=1783524337" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-extrait/thumb.webp?v=1783524337 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armaf-cdni-extrait/medium.webp?v=1783524337 800w" sizes="(max-width:640px) 46vw, 300px" alt="Armaf Club de Nuit Intense Man Extrait Armaf perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Armaf</div>
+          <h3 class="card-name">Armaf Club de Nuit Intense Man Extrait</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armaf-cdni-extrait"><button class="size-pill active" data-ml="3" data-price="370" onclick="selectSize('armaf-cdni-extrait', this)">3ml</button><button class="size-pill" data-ml="5" data-price="590" onclick="selectSize('armaf-cdni-extrait', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1130" onclick="selectSize('armaf-cdni-extrait', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1650" onclick="selectSize('armaf-cdni-extrait', this)">15ml</button></div>
+        <span class="card-price-live" id="price-armaf-cdni-extrait">৳370</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armaf-cdni-extrait', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="azzaro-most-wanted-parfum" data-name="azzaro the most wanted parfum" data-brand="Azzaro" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="370">
+      <a class="card-link" href="/product/azzaro-most-wanted-parfum/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-parfum/thumb.webp?v=1783687050" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-parfum/thumb.webp?v=1783687050 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/azzaro-most-wanted-parfum/medium.webp?v=1783687050 800w" sizes="(max-width:640px) 46vw, 300px" alt="Azzaro The Most Wanted Parfum Azzaro perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Azzaro</div>
+          <h3 class="card-name">Azzaro The Most Wanted Parfum</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-azzaro-most-wanted-parfum"><button class="size-pill active" data-ml="3" data-price="370" onclick="selectSize('azzaro-most-wanted-parfum', this)">3ml</button><button class="size-pill" data-ml="5" data-price="590" onclick="selectSize('azzaro-most-wanted-parfum', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1130" onclick="selectSize('azzaro-most-wanted-parfum', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1650" onclick="selectSize('azzaro-most-wanted-parfum', this)">15ml</button><button class="size-pill" data-ml="30" data-price="3250" onclick="selectSize('azzaro-most-wanted-parfum', this)">30ml</button></div>
+        <span class="card-price-live" id="price-azzaro-most-wanted-parfum">৳370</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('azzaro-most-wanted-parfum', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="hugo-boss-bottled-absolu" data-name="hugo boss bottled absolu" data-brand="Hugo Boss" data-tags="" data-sizes="3 5 10 15 30" data-accords="" data-instock="true" data-price="390">
+      <a class="card-link" href="/product/hugo-boss-bottled-absolu/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-absolu/thumb.webp?v=1783705099" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-absolu/thumb.webp?v=1783705099 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-absolu/medium.webp?v=1783705099 800w" sizes="(max-width:640px) 46vw, 300px" alt="Hugo Boss Bottled Absolu Hugo Boss perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Hugo Boss</div>
+          <h3 class="card-name">Hugo Boss Bottled Absolu</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-hugo-boss-bottled-absolu"><button class="size-pill active" data-ml="3" data-price="390" onclick="selectSize('hugo-boss-bottled-absolu', this)">3ml</button><button class="size-pill" data-ml="5" data-price="630" onclick="selectSize('hugo-boss-bottled-absolu', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1200" onclick="selectSize('hugo-boss-bottled-absolu', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1790" onclick="selectSize('hugo-boss-bottled-absolu', this)">15ml</button><button class="size-pill" data-ml="30" data-price="3500" onclick="selectSize('hugo-boss-bottled-absolu', this)">30ml</button></div>
+        <span class="card-price-live" id="price-hugo-boss-bottled-absolu">৳390</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('hugo-boss-bottled-absolu', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="hugo-boss-bottled-elixir" data-name="hugo boss bottled elixir" data-brand="Hugo Boss" data-tags="" data-sizes="3 5 10 15" data-accords="Spicy|Aromatic|Woody|Fresh" data-instock="true" data-price="390">
+      <a class="card-link" href="/product/hugo-boss-bottled-elixir/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-elixir/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-elixir/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/hugo-boss-bottled-elixir/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Hugo Boss Bottled Elixir Hugo Boss perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Hugo Boss</div>
+          <h3 class="card-name">Hugo Boss Bottled Elixir</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-hugo-boss-bottled-elixir"><button class="size-pill active" data-ml="3" data-price="390" onclick="selectSize('hugo-boss-bottled-elixir', this)">3ml</button><button class="size-pill" data-ml="5" data-price="630" onclick="selectSize('hugo-boss-bottled-elixir', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1200" onclick="selectSize('hugo-boss-bottled-elixir', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1790" onclick="selectSize('hugo-boss-bottled-elixir', this)">15ml</button></div>
+        <span class="card-price-live" id="price-hugo-boss-bottled-elixir">৳390</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('hugo-boss-bottled-elixir', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="bvlgari-man-in-black-edp" data-name="bvlgari man in black edp" data-brand="Bvlgari" data-tags="" data-sizes="3 5 10 15" data-accords="Spicy|Woody|Oriental|Leather" data-instock="true" data-price="390">
+      <a class="card-link" href="/product/bvlgari-man-in-black-edp/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bvlgari-man-in-black-edp/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bvlgari-man-in-black-edp/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bvlgari-man-in-black-edp/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Bvlgari Man In Black EDP Bvlgari perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Bvlgari</div>
+          <h3 class="card-name">Bvlgari Man In Black EDP</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-bvlgari-man-in-black-edp"><button class="size-pill active" data-ml="3" data-price="390" onclick="selectSize('bvlgari-man-in-black-edp', this)">3ml</button><button class="size-pill" data-ml="5" data-price="630" onclick="selectSize('bvlgari-man-in-black-edp', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1200" onclick="selectSize('bvlgari-man-in-black-edp', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1790" onclick="selectSize('bvlgari-man-in-black-edp', this)">15ml</button></div>
+        <span class="card-price-live" id="price-bvlgari-man-in-black-edp">৳390</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('bvlgari-man-in-black-edp', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armani-stronger-absolutely" data-name="giorgio armani stronger with you absolutely" data-brand="Giorgio Armani" data-tags="" data-sizes="3 5 10 15" data-accords="Gourmand|Sweet|Aromatic|Woody" data-instock="true" data-price="410">
+      <a class="card-link" href="/product/armani-stronger-absolutely/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-absolutely/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-absolutely/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-absolutely/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Giorgio Armani Stronger With You Absolutely Giorgio Armani perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Giorgio Armani</div>
+          <h3 class="card-name">Giorgio Armani Stronger With You Absolutely</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armani-stronger-absolutely"><button class="size-pill active" data-ml="3" data-price="410" onclick="selectSize('armani-stronger-absolutely', this)">3ml</button><button class="size-pill" data-ml="5" data-price="670" onclick="selectSize('armani-stronger-absolutely', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1290" onclick="selectSize('armani-stronger-absolutely', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1900" onclick="selectSize('armani-stronger-absolutely', this)">15ml</button></div>
+        <span class="card-price-live" id="price-armani-stronger-absolutely">৳410</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armani-stronger-absolutely', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armani-stronger-intensely" data-name="giorgio armani stronger with you intensely" data-brand="Giorgio Armani" data-tags="" data-sizes="3 5 10 15" data-accords="Spicy|Woody|Sweet|Aromatic" data-instock="true" data-price="410">
+      <a class="card-link" href="/product/armani-stronger-intensely/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-intensely/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-intensely/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-stronger-intensely/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="Giorgio Armani Stronger With You Intensely Giorgio Armani perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Giorgio Armani</div>
+          <h3 class="card-name">Giorgio Armani Stronger With You Intensely</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armani-stronger-intensely"><button class="size-pill active" data-ml="3" data-price="410" onclick="selectSize('armani-stronger-intensely', this)">3ml</button><button class="size-pill" data-ml="5" data-price="670" onclick="selectSize('armani-stronger-intensely', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1290" onclick="selectSize('armani-stronger-intensely', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1900" onclick="selectSize('armani-stronger-intensely', this)">15ml</button></div>
+        <span class="card-price-live" id="price-armani-stronger-intensely">৳410</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armani-stronger-intensely', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-male-elixir" data-name="jpg le male elixir" data-brand="Jean Paul Gaultier" data-tags="" data-sizes="3 5 10 15" data-accords="Oriental|Sweet|Aromatic|Honey" data-instock="true" data-price="410">
+      <a class="card-link" href="/product/jpg-le-male-elixir/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-elixir/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-elixir/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-elixir/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Male Elixir Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Male Elixir</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-male-elixir"><button class="size-pill active" data-ml="3" data-price="410" onclick="selectSize('jpg-le-male-elixir', this)">3ml</button><button class="size-pill" data-ml="5" data-price="670" onclick="selectSize('jpg-le-male-elixir', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1290" onclick="selectSize('jpg-le-male-elixir', this)">10ml</button><button class="size-pill" data-ml="15" data-price="1900" onclick="selectSize('jpg-le-male-elixir', this)">15ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-male-elixir">৳410</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-male-elixir', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="ysl-y-edp" data-name="ysl y edp" data-brand="Yves Saint Laurent" data-tags="" data-sizes="3 5 10 15" data-accords="Woody|Fresh|Aromatic|Spicy" data-instock="true" data-price="420">
+      <a class="card-link" href="/product/ysl-y-edp/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-y-edp/thumb.webp?v=1783184282" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-y-edp/thumb.webp?v=1783184282 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-y-edp/medium.webp?v=1783184282 800w" sizes="(max-width:640px) 46vw, 300px" alt="YSL Y EDP Yves Saint Laurent perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Yves Saint Laurent</div>
+          <h3 class="card-name">YSL Y EDP</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-ysl-y-edp"><button class="size-pill active" data-ml="3" data-price="420" onclick="selectSize('ysl-y-edp', this)">3ml</button><button class="size-pill" data-ml="5" data-price="690" onclick="selectSize('ysl-y-edp', this)">5ml</button><button class="size-pill" data-ml="10" data-price="1350" onclick="selectSize('ysl-y-edp', this)">10ml</button><button class="size-pill" data-ml="15" data-price="2030" onclick="selectSize('ysl-y-edp', this)">15ml</button></div>
+        <span class="card-price-live" id="price-ysl-y-edp">৳420</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('ysl-y-edp', false)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="arabiyat-prestige-bois-blanc" data-name="arabiyat prestige bois blanc" data-brand="Arabiyat Prestige" data-tags="new" data-sizes="3 5 10" data-accords="" data-instock="true" data-price="190">
+      <a class="card-link" href="/product/arabiyat-prestige-bois-blanc/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/arabiyat-prestige-bois-blanc/thumb.webp?v=1783704458" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/arabiyat-prestige-bois-blanc/thumb.webp?v=1783704458 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/arabiyat-prestige-bois-blanc/medium.webp?v=1783704458 800w" sizes="(max-width:640px) 46vw, 300px" alt="Arabiyat Prestige Bois Blanc Arabiyat Prestige perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-new">New</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Arabiyat Prestige</div>
+          <h3 class="card-name">Arabiyat Prestige Bois Blanc</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-arabiyat-prestige-bois-blanc"><button class="size-pill active" data-ml="3" data-price="190" onclick="selectSize('arabiyat-prestige-bois-blanc', this)">3ml</button><button class="size-pill" data-ml="5" data-price="320" onclick="selectSize('arabiyat-prestige-bois-blanc', this)">5ml</button><button class="size-pill" data-ml="10" data-price="550" onclick="selectSize('arabiyat-prestige-bois-blanc', this)">10ml</button></div>
+        <span class="card-price-live" id="price-arabiyat-prestige-bois-blanc">৳190</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('arabiyat-prestige-bois-blanc', false)">Add to Cart</button>
+      </div>
+    </div>
+      <!--GRID:shop:end--></div>
       <div class="no-results" id="no-results" style="display:none;">
         No fragrances match your filters. <button class="filter-clear" onclick="clearFilters()">Clear filters</button>
       </div>

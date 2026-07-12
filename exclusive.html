@@ -49,6 +49,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -75,7 +76,8 @@
       <a href="about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Switch to light theme" title="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <a href="cart.html" class="cart-btn">🛒 <span class="cart-label">Cart</span> <span class="cart-count" style="display:none">0</span></a>
       <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -84,9 +86,9 @@
 <main>
 <div class="section" style="padding-top:40px;">
   <div style="text-align:center;margin-bottom:36px;">
-    <p style="font-size:11px;text-transform:uppercase;letter-spacing:0.18em;color:#c9a465;margin-bottom:12px;">Rare · Discontinued · Vintage</p>
-    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,52px);">The Exclusive <span style="color:#c9a465;">Collection</span></h1>
-    <p style="color:#9a9488;font-size:15px;max-width:500px;margin:14px auto 0;">Discontinued formulations and vintage batches — preserved for the true fragrance collector.</p>
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:12px;">Rare · Discontinued · Vintage</p>
+    <h1 style="font-family:var(--font-head);font-size:clamp(28px,5vw,52px);">The Exclusive <span style="color:var(--gold);">Collection</span></h1>
+    <p style="color:var(--text-muted);font-size:15px;max-width:500px;margin:14px auto 0;">Discontinued formulations and vintage batches — preserved for the true fragrance collector.</p>
   </div>
 
   <div class="exclusive-banner">
@@ -99,12 +101,254 @@
 
   <!-- YSL Special Sample -->
   <div style="margin-bottom:28px;">
-    <h3 style="font-family:'Playfair Display',serif;font-size:18px;color:#c9a465;margin-bottom:16px;">✦ Official Sample</h3>
-    <div class="product-grid" id="special-grid"><!--GRID:special:start--><!--GRID:special:end--></div>
+    <h3 style="font-family:var(--font-head);font-size:18px;color:var(--gold);margin-bottom:16px;">✦ Official Sample</h3>
+    <div class="product-grid" id="special-grid"><!--GRID:special:start-->
+
+    <div class="product-card" data-id="ysl-tuxedo-sample" data-name="ysl tuxedo 2ml official sample" data-brand="Yves Saint Laurent" data-tags="exclusive" data-sizes="2" data-accords="" data-instock="true" data-price="650">
+      <a class="card-link" href="/product/ysl-tuxedo-sample/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-tuxedo-sample/thumb.webp?v=1783533544" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-tuxedo-sample/thumb.webp?v=1783533544 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/ysl-tuxedo-sample/medium.webp?v=1783533544 800w" sizes="(max-width:640px) 46vw, 300px" alt="YSL Tuxedo 2ml Official Sample Yves Saint Laurent perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-exclusive">Exclusive</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Yves Saint Laurent</div>
+          <h3 class="card-name">YSL Tuxedo 2ml Official Sample</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-ysl-tuxedo-sample"><button class="size-pill active" data-ml="2" data-price="650" onclick="selectSize('ysl-tuxedo-sample', this)">2ml</button></div>
+        <span class="card-price-live" id="price-ysl-tuxedo-sample">৳650</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('ysl-tuxedo-sample', true)">Add to Cart</button>
+      </div>
+    </div>
+      <!--GRID:special:end--></div>
   </div>
 
-  <h3 style="font-family:'Playfair Display',serif;font-size:18px;color:#c9a465;margin-bottom:16px;">✦ Exclusive Decants</h3>
-  <div class="product-grid" id="exclusive-grid"><!--GRID:exclusive:start--><!--GRID:exclusive:end--></div>
+  <h3 style="font-family:var(--font-head);font-size:18px;color:var(--gold);margin-bottom:16px;">✦ Exclusive Decants</h3>
+  <div class="product-grid" id="exclusive-grid"><!--GRID:exclusive:start-->
+
+    <div class="product-card" data-id="bogart-silver-scent-pure" data-name="jacques bogart silver scent pure" data-brand="Jacques Bogart" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="220">
+      <a class="card-link" href="/product/bogart-silver-scent-pure/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bogart-silver-scent-pure/thumb.webp?v=1783531536" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bogart-silver-scent-pure/thumb.webp?v=1783531536 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/bogart-silver-scent-pure/medium.webp?v=1783531536 800w" sizes="(max-width:640px) 46vw, 300px" alt="Jacques Bogart Silver Scent Pure Jacques Bogart perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jacques Bogart</div>
+          <h3 class="card-name">Jacques Bogart Silver Scent Pure</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-bogart-silver-scent-pure"><button class="size-pill active" data-ml="3" data-price="220" onclick="selectSize('bogart-silver-scent-pure', this)">3ml</button><button class="size-pill" data-ml="5" data-price="350" onclick="selectSize('bogart-silver-scent-pure', this)">5ml</button></div>
+        <span class="card-price-live" id="price-bogart-silver-scent-pure">৳220</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('bogart-silver-scent-pure', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="dunhill-icon" data-name="alfred dunhill icon" data-brand="Alfred Dunhill" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="320">
+      <a class="card-link" href="/product/dunhill-icon/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dunhill-icon/thumb.webp?v=1783531137" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dunhill-icon/thumb.webp?v=1783531137 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dunhill-icon/medium.webp?v=1783531137 800w" sizes="(max-width:640px) 46vw, 300px" alt="Alfred Dunhill Icon Alfred Dunhill perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Alfred Dunhill</div>
+          <h3 class="card-name">Alfred Dunhill Icon</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-dunhill-icon"><button class="size-pill active" data-ml="3" data-price="320" onclick="selectSize('dunhill-icon', this)">3ml</button><button class="size-pill" data-ml="5" data-price="530" onclick="selectSize('dunhill-icon', this)">5ml</button></div>
+        <span class="card-price-live" id="price-dunhill-icon">৳320</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('dunhill-icon', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="dg-light-blue-intense" data-name="dolce &amp; gabbana light blue eau intense" data-brand="Dolce &amp; Gabbana" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="410">
+      <a class="card-link" href="/product/dg-light-blue-intense/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dg-light-blue-intense/thumb.webp?v=1783531932" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dg-light-blue-intense/thumb.webp?v=1783531932 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dg-light-blue-intense/medium.webp?v=1783531932 800w" sizes="(max-width:640px) 46vw, 300px" alt="Dolce &amp; Gabbana Light Blue Eau Intense Dolce &amp; Gabbana perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Dolce &amp; Gabbana</div>
+          <h3 class="card-name">Dolce &amp; Gabbana Light Blue Eau Intense</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-dg-light-blue-intense"><button class="size-pill active" data-ml="3" data-price="410" onclick="selectSize('dg-light-blue-intense', this)">3ml</button><button class="size-pill" data-ml="5" data-price="670" onclick="selectSize('dg-light-blue-intense', this)">5ml</button></div>
+        <span class="card-price-live" id="price-dg-light-blue-intense">৳410</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('dg-light-blue-intense', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-le-male-navy" data-name="jpg le male in the navy (2018)" data-brand="Jean Paul Gaultier" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="430">
+      <a class="card-link" href="/product/jpg-le-male-navy/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-navy/thumb.webp?v=1783532672" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-navy/thumb.webp?v=1783532672 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-le-male-navy/medium.webp?v=1783532672 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Le Male In The Navy (2018) Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Le Male In The Navy (2018)</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-le-male-navy"><button class="size-pill active" data-ml="3" data-price="430" onclick="selectSize('jpg-le-male-navy', this)">3ml</button><button class="size-pill" data-ml="5" data-price="700" onclick="selectSize('jpg-le-male-navy', this)">5ml</button></div>
+        <span class="card-price-live" id="price-jpg-le-male-navy">৳430</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-le-male-navy', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="jpg-ultra-male-old" data-name="jpg ultra male (old formulation)" data-brand="Jean Paul Gaultier" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="430">
+      <a class="card-link" href="/product/jpg-ultra-male-old/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-ultra-male-old/thumb.webp?v=1783532287" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-ultra-male-old/thumb.webp?v=1783532287 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/jpg-ultra-male-old/medium.webp?v=1783532287 800w" sizes="(max-width:640px) 46vw, 300px" alt="JPG Ultra Male (Old Formulation) Jean Paul Gaultier perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Jean Paul Gaultier</div>
+          <h3 class="card-name">JPG Ultra Male (Old Formulation)</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-jpg-ultra-male-old"><button class="size-pill active" data-ml="3" data-price="430" onclick="selectSize('jpg-ultra-male-old', this)">3ml</button><button class="size-pill" data-ml="5" data-price="700" onclick="selectSize('jpg-ultra-male-old', this)">5ml</button></div>
+        <span class="card-price-live" id="price-jpg-ultra-male-old">৳430</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('jpg-ultra-male-old', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armani-adg-profondo-2020" data-name="giorgio armani adg profondo 2020" data-brand="Giorgio Armani" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="430">
+      <a class="card-link" href="/product/armani-adg-profondo-2020/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-profondo-2020/thumb.webp?v=1783533253" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-profondo-2020/thumb.webp?v=1783533253 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-profondo-2020/medium.webp?v=1783533253 800w" sizes="(max-width:640px) 46vw, 300px" alt="Giorgio Armani ADG Profondo 2020 Giorgio Armani perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Giorgio Armani</div>
+          <h3 class="card-name">Giorgio Armani ADG Profondo 2020</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armani-adg-profondo-2020"><button class="size-pill active" data-ml="3" data-price="430" onclick="selectSize('armani-adg-profondo-2020', this)">3ml</button><button class="size-pill" data-ml="5" data-price="700" onclick="selectSize('armani-adg-profondo-2020', this)">5ml</button></div>
+        <span class="card-price-live" id="price-armani-adg-profondo-2020">৳430</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armani-adg-profondo-2020', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="armani-adg-absolu" data-name="giorgio armani adg absolu" data-brand="Giorgio Armani" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="540">
+      <a class="card-link" href="/product/armani-adg-absolu/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-absolu/thumb.webp?v=1783534472" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-absolu/thumb.webp?v=1783534472 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/armani-adg-absolu/medium.webp?v=1783534472 800w" sizes="(max-width:640px) 46vw, 300px" alt="Giorgio Armani ADG Absolu Giorgio Armani perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Giorgio Armani</div>
+          <h3 class="card-name">Giorgio Armani ADG Absolu</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-armani-adg-absolu"><button class="size-pill active" data-ml="3" data-price="540" onclick="selectSize('armani-adg-absolu', this)">3ml</button><button class="size-pill" data-ml="5" data-price="880" onclick="selectSize('armani-adg-absolu', this)">5ml</button></div>
+        <span class="card-price-live" id="price-armani-adg-absolu">৳540</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('armani-adg-absolu', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="dior-homme-sport-2017" data-name="dior homme sport 2017" data-brand="Dior" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="600">
+      <a class="card-link" href="/product/dior-homme-sport-2017/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-sport-2017/thumb.webp?v=1783536142" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-sport-2017/thumb.webp?v=1783536142 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-sport-2017/medium.webp?v=1783536142 800w" sizes="(max-width:640px) 46vw, 300px" alt="Dior Homme Sport 2017 Dior perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-discontinued">Discontinued</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Dior</div>
+          <h3 class="card-name">Dior Homme Sport 2017</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-dior-homme-sport-2017"><button class="size-pill active" data-ml="3" data-price="600" onclick="selectSize('dior-homme-sport-2017', this)">3ml</button><button class="size-pill" data-ml="5" data-price="950" onclick="selectSize('dior-homme-sport-2017', this)">5ml</button></div>
+        <span class="card-price-live" id="price-dior-homme-sport-2017">৳600</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('dior-homme-sport-2017', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="dior-homme-intense" data-name="dior homme intense" data-brand="Dior" data-tags="exclusive" data-sizes="3 5" data-accords="" data-instock="true" data-price="600">
+      <a class="card-link" href="/product/dior-homme-intense/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-intense/thumb.webp?v=1783536702" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-intense/thumb.webp?v=1783536702 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/dior-homme-intense/medium.webp?v=1783536702 800w" sizes="(max-width:640px) 46vw, 300px" alt="Dior Homme Intense Dior perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-exclusive">Exclusive</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Dior</div>
+          <h3 class="card-name">Dior Homme Intense</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-dior-homme-intense"><button class="size-pill active" data-ml="3" data-price="600" onclick="selectSize('dior-homme-intense', this)">3ml</button><button class="size-pill" data-ml="5" data-price="980" onclick="selectSize('dior-homme-intense', this)">5ml</button></div>
+        <span class="card-price-live" id="price-dior-homme-intense">৳600</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('dior-homme-intense', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="gucci-guilty-elixir" data-name="gucci guilty elixir" data-brand="Gucci" data-tags="exclusive" data-sizes="3 5" data-accords="" data-instock="true" data-price="950">
+      <a class="card-link" href="/product/gucci-guilty-elixir/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gucci-guilty-elixir/thumb.webp?v=1783536737" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gucci-guilty-elixir/thumb.webp?v=1783536737 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/gucci-guilty-elixir/medium.webp?v=1783536737 800w" sizes="(max-width:640px) 46vw, 300px" alt="Gucci Guilty Elixir Gucci perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-exclusive">Exclusive</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Gucci</div>
+          <h3 class="card-name">Gucci Guilty Elixir</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-gucci-guilty-elixir"><button class="size-pill active" data-ml="3" data-price="950" onclick="selectSize('gucci-guilty-elixir', this)">3ml</button><button class="size-pill" data-ml="5" data-price="1550" onclick="selectSize('gucci-guilty-elixir', this)">5ml</button></div>
+        <span class="card-price-live" id="price-gucci-guilty-elixir">৳950</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('gucci-guilty-elixir', true)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="amouage-enclave" data-name="amouage enclave" data-brand="Amouage" data-tags="exclusive" data-sizes="3 5" data-accords="" data-instock="true" data-price="1200">
+      <a class="card-link" href="/product/amouage-enclave/">
+        <div class="card-img">
+          <img src="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/amouage-enclave/thumb.webp?v=1783536751" srcset="https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/amouage-enclave/thumb.webp?v=1783536751 450w, https://knviffeqzvzqwgztchks.supabase.co/storage/v1/object/public/product-images/amouage-enclave/medium.webp?v=1783536751 800w" sizes="(max-width:640px) 46vw, 300px" alt="Amouage Enclave Amouage perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-exclusive">Exclusive</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Amouage</div>
+          <h3 class="card-name">Amouage Enclave</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-amouage-enclave"><button class="size-pill active" data-ml="3" data-price="1200" onclick="selectSize('amouage-enclave', this)">3ml</button><button class="size-pill" data-ml="5" data-price="1950" onclick="selectSize('amouage-enclave', this)">5ml</button></div>
+        <span class="card-price-live" id="price-amouage-enclave">৳1200</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('amouage-enclave', true)">Add to Cart</button>
+      </div>
+    </div>
+      <!--GRID:exclusive:end--></div>
 </div>
 </main>
 

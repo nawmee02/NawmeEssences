@@ -5,14 +5,56 @@ function selectSize(id, btn) {
   if (priceEl) priceEl.textContent = '৳' + btn.dataset.price;
 }
 
+// Theme toggle — the saved theme is applied by an inline <head> script on every
+// page (before CSS paints, so no flash); this wires the nav button and keeps
+// the button state + browser chrome color (meta theme-color) in sync.
+function syncThemeState(btn) {
+  const light = document.documentElement.dataset.theme === "light";
+  if (btn) {
+    btn.setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme");
+    btn.setAttribute("aria-pressed", light ? "true" : "false");
+  }
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "theme-color";
+    document.head.appendChild(meta);
+  }
+  meta.content = light ? "#faf8f4" : "#080808";
+}
+
 // Nav active link
 document.addEventListener("DOMContentLoaded", () => {
   updateCartBadge();
 
-  // Highlight active nav link
-  const path = window.location.pathname.split("/").pop() || "index.html";
+  const themeBtn = document.getElementById("theme-toggle");
+  syncThemeState(themeBtn);
+  if (themeBtn) {
+    let animTimer = null;
+    themeBtn.addEventListener("click", () => {
+      const root = document.documentElement;
+      root.classList.add("theme-anim");
+      clearTimeout(animTimer);
+      animTimer = setTimeout(() => root.classList.remove("theme-anim"), 300);
+      const toLight = root.dataset.theme !== "light";
+      if (toLight) root.dataset.theme = "light";
+      else delete root.dataset.theme;
+      try { localStorage.setItem("theme", toLight ? "light" : "dark"); } catch (e) {}
+      syncThemeState(themeBtn);
+    });
+  }
+
+  // Highlight the nav link for the current page. Handles both relative hrefs
+  // (root pages: "shop.html") and absolute ones (generated pages: "/shop.html",
+  // "/brands/"), and keeps Brands active on individual /brands/x/ pages.
+  const here = location.pathname;
   document.querySelectorAll(".nav-link").forEach(link => {
-    if (link.getAttribute("href") === path) link.classList.add("active");
+    const target = new URL(link.getAttribute("href"), location.href).pathname;
+    const isHome = target === "/" || target.endsWith("/index.html");
+    const active = target === here
+      || (isHome && (here === "/" || here === "/index.html"))
+      || (!isHome && target.endsWith("/") && here.startsWith(target));
+    if (active) link.classList.add("active");
   });
 
   // Mobile menu toggle

@@ -46,6 +46,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -72,7 +73,8 @@
       <a href="about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Switch to light theme" title="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <a href="cart.html" class="cart-btn">🛒 <span class="cart-label">Cart</span> <span class="cart-count" style="display:none">0</span></a>
       <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -91,9 +93,9 @@
     <div class="policy-card">
       <h3>🚚 Delivery</h3>
       <ul>
-        <li>Within Dhaka: <strong style="color:#f0ede6;">৳70</strong></li>
-        <li>Dhaka Suburb / Outskirts: <strong style="color:#f0ede6;">৳90</strong></li>
-        <li>Outside Dhaka (nationwide): <strong style="color:#f0ede6;">৳120</strong></li>
+        <li>Within Dhaka: <strong style="color:var(--text);">৳70</strong></li>
+        <li>Dhaka Suburb / Outskirts: <strong style="color:var(--text);">৳90</strong></li>
+        <li>Outside Dhaka (nationwide): <strong style="color:var(--text);">৳120</strong></li>
         <li>Door-to-door delivery available</li>
         <li>Orders are dispatched after advance confirmation</li>
       </ul>
@@ -115,10 +117,10 @@
     <div class="policy-card" id="payment">
       <h3>💳 Payment Policy</h3>
       <ul>
-        <li>To confirm order: pay at least the <strong style="color:#f0ede6;">delivery charge</strong> in advance</li>
-        <li>Orders above ৳2000: <strong style="color:#f0ede6;">30% advance</strong> required</li>
-        <li>Exclusive/rare items: <strong style="color:#f0ede6;">full advance</strong> required</li>
-        <li>Prices are <strong style="color:#f0ede6;">fixed</strong> — no negotiation</li>
+        <li>To confirm order: pay at least the <strong style="color:var(--text);">delivery charge</strong> in advance</li>
+        <li>Orders above ৳2000: <strong style="color:var(--text);">30% advance</strong> required</li>
+        <li>Exclusive/rare items: <strong style="color:var(--text);">full advance</strong> required</li>
+        <li>Prices are <strong style="color:var(--text);">fixed</strong> — no negotiation</li>
         <li>Price may vary for newly purchased bottles based on cost</li>
       </ul>
     </div>
@@ -138,11 +140,11 @@
     <div class="policy-card">
       <h3>🧪 Decant Sizes</h3>
       <ul>
-        <li><strong style="color:#f0ede6;">3ml</strong> — Try it out</li>
-        <li><strong style="color:#f0ede6;">5ml</strong> — Most popular</li>
-        <li><strong style="color:#f0ede6;">10ml</strong> — Signature size</li>
-        <li><strong style="color:#f0ede6;">15ml</strong> — Extended wear</li>
-        <li><strong style="color:#f0ede6;">30ml</strong> — Limited availability</li>
+        <li><strong style="color:var(--text);">3ml</strong> — Try it out</li>
+        <li><strong style="color:var(--text);">5ml</strong> — Most popular</li>
+        <li><strong style="color:var(--text);">10ml</strong> — Signature size</li>
+        <li><strong style="color:var(--text);">15ml</strong> — Extended wear</li>
+        <li><strong style="color:var(--text);">30ml</strong> — Limited availability</li>
       </ul>
     </div>
 

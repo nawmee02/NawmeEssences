@@ -12,6 +12,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -36,7 +37,8 @@
       <a href="about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
-      <a href="cart.html" class="cart-btn">🛒 Cart <span class="cart-count" style="display:none">0</span></a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Switch to light theme" title="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <a href="cart.html" class="cart-btn">🛒 <span class="cart-label">Cart</span> <span class="cart-count" style="display:none">0</span></a>
       <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -69,7 +71,7 @@
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12.5px;color:#9a9488;display:block;margin-bottom:6px;">Delivery zone</label>
+        <label style="font-size:12.5px;color:var(--text-muted);display:block;margin-bottom:6px;">Delivery zone</label>
         <select class="delivery-select" id="delivery-select">
           <option value="dhaka">Within Dhaka — ৳70</option>
           <option value="suburb">Dhaka Suburb — ৳90</option>
@@ -119,7 +121,7 @@
       <p class="messenger-note">Message is auto-copied — just paste it in Messenger</p>
 
       <div class="cart-policy">
-        <strong style="color:#c9a465;">Payment Policy</strong><br>
+        <strong style="color:var(--gold);">Payment Policy</strong><br>
         · Min. advance = delivery charge (৳70–৳90–৳120)<br>
         · 30% advance for orders above ৳2000<br>
         · Full advance for exclusive/rare items<br>
@@ -129,9 +131,9 @@
   </div>
 
   <!-- MESSENGER COPY BOX -->
-  <div id="messenger-box" style="display:none;margin-top:28px;background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:20px;">
-    <p style="font-size:13px;color:#9a9488;margin-bottom:10px;">✅ Message copied! Open Messenger and paste — or <button onclick="copyMessengerText()" style="background:none;border:none;color:#c9a465;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">copy again</button>. &nbsp;<a href="https://m.me/509978488868598" target="_blank" style="color:#c9a465;">Open Messenger →</a></p>
-    <pre id="messenger-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:#f0ede6;line-height:1.7;"></pre>
+  <div id="messenger-box" style="display:none;margin-top:28px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:20px;">
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">✅ Message copied! Open Messenger and paste — or <button onclick="copyMessengerText()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">copy again</button>. &nbsp;<a href="https://m.me/509978488868598" target="_blank" style="color:var(--gold);">Open Messenger →</a></p>
+    <pre id="messenger-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:var(--text);line-height:1.7;"></pre>
   </div>
   </div>
 </div>
@@ -201,7 +203,7 @@
         <div class="cart-item-info">
           <div class="brand">${item.brand}</div>
           <div class="name">${item.name}</div>
-          <div class="size-price">${item.ml}ml · ৳${item.price} each${item.isExclusive ? ' · <span style="color:#c9a465;font-size:11px;">Exclusive — Full advance</span>' : ''}</div>
+          <div class="size-price">${item.ml}ml · ৳${item.price} each${item.isExclusive ? ' · <span style="color:var(--gold);font-size:11px;">Exclusive — Full advance</span>' : ''}</div>
         </div>
         <div class="cart-item-controls">
           <div class="qty-control">
@@ -384,7 +386,7 @@
         const banner = document.createElement('div');
         banner.className = 'order-confirmation';
         banner.style.marginBottom = '16px';
-        banner.innerHTML = `<div style="padding:12px;border:1px solid #c9a465;background:#0f1410;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;">✅ Last order saved (${last.channel}) — Total: ৳${last.total} <button style="background:none;border:1px solid rgba(201,164,101,0.2);color:#c9a465;padding:6px 10px;border-radius:6px;cursor:pointer;" id="dismiss-last-order">Dismiss</button></div>`;
+        banner.innerHTML = `<div style="padding:12px;border:1px solid var(--gold);background:var(--card-bg);color:var(--text);border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;">✅ Last order saved (${last.channel}) — Total: ৳${last.total} <button style="background:none;border:1px solid rgba(201,164,101,0.2);color:var(--gold);padding:6px 10px;border-radius:6px;cursor:pointer;" id="dismiss-last-order">Dismiss</button></div>`;
         const container = document.querySelector('.section');
         if (container) container.insertBefore(banner, container.firstChild);
         document.getElementById('dismiss-last-order').addEventListener('click', () => { sessionStorage.removeItem('nawme_last_order'); banner.remove(); });
