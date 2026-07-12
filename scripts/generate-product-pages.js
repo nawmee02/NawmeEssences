@@ -192,6 +192,7 @@ const FOOTER = `<footer class="site-footer">
     <div class="footer-col">
       <p class="footer-heading">Shop</p>
       <a href="/shop.html">All Fragrances</a>
+      <a href="/brands/">Brands</a>
       <a href="/exclusive.html">Exclusive Collection</a>
       <a href="/cart.html">My Cart</a>
     </div>
@@ -199,6 +200,7 @@ const FOOTER = `<footer class="site-footer">
       <p class="footer-heading">Info</p>
       <a href="/about.html">Delivery &amp; Pickup</a>
       <a href="/about.html#payment">Payment Policy</a>
+      <a href="/about.html#refund">Refund Policy</a>
       <a href="/about.html#contact">Contact Us</a>
       <a href="/about-me.html">About Me</a>
     </div>
