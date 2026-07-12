@@ -449,7 +449,26 @@ function groupByBrand(allProducts) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// Add-to-cart from the DOM + deferred live-stock hydration (same as the exclusive page).
+// Typographic brand mark — initials (first letter of each word, up to 3), used
+// in hub tiles + brand-page header. Multi-word houses read as real monograms
+// (Al Haramain → AH, Jean Paul Gaultier → JPG, Yves Saint Laurent → YSL) instead
+// of a wall of identical single letters when brands are sorted alphabetically.
+function monogram(name) {
+  const words = String(name || '?').trim().split(/\s+/).filter(w => w && w !== '&' && w.toLowerCase() !== 'and');
+  return esc((words.map(w => w[0]).join('').slice(0, 3) || '?').toUpperCase());
+}
+
+// Shared brand tile (hub grid + "explore other brands" section).
+function brandTile(g) {
+  const n = g.products.length;
+  return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
+      <span class="brand-monogram" aria-hidden="true">${monogram(g.name)}</span>
+      <span class="brand-tile-name">${esc(g.name)}</span>
+      <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
+    </a>`;
+}
+
+// Add-to-cart from the DOM + client-side sort + deferred live-stock hydration.
 const BRAND_INLINE = `<script>
   function handleAdd(id, isExclusive) {
     const card = document.querySelector('.product-card[data-id="' + id + '"]');
@@ -458,14 +477,41 @@ const BRAND_INLINE = `<script>
     const name = card.querySelector('.card-name').textContent.trim();
     addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
   }
+  (function () {
+    var grid = document.getElementById('brand-grid');
+    if (!grid) return;
+    var original = [].slice.call(grid.querySelectorAll('.product-card')); // build order = "Featured"
+    window.sortBrand = function (mode) {
+      var cards = original.slice();
+      if (mode === 'price-asc') cards.sort(function (a, b) { return (+a.dataset.price) - (+b.dataset.price); });
+      else if (mode === 'price-desc') cards.sort(function (a, b) { return (+b.dataset.price) - (+a.dataset.price); });
+      else if (mode === 'name-asc') cards.sort(function (a, b) { return a.dataset.name.localeCompare(b.dataset.name); });
+      cards.forEach(function (c) { grid.appendChild(c); });
+    };
+  })();
   if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
 </script>`;
 
-function renderBrandPage(brand, detailsMap) {
+function renderBrandPage(brand, detailsMap, groups = []) {
   const { name, slug, products } = brand;
   const url = `${SITE}/brands/${slug}/`;
   const count = products.length;
   const lo = Math.min(...products.map(p => minPrice(p.sizes)));
+  const allMl = [...new Set(products.flatMap(p => p.sizes.map(s => s.ml)))].sort((a, b) => a - b);
+  const sizeRange = allMl.length > 1 ? `${allMl[0]}ml–${allMl[allMl.length - 1]}ml` : `${allMl[0]}ml`;
+
+  // Cross-link the biggest other brands for discovery + internal SEO.
+  const others = groups.filter(g => g.slug !== slug)
+    .sort((a, b) => b.products.length - a.products.length)
+    .slice(0, 8);
+  const exploreSection = others.length ? `
+      <section class="brand-explore">
+        <h2>Explore Other <span>Brands</span></h2>
+        <div class="brands-grid">
+${others.map(brandTile).join('\n')}
+        </div>
+        <a class="brand-explore-all" href="/brands/">View all brands →</a>
+      </section>` : '';
   const title = `${name} Perfume Decants in Bangladesh | NawmeEssences`;
   const metaDesc = `Shop ${count} authentic ${name} perfume decant${count !== 1 ? 's' : ''} in Bangladesh — 3ml, 5ml, 10ml, 15ml & 30ml sizes from ৳${lo}. Delivery across Dhaka, pickup at Aftabnagar, Banasree & NSU.`;
   const intro = `Shop authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh — ${count} fragrance${count !== 1 ? 's' : ''} available in 3ml, 5ml, 10ml, 15ml and 30ml sizes, decanted from genuine originals. Delivery across Dhaka &amp; Bangladesh with pickup at Aftabnagar, Banasree &amp; NSU.`;
@@ -534,11 +580,31 @@ ${HEADER}
 </nav>
 
 <div class="section" style="padding-top:20px;">
-  <h1 class="brand-h1">${esc(name)} <span>Perfume Decants</span></h1>
+  <div class="brand-header">
+    <span class="brand-monogram brand-monogram-lg" aria-hidden="true">${monogram(name)}</span>
+    <div>
+      <h1 class="brand-h1">${esc(name)} <span>Perfume Decants</span></h1>
+      <div class="brand-stats">
+        <span class="brand-stat"><strong>${count}</strong> fragrance${count !== 1 ? 's' : ''}</span>
+        <span class="brand-stat">from <strong>৳${lo}</strong></span>
+        <span class="brand-stat">${sizeRange}</span>
+      </div>
+    </div>
+  </div>
   <p class="brand-intro">${intro}</p>
-  <div class="product-grid">
+  <div class="brand-toolbar">
+    <span class="result-count">${count} fragrance${count !== 1 ? 's' : ''}</span>
+    <select class="sort-select" id="brand-sort" aria-label="Sort fragrances" onchange="sortBrand(this.value)">
+      <option value="default">Featured</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="name-asc">Name: A–Z</option>
+    </select>
+  </div>
+  <div class="product-grid" id="brand-grid">
 ${cards}
   </div>
+${exploreSection}
 </div>
 </main>
 
@@ -575,13 +641,8 @@ function renderBrandsIndex(groups) {
     },
   };
 
-  const tiles = groups.map(g => {
-    const n = g.products.length;
-    return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
-      <span class="brand-tile-name">${esc(g.name)}</span>
-      <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
-    </a>`;
-  }).join('\n');
+  const totalFrags = groups.reduce((s, g) => s + g.products.length, 0);
+  const tiles = groups.map(brandTile).join('\n');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -623,6 +684,11 @@ ${HEADER}
 <div class="section" style="padding-top:20px;">
   <h1 class="brand-h1">Shop Perfume Decants <span>by Brand</span></h1>
   <p class="brand-intro">Browse NawmeEssences by fragrance house — ${groups.length} brands, from Rasasi and Lattafa to Dior and Amouage. Every bottle is an authentic decant in 3ml–30ml sizes, delivered across Bangladesh.</p>
+  <div class="brand-stats" style="margin-bottom:26px;">
+    <span class="brand-stat"><strong>${groups.length}</strong> brands</span>
+    <span class="brand-stat"><strong>${totalFrags}</strong> fragrances</span>
+    <span class="brand-stat">3ml–30ml sizes</span>
+  </div>
   <div class="brands-grid">
 ${tiles}
   </div>
@@ -681,7 +747,7 @@ function generateFromData(allProducts, productDetails, opts = {}) {
   for (const g of groups) {
     const dir = path.join(brandsRoot, g.slug);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), renderBrandPage(g, productDetails));
+    fs.writeFileSync(path.join(dir, 'index.html'), renderBrandPage(g, productDetails, groups));
   }
 
   writeSitemap(allProducts, groups);

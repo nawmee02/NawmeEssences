@@ -399,13 +399,54 @@ input, select { font-family: var(--font-body); }
 /* ===== BRAND HUB PAGES ===== */
 .brand-h1 { font-family: var(--font-head); font-size: clamp(26px, 4.5vw, 44px); font-weight: 600; margin: 0 0 10px; }
 .brand-h1 span { color: var(--gold); }
-.brand-intro { color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6; margin: 0 0 28px; }
+.brand-intro { color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6; margin: 0 0 20px; }
 .brand-intro strong { color: var(--text); }
-.brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
-.brand-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 26px 16px; min-height: 92px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: inherit; box-shadow: var(--card-shadow); transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition); }
+.brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 16px; }
+.brand-tile { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 8px; padding: 24px 16px; min-height: 92px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; text-decoration: none; color: inherit; box-shadow: var(--card-shadow); transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition); }
 .brand-tile:hover { border-color: var(--gold-dark); transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
 .brand-tile-name { font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.2; }
 .brand-tile-count { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); }
+
+/* Typographic monogram — brand identity without logos (product photos aren't
+   brand marks). Also reused, larger, in the brand-page header. */
+.brand-monogram {
+  width: 46px; height: 46px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 20px; font-weight: 600; line-height: 1; letter-spacing: 0.01em;
+  color: var(--gold);
+  background: linear-gradient(150deg, rgba(201,164,101,0.14), rgba(201,164,101,0.05));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: border-color var(--transition), background var(--transition);
+}
+.brand-tile:hover .brand-monogram { border-color: var(--gold-dark); }
+
+/* Brand-page header: monogram + title + stat chips */
+.brand-header { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+.brand-header .brand-h1 { margin: 0 0 8px; }
+.brand-monogram-lg { width: 64px; height: 64px; font-size: 27px; }
+.brand-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.brand-stat {
+  font-size: 12px; letter-spacing: 0.02em; color: var(--text-muted);
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 5px 12px;
+}
+.brand-stat strong { color: var(--gold); font-weight: 600; }
+
+/* Sort toolbar (parity with the shop page) */
+.brand-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.brand-toolbar .result-count { font-size: 13px; color: var(--text-muted); }
+
+/* Explore other brands — internal linking + discovery at page foot */
+.brand-explore { border-top: 1px solid var(--border); margin-top: 44px; padding-top: 32px; }
+.brand-explore h2 { font-family: var(--font-head); font-size: clamp(20px, 3vw, 28px); font-weight: 600; margin: 0 0 18px; }
+.brand-explore h2 span { color: var(--gold); }
+.brand-explore-all { display: inline-block; margin-top: 20px; font-size: 13.5px; font-weight: 500; color: var(--gold); }
+.brand-explore-all:hover { text-decoration: underline; }
+@media (max-width: 480px) {
+  .brand-header { gap: 14px; }
+  .brand-monogram-lg { width: 52px; height: 52px; font-size: 23px; }
+}
 .card-link { text-decoration: none; color: inherit; display: block; }
 .card-img {
   position: relative;
