@@ -22,6 +22,13 @@ const SUPABASE_ANON_KEY_DEFAULT = "sb_publishable_olO3EcqKY0ssnfh2qzKB7g_2-zxc2O
 const SUPABASE_URL = (typeof __SUPABASE_URL__ !== 'undefined') ? __SUPABASE_URL__ :
   (typeof window !== 'undefined' && window.__SUPABASE_URL__) ? window.__SUPABASE_URL__ : SUPABASE_URL_DEFAULT;
 
+// Public image host — set to a CDN that edge-caches Supabase Storage to serve
+// product images from a nearby PoP. Defaults to Supabase direct (images unproxied).
+// Only for image URLs; the API/auth client above stays on SUPABASE_URL.
+const IMAGE_BASE_DEFAULT = "https://nawme-img.nawmee8.workers.dev";
+const IMAGE_BASE = (typeof __IMAGE_CDN__ !== 'undefined') ? __IMAGE_CDN__ :
+  (typeof window !== 'undefined' && window.__IMAGE_CDN__) ? window.__IMAGE_CDN__ : IMAGE_BASE_DEFAULT;
+
 const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== 'undefined') ? __SUPABASE_ANON_KEY__ :
   (typeof window !== 'undefined' && window.__SUPABASE_ANON_KEY__) ? window.__SUPABASE_ANON_KEY__ : SUPABASE_ANON_KEY_DEFAULT;
 

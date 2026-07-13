@@ -15,6 +15,12 @@ const SUPABASE_URL = 'https://knviffeqzvzqwgztchks.supabase.co';
 const BUCKET       = 'product-images';
 const SIZES        = ['thumb', 'medium', 'large'];
 
+// Public image host. Set IMAGE_CDN to a CDN that edge-caches Supabase Storage
+// (a pull-proxy mirroring the /storage/v1/object/public/... path) to serve
+// product images from a PoP near customers. Only affects PUBLIC image URLs —
+// the Supabase API/auth client stays on SUPABASE_URL. Defaults to Supabase direct.
+const IMAGE_BASE = process.env.IMAGE_CDN || 'https://nawme-img.nawmee8.workers.dev';
+
 // ─── Supabase (service role) ─────────────────────────────────
 let _sb = null;
 function getSupabase() {
@@ -59,7 +65,7 @@ function storagePath(id, size) {
 }
 
 function publicUrl(id, size, v) {
-  const base = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${storagePath(id, size)}`;
+  const base = `${IMAGE_BASE}/storage/v1/object/public/${BUCKET}/${storagePath(id, size)}`;
   return v ? `${base}?v=${v}` : base;
 }
 

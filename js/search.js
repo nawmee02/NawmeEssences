@@ -70,8 +70,8 @@
   }
 
   function thumb(id, v) {
-    if (typeof SUPABASE_URL === 'undefined') return `/images/products/${id}.jpg`;
-    const base = `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/thumb.webp`;
+    if (typeof IMAGE_BASE === 'undefined') return `/images/products/${id}.jpg`;
+    const base = `${IMAGE_BASE}/storage/v1/object/public/product-images/${id}/thumb.webp`;
     return v ? `${base}?v=${v}` : base;
   }
 

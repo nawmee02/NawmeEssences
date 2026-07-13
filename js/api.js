@@ -5,7 +5,7 @@ const ProductAPI = (() => {
   // added in Supabase Studio needs no image_* columns — just the WebP files in
   // Storage at product-images/{id}/{size}.webp.
   function imgUrl(id, size, v) {
-    const base = `${SUPABASE_URL}/storage/v1/object/public/product-images/${id}/${size}.webp`;
+    const base = `${IMAGE_BASE}/storage/v1/object/public/product-images/${id}/${size}.webp`;
     return v ? `${base}?v=${v}` : base;
   }
 
