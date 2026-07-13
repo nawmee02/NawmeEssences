@@ -25,7 +25,7 @@ const SUPABASE_URL = (typeof __SUPABASE_URL__ !== 'undefined') ? __SUPABASE_URL_
 // Public image host — set to a CDN that edge-caches Supabase Storage to serve
 // product images from a nearby PoP. Defaults to Supabase direct (images unproxied).
 // Only for image URLs; the API/auth client above stays on SUPABASE_URL.
-const IMAGE_BASE_DEFAULT = SUPABASE_URL;
+const IMAGE_BASE_DEFAULT = "https://cdn.nawmeessences.me";
 const IMAGE_BASE = (typeof __IMAGE_CDN__ !== 'undefined') ? __IMAGE_CDN__ :
   (typeof window !== 'undefined' && window.__IMAGE_CDN__) ? window.__IMAGE_CDN__ : IMAGE_BASE_DEFAULT;
 
