@@ -22,12 +22,15 @@ const tagLabel = t => TAG_LABEL[t] || (t ? t.charAt(0).toUpperCase() + t.slice(1
 
 // p: { id, name, brand, sizes:[{ml,price}], tags:[], accords:[], inStock,
 //      image_thumb, image_medium }
-function renderCard(p, { isExclusive = false } = {}) {
+function renderCard(p, { isExclusive = false, priority = false } = {}) {
   const sizes = (p.sizes || []).slice().sort((a, b) => a.ml - b.ml);
   const minPrice = sizes.length ? Math.min(...sizes.map(s => s.price)) : 0;
   const oos = !p.inStock;
   const imgThumb = p.image_thumb;
   const imgMed = p.image_medium || imgThumb;
+  // Above-the-fold cards load eagerly with high priority so the first row paints
+  // fast; the rest stay lazy. Fade-in (onload → .loaded) replaces the emoji "pop".
+  const loadAttrs = priority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
 
   const tags = (p.tags || [])
     .map(t => `<span class="tag tag-${esc(t)}">${esc(tagLabel(t))}</span>`).join('');
@@ -51,7 +54,7 @@ function renderCard(p, { isExclusive = false } = {}) {
     <div class="product-card${oos ? ' out-of-stock' : ''}" ${data}>
       <a class="card-link" href="/product/${esc(p.id)}/">
         <div class="card-img">
-          <img src="${esc(imgThumb)}" srcset="${esc(imgThumb)} 450w, ${esc(imgMed)} 800w" sizes="(max-width:640px) 46vw, 300px" alt="${esc(p.name)} ${esc(p.brand)} perfume decant" width="450" height="450" loading="lazy" decoding="async" onerror="this.style.display='none'">
+          <img src="${esc(imgThumb)}" srcset="${esc(imgThumb)} 450w, ${esc(imgMed)} 800w" sizes="(max-width:640px) 46vw, 300px" alt="${esc(p.name)} ${esc(p.brand)} perfume decant" width="450" height="450" ${loadAttrs} decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="card-img-placeholder">🫧</div>
           <div class="tag-badges">${tags}</div>
           ${oos ? '<div class="oos-badge"><span>Out of Stock</span></div>' : ''}

@@ -27,6 +27,16 @@ function syncThemeState(btn) {
 document.addEventListener("DOMContentLoaded", () => {
   updateCartBadge();
 
+  // Image fade-in safety net. The inline onload="…add('loaded')" handles most
+  // images, but cache hits / bfcache can finish before it fires. Mark already-
+  // complete images loaded now, and attach listeners to the rest (also catches
+  // lazy images when they load on scroll) so none stay stuck at opacity 0.
+  document.querySelectorAll(".card-img img, .related-img img, .pd-image img").forEach(img => {
+    if (img.complete && img.naturalWidth > 0) { img.classList.add("loaded"); return; }
+    img.addEventListener("load", () => img.classList.add("loaded"), { once: true });
+    img.addEventListener("error", () => img.classList.add("loaded"), { once: true });
+  });
+
   const themeBtn = document.getElementById("theme-toggle");
   syncThemeState(themeBtn);
   if (themeBtn) {

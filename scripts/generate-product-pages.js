@@ -137,7 +137,7 @@ function relatedProducts(p, all, detailsMap) {
   const cards = scored.map(r => `
         <a class="related-card" href="/product/${attr(r.id)}/">
           <div class="related-img">
-            <img src="${attr(heroMedium(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <img src="${attr(heroMedium(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="card-img-placeholder">🫧</div>
           </div>
           <div class="related-brand">${esc(r.brand)}</div>
@@ -299,7 +299,7 @@ function renderPage(p, all, detailsMap) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -318,7 +318,7 @@ ${HEADER}
   <div class="pd-media">
     <div class="pd-image${oos ? ' out-of-stock' : ''}">
       <img id="pd-hero" src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
-           onclick="openLightbox()" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           fetchpriority="high" decoding="async" onclick="openLightbox()" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-img-placeholder pd-placeholder">🫧</div>
       <div class="tag-badges">${tagBadges(p.tags)}</div>
       ${oos ? '<div class="oos-badge" id="stock-badge"><span>Out of Stock</span></div>' : '<div class="oos-badge" id="stock-badge" style="display:none"><span>Out of Stock</span></div>'}
@@ -540,7 +540,7 @@ ${others.map(brandTile).join('\n')}
   };
 
   const cards = products
-    .map(p => renderCard(cardData(p, detailsMap), { isExclusive: p.collection !== 'regular' }))
+    .map((p, i) => renderCard(cardData(p, detailsMap), { isExclusive: p.collection !== 'regular', priority: i < 4 }))
     .join('\n');
 
   return `<!DOCTYPE html>
@@ -567,7 +567,7 @@ ${others.map(brandTile).join('\n')}
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -670,7 +670,7 @@ function renderBrandsIndex(groups) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
