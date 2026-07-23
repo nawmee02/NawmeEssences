@@ -533,9 +533,19 @@ ${others.map(brandTile).join('\n')}
         </div>
         <a class="brand-explore-all" href="/brands/">View all brands →</a>
       </section>` : '';
+  // Sizes vary by brand (e.g. Dunhill Icon is 3ml/5ml only), so list the sizes
+  // this brand's products actually offer — never a hardcoded set. `amp` is the
+  // separator before the last item: "&" for the meta (attr() escapes it) and
+  // the pre-escaped "&amp;" for the intro (injected as raw HTML).
+  const sizeLabels = allMl.map(m => `${m}ml`);
+  const sizeList = amp => sizeLabels.length > 1
+    ? `${sizeLabels.slice(0, -1).join(', ')} ${amp} ${sizeLabels[sizeLabels.length - 1]}`
+    : (sizeLabels[0] || '');
   const title = `${name} Perfume Decants in Bangladesh | NawmeEssences`;
-  const metaDesc = `Shop ${count} authentic ${name} perfume decant${count !== 1 ? 's' : ''} in Bangladesh — 3ml, 5ml, 10ml, 15ml & 30ml sizes from ৳${lo}. Delivery across Dhaka, pickup at Aftabnagar, Banasree & NSU.`;
-  const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop 3ml, 5ml, 10ml, 15ml &amp; 30ml sizes with fast nationwide delivery.`;
+  // Kept under ~155 chars so Google doesn't truncate it — dropped the count and
+  // the pickup list; price stays because it lifts click-through.
+  const metaDesc = `Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`;
+  const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop ${sizeList('&amp;')} sizes with fast nationwide delivery.`;
 
   const collectionLd = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
