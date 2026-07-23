@@ -50,6 +50,7 @@ function occasionsFor(accords) {
 let hasImage = hasGeneratedImages;
 function setImageChecker(fn) { hasImage = fn; }
 
+function heroThumb(id, v)  { return hasImage(id) ? publicUrl(id, 'thumb',  v) : `${SITE}/images/products/${id}.jpg`; }
 function heroLarge(id, v)  { return hasImage(id) ? publicUrl(id, 'large',  v) : `${SITE}/images/products/${id}.jpg`; }
 function heroMedium(id, v) { return hasImage(id) ? publicUrl(id, 'medium', v) : `${SITE}/images/products/${id}.jpg`; }
 function ogImage(id, v)    { return hasImage(id) ? publicUrl(id, 'large',  v) : DEFAULT_OG; }
@@ -137,7 +138,7 @@ function relatedProducts(p, all, detailsMap) {
   const cards = scored.map(r => `
         <a class="related-card" href="/product/${attr(r.id)}/">
           <div class="related-img">
-            <img src="${attr(heroMedium(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <img src="${attr(heroThumb(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="card-img-placeholder">🫧</div>
           </div>
           <div class="related-brand">${esc(r.brand)}</div>
@@ -317,7 +318,11 @@ ${HEADER}
 <div class="product-detail">
   <div class="pd-media">
     <div class="pd-image${oos ? ' out-of-stock' : ''}">
-      <img id="pd-hero" src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
+      <!-- The hero renders ~499px on desktop and ~379px on mobile, so the 800px
+           medium is the right file; the 1600px large is reserved for the zoom.
+           Plain src, no srcset: pairing src with a srcset made Chromium fetch
+           both the fallback and the selected candidate. -->
+      <img id="pd-hero" src="${attr(heroMedium(p.id, v))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
            fetchpriority="high" decoding="async" onclick="openLightbox()" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-img-placeholder pd-placeholder">🫧</div>
       <div class="tag-badges">${tagBadges(p.tags)}</div>
@@ -353,7 +358,10 @@ ${relatedProducts(p, all, detailsMap)}
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <span class="lightbox-close" aria-label="Close">&times;</span>
-  <img src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name)}" />
+  <!-- src is attached on first open, not here: Chromium loads even loading="lazy"
+       images inside a display:none container, so this 1600px zoom file would
+       otherwise download for every visitor, most of whom never zoom. -->
+  <img id="lightbox-img" data-src="${attr(heroLarge(p.id, v))}" alt="${attr(p.name)}" decoding="async" />
 </div>
 
 ${FOOTER}
@@ -368,7 +376,11 @@ ${SCRIPTS}
     addToCart(PRODUCT.id, pill.dataset.ml, pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive);
   }
 
-  function openLightbox()  { document.getElementById('lightbox').classList.add('open'); }
+  function openLightbox()  {
+    var img = document.getElementById('lightbox-img');
+    if (img && !img.getAttribute('src')) img.setAttribute('src', img.getAttribute('data-src'));
+    document.getElementById('lightbox').classList.add('open');
+  }
   function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
@@ -379,21 +391,28 @@ ${SCRIPTS}
       const p = await ProductAPI.getProduct(PRODUCT.id);
       if (!p) return;
 
-      // Live-swap the hero image if the baked page predates the Storage upload
-      // (e.g. image added in admin after the last build). Probe first so we only
-      // replace when the WebP actually exists — otherwise keep the placeholder.
-      if (p.image_large) {
+      // Live-swap the hero only when the baked image is missing or broken (e.g.
+      // it was added in admin after the last build). This used to probe on every
+      // load, which downloaded the full-size file for every visitor and undid
+      // the medium-sized src above. Probe first so we only replace when the WebP
+      // really exists — otherwise keep the placeholder.
+      const hero = document.getElementById('pd-hero');
+      const heroBroken = !hero || !hero.complete || hero.naturalWidth === 0;
+      if (p.image_large && heroBroken) {
         const probe = new Image();
         probe.onload = function () {
-          const hero = document.getElementById('pd-hero');
           if (hero) {
             hero.src = p.image_large;
             hero.style.display = '';
             const ph = hero.nextElementSibling;
             if (ph && ph.classList.contains('pd-placeholder')) ph.style.display = 'none';
           }
-          const lb = document.querySelector('#lightbox img');
-          if (lb) lb.src = p.image_large;
+          // Keep the zoom deferred — only refresh src if it is already showing.
+          const lb = document.getElementById('lightbox-img');
+          if (lb) {
+            lb.setAttribute('data-src', p.image_large);
+            if (lb.getAttribute('src')) lb.setAttribute('src', p.image_large);
+          }
         };
         probe.src = p.image_large;
       }
