@@ -535,7 +535,7 @@ ${others.map(brandTile).join('\n')}
       </section>` : '';
   const title = `${name} Perfume Decants in Bangladesh | NawmeEssences`;
   const metaDesc = `Shop ${count} authentic ${name} perfume decant${count !== 1 ? 's' : ''} in Bangladesh — 3ml, 5ml, 10ml, 15ml & 30ml sizes from ৳${lo}. Delivery across Dhaka, pickup at Aftabnagar, Banasree & NSU.`;
-  const intro = `Shop authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh — ${count} fragrance${count !== 1 ? 's' : ''} available in 3ml, 5ml, 10ml, 15ml and 30ml sizes, decanted from genuine originals. Delivery across Dhaka &amp; Bangladesh with pickup at Aftabnagar, Banasree &amp; NSU.`;
+  const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop 3ml, 5ml, 10ml, 15ml &amp; 30ml sizes with fast nationwide delivery.`;
 
   const collectionLd = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
