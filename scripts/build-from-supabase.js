@@ -20,8 +20,9 @@ const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/catalog');
-const { renderCard } = require('./lib/render-card');
+const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
+const { fetchSettings } = require('./lib/settings');
 
 const SIZES = [
   { name: 'thumb',  width: 450,  quality: 80 },
@@ -219,6 +220,49 @@ function injectGrids(allProducts, productDetails) {
   console.log(`🧩 grids — ${total} cards injected`);
 }
 
+// ─── Bake site settings into the SEO-critical home-page HTML ────
+// Only index.html is baked (its hero/title/description are the indexed copy).
+// The announcement ticker and generated pages update via js/settings.js
+// hydration, so they aren't baked here. Every injected block keeps its
+// data-setting* hooks so live hydration still refreshes it after load.
+function injectSettings(settings) {
+  const s = settings;
+  const anns = Array.isArray(s.announcements) ? s.announcements : [];
+  const stats = Array.isArray(s.stats) ? s.stats : [];
+
+  const blocks = {
+    meta:
+      `<title>${esc(s.meta.homeTitle)}</title>\n` +
+      `  <meta name="description" content="${esc(s.meta.homeDescription)}" />`,
+    announcement:
+      `<div class="ticker-track" data-setting-list="announcements">\n` +
+      [...anns, ...anns].map(a => `    <span>${esc(a)}</span>`).join('\n') +
+      `\n  </div>`,
+    hero:
+      `<p class="hero-eyebrow" data-setting="hero.eyebrow">${esc(s.hero.eyebrow)}</p>\n` +
+      `  <h1 data-setting="hero.title">${esc(s.hero.title)}</h1>\n` +
+      `  <p data-setting="hero.subtitle">${esc(s.hero.subtitle)}</p>`,
+    stats:
+      `<div class="stats-inner">\n` +
+      stats.map((st, i) =>
+        `    <div class="stat-item" data-stat-index="${i}">\n` +
+        `      <div class="stat-number" data-target="${esc(String(st.target))}" data-suffix="${esc(st.suffix || '')}">${esc(String(st.target) + (st.suffix || ''))}</div>\n` +
+        `      <div class="stat-label">${esc(st.label)}</div>\n` +
+        `    </div>`).join('\n') +
+      `\n  </div>`,
+  };
+
+  const fp = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  for (const [name, content] of Object.entries(blocks)) {
+    const re = new RegExp(`(<!--SET:${name}:start-->)[\\s\\S]*?(<!--SET:${name}:end-->)`);
+    if (!re.test(html)) throw new Error(`marker SET:${name} not found in index.html`);
+    html = html.replace(re, `$1\n  ${content}\n  $2`);
+  }
+  fs.writeFileSync(fp, html);
+  console.log('  injected → index.html (settings)');
+}
+
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
@@ -235,6 +279,10 @@ async function run() {
 
   console.log('\n🧩 Injecting static grids...');
   injectGrids(allProducts, productDetails);
+
+  console.log('\n⚙️  Injecting site settings...');
+  const settings = await fetchSettings(sb);
+  injectSettings(settings);
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });

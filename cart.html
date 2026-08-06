@@ -18,7 +18,7 @@
 <body>
 
 <div class="announcement-bar">
-  <div class="ticker-track">
+  <div class="ticker-track" data-setting-list="announcements">
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>💳 Min. advance = delivery charge · 30% advance above ৳2000</span>
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
@@ -175,16 +175,41 @@
 <script src="js/main.js" defer></script>
 <script src="js/supabase-config.js" defer></script>
 <script src="js/supabase.js" defer></script>
+<script src="js/settings.js" defer></script>
 <script src="js/search.js" defer></script>
 <script>
-  const WA_NUMBER = "8801738221686";
+  // Fallbacks match the seeded settings, so checkout works even if the live
+  // settings fetch (js/settings.js) hasn't resolved or failed.
+  const DELIVERY_FALLBACK = { dhaka: 70, suburb: 90, outside: 120 };
+  const WA_FALLBACK = "8801738221686";
+
+  function waNumber() {
+    const n = window.__SETTINGS__ && window.__SETTINGS__.contact && window.__SETTINGS__.contact.whatsapp;
+    return String(n || WA_FALLBACK).replace(/[^0-9]/g, '');
+  }
 
   function getDeliveryCharge() {
     const zone = document.getElementById('delivery-select').value;
-    if (zone === 'dhaka') return 70;
-    if (zone === 'suburb') return 90;
-    return 120;
+    const d = (window.__SETTINGS__ && window.__SETTINGS__.delivery) || DELIVERY_FALLBACK;
+    const v = d[zone];
+    return Number.isFinite(v) ? v : DELIVERY_FALLBACK[zone];
   }
+
+  // Reflect admin-set charges in the zone dropdown labels.
+  function refreshDeliveryLabels() {
+    const d = (window.__SETTINGS__ && window.__SETTINGS__.delivery) || DELIVERY_FALLBACK;
+    const opt = { dhaka: 'Within Dhaka', suburb: 'Dhaka Suburb', outside: 'Outside Dhaka' };
+    document.querySelectorAll('#delivery-select option').forEach(o => {
+      const c = Number.isFinite(d[o.value]) ? d[o.value] : DELIVERY_FALLBACK[o.value];
+      o.textContent = `${opt[o.value]} — ৳${c}`;
+    });
+  }
+
+  // When settings hydrate, recompute totals + refresh the labels.
+  window.addEventListener('settings:loaded', function () {
+    refreshDeliveryLabels();
+    if (getCart().length) updateSummary();
+  });
 
   function renderCart() {
     const cart = getCart();
@@ -286,7 +311,7 @@
     const delivery = getDeliveryCharge();
     const subtotal = getCartTotal();
     const msg = buildWhatsAppMessage(zone, name, phone, address);
-    const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/${waNumber()}?text=${encodeURIComponent(msg)}`;
 
     // Open the WhatsApp tab synchronously inside the click gesture so the popup
     // blocker allows it. We navigate it to the real URL only after the DB write,

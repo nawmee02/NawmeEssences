@@ -29,6 +29,8 @@
   <header class="admin-header">
     <div class="admin-brand">NawmeEssences <span>Admin</span></div>
     <div class="admin-header-right">
+      <button id="nav-products" class="btn-outline btn-sm" style="display:none">← Products</button>
+      <button id="nav-settings" class="btn-outline btn-sm">Site content</button>
       <a href="/" target="_blank" class="admin-link">View site ↗</a>
       <span id="build-status" class="admin-build" title="Latest deploy">build: …</span>
       <span id="admin-user" class="admin-muted"></span>
@@ -137,6 +139,78 @@
         </div>
       </form>
     </div>
+
+    <!-- SITE CONTENT -->
+    <div id="settings-view" style="display:none">
+      <div class="admin-toolbar">
+        <h2>Site content</h2>
+        <span class="admin-muted" id="settings-updated"></span>
+      </div>
+      <form id="settings-form" class="admin-form">
+        <fieldset class="admin-fieldset">
+          <legend>Announcement bar</legend>
+          <small class="admin-muted">Scrolling lines at the top of every page. Free text — include your own emoji.</small>
+          <div id="ann-rows"></div>
+          <button type="button" id="ann-add" class="btn-outline btn-sm">+ Add line</button>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Contact</legend>
+          <div class="admin-grid">
+            <label>WhatsApp number<input type="text" id="s-whatsapp" placeholder="8801XXXXXXXXX" /><small class="admin-muted">Digits only, with country code.</small></label>
+            <label>Instagram URL<input type="url" id="s-instagram" placeholder="https://instagram.com/…" /></label>
+            <label>Facebook URL<input type="url" id="s-facebook" placeholder="https://facebook.com/…" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Payment</legend>
+          <div class="admin-grid">
+            <label>bKash number<input type="text" id="s-bkash" placeholder="01XXXXXXXXX (optional)" /></label>
+            <label>Nagad number<input type="text" id="s-nagad" placeholder="01XXXXXXXXX (optional)" /></label>
+          </div>
+          <label>Advance note<input type="text" id="s-advance" placeholder="Min. advance = delivery charge · 30% advance above ৳2000" /></label>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Delivery charges (৳)</legend>
+          <div class="admin-grid">
+            <label>Within Dhaka<input type="number" id="s-d-dhaka" min="0" /></label>
+            <label>Dhaka Suburb<input type="number" id="s-d-suburb" min="0" /></label>
+            <label>Outside Dhaka<input type="number" id="s-d-outside" min="0" /></label>
+          </div>
+          <small class="admin-muted">Used at checkout and shown in the zone dropdown. Update the matching announcement line yourself if you change these.</small>
+          <div style="margin-top:10px"><strong class="admin-muted">Pickup points</strong></div>
+          <div id="pickup-rows"></div>
+          <button type="button" id="pickup-add" class="btn-outline btn-sm">+ Add pickup point</button>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Homepage hero</legend>
+          <label>Eyebrow<input type="text" id="s-hero-eyebrow" /></label>
+          <label>Title<input type="text" id="s-hero-title" /></label>
+          <label>Subtitle<textarea id="s-hero-subtitle" rows="2"></textarea></label>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Homepage stats</legend>
+          <small class="admin-muted">Number, suffix (e.g. + or %), and label. Four shown on the homepage.</small>
+          <div id="stat-rows"></div>
+          <button type="button" id="stat-add" class="btn-outline btn-sm">+ Add stat</button>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>Homepage meta (SEO)</legend>
+          <label>Page title<input type="text" id="s-meta-title" /><small class="admin-muted">Shown in the browser tab and Google results. ~60 chars.</small></label>
+          <label>Meta description<textarea id="s-meta-desc" rows="3"></textarea><small class="admin-muted">~155 chars for Google.</small></label>
+        </fieldset>
+
+        <div id="settings-error" class="admin-error"></div>
+        <div class="admin-form-actions">
+          <button type="submit" class="btn-primary" id="settings-save">Save site content</button>
+        </div>
+      </form>
+    </div>
   </main>
 </section>
 
@@ -146,5 +220,6 @@
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
 <script src="/js/admin.js" defer></script>
+<script src="/js/admin-settings.js" defer></script>
 </body>
 </html>

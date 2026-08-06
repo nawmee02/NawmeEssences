@@ -155,7 +155,7 @@ function relatedProducts(p, all, detailsMap) {
 // ─── Shared header / footer ──────────────────────────────────
 
 const HEADER = `<div class="announcement-bar">
-  <div class="ticker-track">
+  <div class="ticker-track" data-setting-list="announcements">
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>✅ 100% Authentic Decants</span>
     <span>📍 Pickup: Aftabnagar · Banasree · NSU</span>
@@ -217,6 +217,7 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/main.js" defer></script>
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
+<script src="/js/settings.js" defer></script>
 <script src="/js/api.js" defer></script>
 <script src="/js/search.js" defer></script>`;
 
