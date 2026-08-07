@@ -227,6 +227,33 @@ function injectGrids(allProducts, productDetails) {
   console.log(`🧩 grids — ${total} cards injected`);
 }
 
+// ─── Bake the shop's brand + accord filter checkboxes ──────────
+// shop.js used to build these from the cards on load, which grew the sidebar
+// after first paint (a ~0.06 CLS from filter-group/filter-clear shifting).
+// Baking them into the static HTML means they're there before JS runs. shop.js
+// now only builds them if the containers are still empty (older cached HTML).
+function injectShopFilters(allProducts, productDetails) {
+  const regular = allProducts.filter(p => p.collection === 'regular');
+  const brands = [...new Set(regular.map(p => p.brand))].filter(Boolean).sort();
+  const accords = [...new Set(regular.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || []))].filter(Boolean).sort();
+  const label = (v, cls) => `<label><input type="checkbox" value="${esc(v)}" class="${cls}" /> ${esc(v)}</label>`;
+
+  const blocks = {
+    brands: brands.map(b => label(b, 'brand-filter')).join(''),
+    accords: accords.map(a => label(a, 'accord-filter')).join(''),
+  };
+
+  const fp = path.join(ROOT, 'shop.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  for (const [name, content] of Object.entries(blocks)) {
+    const re = new RegExp(`(<!--FILTERS:${name}:start-->)[\\s\\S]*?(<!--FILTERS:${name}:end-->)`);
+    if (!re.test(html)) throw new Error(`marker FILTERS:${name} not found in shop.html`);
+    html = html.replace(re, `$1${content}$2`);
+  }
+  fs.writeFileSync(fp, html);
+  console.log(`  injected → shop.html (${brands.length} brand + ${accords.length} accord filters)`);
+}
+
 // ─── Bake site settings into the SEO-critical home-page HTML ────
 // Only index.html is baked (its hero/title/description are the indexed copy).
 // The announcement ticker and generated pages update via js/settings.js
@@ -310,6 +337,7 @@ async function run() {
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
   injectSettings(settings);
+  injectShopFilters(allProducts, productDetails);
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });

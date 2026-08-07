@@ -96,18 +96,22 @@ function toggleSidebar() {
 function init() {
   _cards = [...document.querySelectorAll('#shop-grid .product-card')];
 
-  // Build brand + accord filter checkboxes from the rendered cards' data-* attributes.
-  const brands = [...new Set(_cards.map(c => c.dataset.brand))].filter(Boolean).sort();
+  // Brand + accord checkboxes are baked into the static HTML at build time (so the
+  // sidebar doesn't grow after paint — a CLS win). Only build them here if the
+  // containers are still empty, e.g. an older cached shop.html without the bake.
   const brandFilters = document.getElementById('brand-filters');
-  if (brandFilters) brands.forEach(b => {
-    brandFilters.innerHTML += `<label><input type="checkbox" value="${b}" class="brand-filter" /> ${b}</label>`;
-  });
+  if (brandFilters && !brandFilters.querySelector('input')) {
+    [...new Set(_cards.map(c => c.dataset.brand))].filter(Boolean).sort().forEach(b => {
+      brandFilters.innerHTML += `<label><input type="checkbox" value="${b}" class="brand-filter" /> ${b}</label>`;
+    });
+  }
 
-  const accords = [...new Set(_cards.flatMap(c => c.dataset.accords ? c.dataset.accords.split('|') : []))].filter(Boolean).sort();
   const accordFilters = document.getElementById('accord-filters');
-  if (accordFilters) accords.forEach(a => {
-    accordFilters.innerHTML += `<label><input type="checkbox" value="${a}" class="accord-filter" /> ${a}</label>`;
-  });
+  if (accordFilters && !accordFilters.querySelector('input')) {
+    [...new Set(_cards.flatMap(c => c.dataset.accords ? c.dataset.accords.split('|') : []))].filter(Boolean).sort().forEach(a => {
+      accordFilters.innerHTML += `<label><input type="checkbox" value="${a}" class="accord-filter" /> ${a}</label>`;
+    });
+  }
 
   // Honor ?q= from the header search / SEO SearchAction.
   const q = new URLSearchParams(location.search).get('q');
