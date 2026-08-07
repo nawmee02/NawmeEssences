@@ -16,18 +16,9 @@
     clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  // ─── View toggle ───────────────────────────────────────────
-  function showSettings(on) {
-    ['list-view', 'form-view'].forEach(id => { const el = $(id); if (el) el.style.display = on ? 'none' : ''; });
-    // form-view should stay hidden when returning to the list; admin.js owns it.
-    if (!on) { $('form-view').style.display = 'none'; $('list-view').style.display = ''; }
-    $('settings-view').style.display = on ? '' : 'none';
-    $('nav-settings').style.display = on ? 'none' : '';
-    $('nav-products').style.display = on ? '' : 'none';
-  }
-
-  $('nav-settings').addEventListener('click', async () => { showSettings(true); await loadSettings(); });
-  $('nav-products').addEventListener('click', () => showSettings(false));
+  // ─── View toggle (uses the shared switcher from admin.js) ──
+  $('nav-settings').addEventListener('click', async () => { setAdminView('settings'); await loadSettings(); });
+  $('nav-products').addEventListener('click', () => setAdminView('products'));
 
   // ─── Repeater rows (mirrors addSizeRow in admin.js) ────────
   function rowInput(value, placeholder, cls) {

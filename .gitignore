@@ -6,9 +6,10 @@ assets/images/generated/
 # Upload manifest — local record of what's in Storage
 assets/images/.upload-manifest.json
 
-# Generated product + brand pages — built in CI from Supabase, not committed
+# Generated product + brand + blog pages — built in CI from Supabase, not committed
 product/
 brands/
+blog/
 
 # Node
 node_modules/

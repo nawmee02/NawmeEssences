@@ -24,6 +24,22 @@
 
   const $ = id => document.getElementById(id);
   const show = (id, on) => { $(id).style.display = on ? '' : 'none'; };
+
+  // Shared switcher for the top-level admin sections (products / site content / blog).
+  // Shows the chosen view and reveals the nav buttons for the OTHER sections.
+  // Used by admin-settings.js and admin-blog.js so the three views never overlap.
+  window.setAdminView = function (view) {
+    show('list-view', view === 'products');
+    show('form-view', false);
+    ['settings-view', 'blog-view'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+    if (view === 'settings') { const e = $('settings-view'); if (e) e.style.display = ''; }
+    if (view === 'blog') { const e = $('blog-view'); if (e) e.style.display = ''; }
+    const btn = (id, hide) => { const b = $(id); if (b) b.style.display = hide ? 'none' : ''; };
+    btn('nav-products', view === 'products');
+    btn('nav-settings', view === 'settings');
+    btn('nav-blog', view === 'blog');
+  };
+
   const slugify = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const csv = s => s.split(',').map(x => x.trim()).filter(Boolean);
 

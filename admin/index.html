@@ -31,6 +31,7 @@
     <div class="admin-header-right">
       <button id="nav-products" class="btn-outline btn-sm" style="display:none">← Products</button>
       <button id="nav-settings" class="btn-outline btn-sm">Site content</button>
+      <button id="nav-blog" class="btn-outline btn-sm">Blog</button>
       <a href="/" target="_blank" class="admin-link">View site ↗</a>
       <span id="build-status" class="admin-build" title="Latest deploy">build: …</span>
       <span id="admin-user" class="admin-muted"></span>
@@ -232,6 +233,63 @@
         </div>
       </form>
     </div>
+
+    <!-- BLOG -->
+    <div id="blog-view" style="display:none">
+      <div class="admin-toolbar">
+        <h2>Blog <span id="post-count" class="admin-muted"></span></h2>
+        <button id="post-add" class="btn-primary">+ New post</button>
+      </div>
+      <div id="post-list"></div>
+
+      <div id="post-form-view" style="display:none">
+        <div class="admin-toolbar">
+          <h2 id="post-form-title">New post</h2>
+          <button id="post-cancel" class="btn-outline btn-sm">← Back to posts</button>
+        </div>
+        <form id="post-form" class="admin-form">
+          <div class="admin-grid">
+            <label>Title *<input type="text" id="p-title" required /></label>
+            <label>Slug (URL)<input type="text" id="p-slug" placeholder="auto from title" /><small class="admin-muted" id="p-slug-hint"></small></label>
+            <label>Status
+              <select id="p-status">
+                <option value="draft">Draft (hidden)</option>
+                <option value="published">Published (live)</option>
+              </select>
+            </label>
+            <label>Publish date<input type="date" id="p-date" /></label>
+          </div>
+          <label>Excerpt<textarea id="p-excerpt" rows="2" placeholder="Short summary — shown on cards and used as the meta description"></textarea></label>
+
+          <fieldset class="admin-fieldset">
+            <legend>Cover image</legend>
+            <div id="p-current-cover" class="admin-current-img"></div>
+            <input type="file" id="p-cover" accept="image/jpeg,image/png,image/webp" />
+            <small class="admin-muted">JPG/PNG/WebP, ≤ 5 MB. Optimized in your browser. A 16:9 image works best.</small>
+          </fieldset>
+
+          <fieldset class="admin-fieldset">
+            <legend>Body (Markdown)</legend>
+            <div class="blog-editor">
+              <textarea id="p-body" rows="18" placeholder="## A heading&#10;&#10;Write in **Markdown** — headings, **bold**, [links](/shop.html), lists, images."></textarea>
+              <div id="p-preview" class="post-body blog-preview"></div>
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-fieldset">
+            <legend>SEO overrides (optional)</legend>
+            <label>Meta title<input type="text" id="p-meta-title" placeholder="Leave blank to auto-generate" /></label>
+            <label>Meta description<textarea id="p-meta-desc" rows="2" placeholder="Leave blank — falls back to the excerpt"></textarea></label>
+          </fieldset>
+
+          <div id="post-error" class="admin-error"></div>
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="post-save">Save post</button>
+          </div>
+          <p class="admin-muted" style="margin-top:10px">💡 Saving stores the post. To publish it live, run a build: GitHub → Actions → “Deploy to GitHub Pages” → <strong>Run workflow</strong> (or wait for the nightly rebuild).</p>
+        </form>
+      </div>
+    </div>
   </main>
 </section>
 
@@ -242,5 +300,7 @@
 <script src="/js/supabase.js" defer></script>
 <script src="/js/admin.js" defer></script>
 <script src="/js/admin-settings.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js" defer></script>
+<script src="/js/admin-blog.js" defer></script>
 </body>
 </html>

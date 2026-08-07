@@ -13,6 +13,7 @@ const {
   ROOT, loadProducts, publicUrl, imageVersion, brandSlug, hasGeneratedImages,
 } = require('./lib/catalog');
 const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
+const { renderMarkdown } = require('./lib/blog');
 
 const SITE = 'https://nawmeessences.me';
 const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
@@ -195,6 +196,7 @@ const FOOTER = `<footer class="site-footer">
       <p class="footer-heading">Shop</p>
       <a href="/shop.html">All Fragrances</a>
       <a href="/brands/">Brands</a>
+      <a href="/blog/">Blog</a>
       <a href="/exclusive.html">Exclusive Collection</a>
       <a href="/cart.html">My Cart</a>
     </div>
@@ -738,8 +740,199 @@ ${SCRIPTS}
 `;
 }
 
+// ─── Blog ────────────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  return isNaN(dt) ? '' : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+// Cover images live under a blog/ prefix in the same bucket as products.
+function coverUrl(post, size) {
+  return post.cover ? publicUrl('blog/' + post.id, size, imageVersion(post.updatedAt)) : DEFAULT_OG;
+}
+
+function blogCard(post) {
+  const href = `/blog/${attr(post.id)}/`;
+  const img = post.cover
+    ? `<img src="${attr(coverUrl(post, 'thumb'))}" alt="${attr(post.title)}" loading="lazy" decoding="async" width="450" height="253" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="blog-card-ph" style="display:none">🫧</div>`
+    : `<div class="blog-card-ph">🫧</div>`;
+  return `
+      <a class="blog-card" href="${href}">
+        <div class="blog-card-img">${img}</div>
+        <div class="blog-card-body">
+          ${post.publishedAt ? `<time class="blog-card-date">${esc(fmtDate(post.publishedAt))}</time>` : ''}
+          <h2 class="blog-card-title">${esc(post.title)}</h2>
+          ${post.excerpt ? `<p class="blog-card-excerpt">${esc(post.excerpt)}</p>` : ''}
+        </div>
+      </a>`;
+}
+
+function renderBlogIndex(posts) {
+  const url = `${SITE}/blog/`;
+  const title = 'The NawmeEssences Journal — Perfume Decant Guides & Tips';
+  const metaDesc = 'Fragrance guides, decant tips, and scent stories from NawmeEssences — authentic perfume decants in Bangladesh.';
+  const cards = posts.map(blogCard).join('\n');
+  const blogLd = {
+    '@context': 'https://schema.org', '@type': 'Blog', name: 'NawmeEssences Journal', url,
+    publisher: { '@id': `${SITE}/#organization` },
+    blogPost: posts.slice(0, 20).map(p => ({
+      '@type': 'BlogPosting', headline: p.title, url: `${SITE}/blog/${p.id}/`,
+      datePublished: p.publishedAt || undefined,
+    })),
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Journal', item: url },
+    ],
+  };
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(metaDesc)}" />
+  <link rel="canonical" href="${attr(url)}" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta name="application-name" content="NawmeEssences" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:url" content="${attr(url)}" />
+  <meta property="og:title" content="${attr(title)}" />
+  <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:locale" content="en_US" />
+  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> <span>›</span>
+  <span class="crumb-current">Journal</span>
+</nav>
+
+<div class="section" style="padding-top:20px;">
+  <h1 class="brand-h1">The NawmeEssences <span>Journal</span></h1>
+  <p class="brand-intro">Fragrance guides, decant tips, and scent stories — everything to help you find your signature scent.</p>
+  ${posts.length ? `<div class="blog-grid">${cards}\n  </div>` : '<p class="admin-muted" style="color:var(--text-muted)">No posts yet — check back soon.</p>'}
+</div>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+</body>
+</html>
+`;
+}
+
+function renderBlogPost(post) {
+  const v = imageVersion(post.updatedAt);
+  const url = `${SITE}/blog/${post.id}/`;
+  const title = post.metaTitle || `${post.title} | NawmeEssences Journal`;
+  const bodyText = String(post.bodyMd || '').replace(/[#*_`>\-\[\]!]/g, ' ').replace(/\s+/g, ' ').trim();
+  const metaDesc = post.metaDescription || post.excerpt || bodyText.slice(0, 155);
+  const ogImg = coverUrl(post, 'large');
+  const bodyHtml = renderMarkdown(post.bodyMd);
+
+  const articleLd = {
+    '@context': 'https://schema.org', '@type': 'BlogPosting',
+    headline: post.title, description: metaDesc, url,
+    image: post.cover ? [coverUrl(post, 'large')] : [DEFAULT_OG],
+    datePublished: post.publishedAt || undefined,
+    dateModified: post.updatedAt || post.publishedAt || undefined,
+    author: { '@id': `${SITE}/#organization` },
+    publisher: { '@id': `${SITE}/#organization` },
+    mainEntityOfPage: url,
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Journal', item: `${SITE}/blog/` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: url },
+    ],
+  };
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(metaDesc)}" />
+  <link rel="canonical" href="${attr(url)}" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="article" />
+  <meta name="application-name" content="NawmeEssences" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:url" content="${attr(url)}" />
+  <meta property="og:title" content="${attr(post.title)}" />
+  <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${attr(ogImg)}" />
+  <meta property="og:locale" content="en_US" />
+  ${post.publishedAt ? `<meta property="article:published_time" content="${attr(post.publishedAt)}" />` : ''}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(post.title)}" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${attr(ogImg)}" />
+  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> <span>›</span>
+  <a href="/blog/">Journal</a> <span>›</span>
+  <span class="crumb-current">${esc(post.title)}</span>
+</nav>
+
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">${esc(post.title)}</h1>
+    ${post.publishedAt ? `<time class="post-meta" datetime="${attr(post.publishedAt)}">${esc(fmtDate(post.publishedAt))}</time>` : ''}
+  </header>
+  ${post.cover ? `<div class="post-cover"><img src="${attr(coverUrl(post, 'medium'))}" alt="${attr(post.title)}" width="800" height="450" decoding="async" onload="this.classList.add('loaded')" /></div>` : ''}
+  <div class="post-body">
+${bodyHtml}
+  </div>
+  <p class="post-back"><a href="/blog/">← Back to the Journal</a></p>
+</article>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+</body>
+</html>
+`;
+}
+
 // ─── Sitemap ─────────────────────────────────────────────────
-function writeSitemap(all, groups = []) {
+function writeSitemap(all, groups = [], posts = []) {
   const core = [
     { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0' },
     { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9' },
@@ -753,7 +946,14 @@ function writeSitemap(all, groups = []) {
     loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7',
     lastmod: p.updatedAt ? String(p.updatedAt).slice(0, 10) : null,
   }));
-  const urls = [...core, ...brandUrls, ...products].map(u =>
+  const blogUrls = posts.length ? [
+    { loc: `${SITE}/blog/`, freq: 'weekly', pri: '0.6' },
+    ...posts.map(p => ({
+      loc: `${SITE}/blog/${p.id}/`, freq: 'monthly', pri: '0.6',
+      lastmod: (p.updatedAt || p.publishedAt) ? String(p.updatedAt || p.publishedAt).slice(0, 10) : null,
+    })),
+  ] : [];
+  const urls = [...core, ...brandUrls, ...blogUrls, ...products].map(u =>
     `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
@@ -765,6 +965,7 @@ function writeSitemap(all, groups = []) {
 // on-disk check). Lets the Supabase build pass a Set of ids present in Storage.
 function generateFromData(allProducts, productDetails, opts = {}) {
   if (opts.hasImage) setImageChecker(opts.hasImage);
+  const posts = opts.posts || [];
   const outRoot = path.join(ROOT, 'product');
 
   let written = 0;
@@ -785,10 +986,20 @@ function generateFromData(allProducts, productDetails, opts = {}) {
     fs.writeFileSync(path.join(dir, 'index.html'), renderBrandPage(g, productDetails, groups));
   }
 
-  writeSitemap(allProducts, groups);
+  // Blog: always write /blog/ (empty-state if no posts), then a page per post.
+  const blogRoot = path.join(ROOT, 'blog');
+  fs.mkdirSync(blogRoot, { recursive: true });
+  fs.writeFileSync(path.join(blogRoot, 'index.html'), renderBlogIndex(posts));
+  for (const post of posts) {
+    const dir = path.join(blogRoot, post.id);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), renderBlogPost(post));
+  }
 
-  console.log(`✓ generated ${written} product pages + ${groups.length} brand pages + sitemap.xml`);
-  return { ok: true, written, brands: groups.length };
+  writeSitemap(allProducts, groups, posts);
+
+  console.log(`✓ generated ${written} product pages + ${groups.length} brand pages + ${posts.length} blog posts + sitemap.xml`);
+  return { ok: true, written, brands: groups.length, posts: posts.length };
 }
 
 // ─── Main (local products.js source) ─────────────────────────

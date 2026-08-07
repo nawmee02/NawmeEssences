@@ -23,6 +23,7 @@ const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/c
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings } = require('./lib/settings');
+const { fetchPosts } = require('./lib/blog');
 
 const SIZES = [
   { name: 'thumb',  width: 450,  quality: 80 },
@@ -339,8 +340,12 @@ async function run() {
   injectSettings(settings);
   injectShopFilters(allProducts, productDetails);
 
+  console.log('\n📝 Fetching blog posts...');
+  const posts = await fetchPosts(sb);
+  console.log(`   ${posts.length} published posts`);
+
   console.log('\n📄 Generating pages...');
-  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id) });
+  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts });
 
   // Image errors never block the deploy — the page just uses a placeholder.
   if (errors) console.log(`\n⚠️  ${errors} image error(s) — those products fall back to placeholders.`);
