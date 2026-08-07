@@ -12,7 +12,7 @@ const path = require('path');
 const {
   ROOT, loadProducts, publicUrl, imageVersion, brandSlug, hasGeneratedImages,
 } = require('./lib/catalog');
-const { renderCard } = require('./lib/render-card');
+const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 
 const SITE = 'https://nawmeessences.me';
 const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
@@ -87,8 +87,9 @@ function occasionChips(accords) {
 }
 
 function sizePills(p) {
+  const sp = Number(p.salePercent) || 0;
   return p.sizes.map((s, i) =>
-    `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${attr(p.id)}', this)">${s.ml}ml</button>`
+    `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${effectivePrice(s.price, sp)}" data-original="${s.price}" onclick="selectSize('${attr(p.id)}', this)">${s.ml}ml</button>`
   ).join('');
 }
 
@@ -232,9 +233,12 @@ function renderPage(p, all, detailsMap) {
   const isExclusive = p.collection !== 'regular';
   const bSlug = brandSlug(p.brand);
   const desc = description(p, d);
-  const metaDesc = metaDescription(p, d);
-  const title = `${p.name} — ${p.brand} Perfume Decant in Bangladesh | NawmeEssences`;
+  // Per-product overrides win; otherwise fall back to the auto-generated copy.
+  const metaDesc = p.metaDescription || metaDescription(p, d);
+  const title = p.metaTitle || `${p.name} — ${p.brand} Perfume Decant in Bangladesh | NawmeEssences`;
+  const sp = Number(p.salePercent) || 0;
   const lo = minPrice(p.sizes), hi = maxPrice(p.sizes);
+  const loEff = effectivePrice(lo, sp), hiEff = effectivePrice(hi, sp);
   const availability = p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 
   const productLd = {
@@ -249,8 +253,8 @@ function renderPage(p, all, detailsMap) {
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'BDT',
-      lowPrice: lo,
-      highPrice: hi,
+      lowPrice: loEff,
+      highPrice: hiEff,
       offerCount: p.sizes.length,
       availability,
       url,
@@ -326,7 +330,7 @@ ${HEADER}
       <img id="pd-hero" src="${attr(heroMedium(p.id, v))}" alt="${attr(p.name + ' ' + p.brand + ' perfume decant')}"
            fetchpriority="high" decoding="async" onclick="openLightbox()" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-img-placeholder pd-placeholder">🫧</div>
-      <div class="tag-badges">${tagBadges(p.tags)}</div>
+      <div class="tag-badges">${sp > 0 ? `<span class="tag tag-sale">−${sp}%</span>` : ''}${tagBadges(p.tags)}</div>
       ${oos ? '<div class="oos-badge" id="stock-badge"><span>Out of Stock</span></div>' : '<div class="oos-badge" id="stock-badge" style="display:none"><span>Out of Stock</span></div>'}
     </div>
   </div>
@@ -343,7 +347,7 @@ ${HEADER}
         <div class="size-pills" id="size-${attr(p.id)}">${sizePills(p)}</div>
       </div>
       <div class="pd-price-row">
-        <span class="pd-price" id="price-${attr(p.id)}">৳${lo}</span>
+        <span class="pd-price" id="price-${attr(p.id)}">${priceCell(lo, loEff)}</span>
         <button class="add-to-cart-btn" id="add-btn"${oos ? ' disabled' : ''} onclick="handleAdd()">${oos ? 'Out of Stock' : 'Add to Cart'}</button>
       </div>
     </div>
@@ -431,13 +435,12 @@ ${SCRIPTS}
         if (badge) badge.style.display = 'none';
         if (stock) { stock.className = 'pd-stock in'; stock.innerHTML = '<span class="pd-stock-dot"></span>In Stock'; }
       }
-      if (p.sizes && p.sizes.length) {
-        p.sizes.forEach(s => {
-          const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill[data-ml="' + s.ml + '"]');
-          if (pill) pill.dataset.price = s.price;
-        });
-        const active = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
-        if (active) document.getElementById('price-' + PRODUCT.id).textContent = '৳' + active.dataset.price;
+      // Re-price the size pills + badge from live data (incl. any sale %), so a
+      // price or sale set in admin shows without a rebuild. applySaleToCard sets
+      // each pill's effective/original price and refreshes the shown price.
+      if (p.sizes && p.sizes.length && typeof ProductAPI.applySaleToCard === 'function') {
+        const pdImage = document.querySelector('.pd-image') || document.body;
+        ProductAPI.applySaleToCard(pdImage, p, p.salePercent || 0);
       }
     } catch (e) { /* keep baked values */ }
   });

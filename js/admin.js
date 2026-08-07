@@ -106,7 +106,7 @@
   async function loadProducts() {
     // Admin sees every status (RLS grants admins full read).
     const { data, error } = await sb.from('fragrances')
-      .select('id, name, collection, in_stock, is_bestseller, status, updated_at, brands(name), fragrance_sizes(ml,price)')
+      .select('id, name, collection, in_stock, is_bestseller, status, sale_percent, updated_at, brands(name), fragrance_sizes(ml,price)')
       .order('name');
     if (error) { toast('Load failed: ' + error.message); return; }
     allProducts = data || [];
@@ -124,9 +124,10 @@
 
     const row = p => {
       const price = p.fragrance_sizes?.length ? '৳' + Math.min(...p.fragrance_sizes.map(s => s.price)) : '—';
+      const saleChip = p.sale_percent > 0 ? ` <span class="tag tag-sale">−${p.sale_percent}%</span>` : '';
       return `<tr>
         <td>${esc(p.name)}<div class="admin-muted">${esc(p.brands?.name || '')} · ${p.id}</div></td>
-        <td>${price}</td>
+        <td>${price}${saleChip}</td>
         <td><button class="pill-toggle ${p.in_stock ? 'on' : ''}" data-act="stock" data-id="${p.id}">${p.in_stock ? 'In stock' : 'Out'}</button></td>
         <td><button class="pill-toggle ${p.is_bestseller ? 'on' : ''}" data-act="best" data-id="${p.id}">★</button></td>
         <td class="admin-actions">
@@ -218,7 +219,7 @@
     // reset
     $('sizes-rows').innerHTML = '';
     document.querySelectorAll('.f-tag').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-description'].forEach(x => $(x).value = '');
+    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -233,6 +234,9 @@
     $('f-brand').value = data.brands?.name || '';
     $('f-collection').value = data.collection; $('f-status').value = data.status;
     $('f-instock').checked = data.in_stock; $('f-bestseller').checked = data.is_bestseller;
+    $('f-sale').value = data.sale_percent || '';
+    $('f-meta-title').value = data.meta_title || '';
+    $('f-meta-desc').value = data.meta_description || '';
     (data.fragrance_sizes || []).sort((a,b)=>a.ml-b.ml).forEach(s => addSizeRow(s.ml, s.price));
     if (!data.fragrance_sizes?.length) addSizeRow();
     (data.fragrance_tags || []).forEach(t => { const c=document.querySelector(`.f-tag[value="${t.tag}"]`); if (c) c.checked = true; });
@@ -261,6 +265,9 @@
       id, name: $('f-name').value.trim(), brand: $('f-brand').value.trim(),
       collection: $('f-collection').value, status: $('f-status').value,
       inStock: $('f-instock').checked, isBestseller: $('f-bestseller').checked,
+      salePercent: Math.max(0, Math.min(95, parseInt($('f-sale').value, 10) || 0)),
+      metaTitle: $('f-meta-title').value.trim(),
+      metaDescription: $('f-meta-desc').value.trim(),
       sizes, tags,
       details: {
         top: csv($('f-top').value), heart: csv($('f-heart').value), base: csv($('f-base').value),
@@ -300,6 +307,7 @@
         p_in_stock: f.inStock, p_is_bestseller: f.isBestseller, p_status: f.status,
         p_sizes: f.sizes, p_tags: f.tags, p_details: f.details,
         p_expected_updated_at: editingUpdatedAt,
+        p_sale_percent: f.salePercent, p_meta_title: f.metaTitle, p_meta_description: f.metaDescription,
       });
       if (error) {
         if (/stale/.test(error.message)) {

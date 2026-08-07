@@ -91,6 +91,7 @@
             </select>
           </label>
           <label>Olfactive family<input type="text" id="f-family" placeholder="e.g. Woody" /></label>
+          <label>Sale % off<input type="number" id="f-sale" min="0" max="95" placeholder="0" /><small class="admin-muted">0 = no sale. Applies to every size.</small></label>
         </div>
 
         <div class="admin-checks">
@@ -124,6 +125,12 @@
         </fieldset>
 
         <label>Description<textarea id="f-description" rows="4" placeholder="Optional — falls back to an auto blurb if empty"></textarea></label>
+
+        <fieldset class="admin-fieldset">
+          <legend>SEO overrides (optional)</legend>
+          <label>Meta title<input type="text" id="f-meta-title" placeholder="Leave blank to auto-generate" /><small class="admin-muted">~60 chars. Overrides the page &lt;title&gt;.</small></label>
+          <label>Meta description<textarea id="f-meta-desc" rows="2" placeholder="Leave blank to auto-generate"></textarea><small class="admin-muted">~155 chars for Google.</small></label>
+        </fieldset>
 
         <fieldset class="admin-fieldset">
           <legend>Image</legend>

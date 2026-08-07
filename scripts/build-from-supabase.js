@@ -45,16 +45,19 @@ const sb = createClient(SUPABASE_URL, SERVICE_KEY || process.env.SUPABASE_ANON_K
 
 // ─── Fetch catalog from Supabase ─────────────────────────────
 async function fetchCatalog() {
-  const { data: frags, error } = await sb
-    .from('fragrances')
-    .select(`
-      id, name, collection, in_stock, is_bestseller, updated_at,
-      brands ( name ),
-      fragrance_sizes ( ml, price ),
-      fragrance_tags ( tag )
-    `)
-    .eq('status', 'published')
-    .order('sort_order');
+  // The sale_percent / meta_* columns arrive with migration 009. Select them
+  // when present, but fall back to the legacy column set if the migration
+  // hasn't run yet, so the build never breaks on deploy-before-migrate.
+  const base = 'id, name, collection, in_stock, is_bestseller, updated_at';
+  const rel = 'brands ( name ), fragrance_sizes ( ml, price ), fragrance_tags ( tag )';
+  const fetchFrags = cols =>
+    sb.from('fragrances').select(`${cols}, ${rel}`).eq('status', 'published').order('sort_order');
+
+  let { data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description`);
+  if (error) {
+    console.warn('  ⚠️  sale/meta columns not found — run migration 009. Building without them.');
+    ({ data: frags, error } = await fetchFrags(base));
+  }
   if (error) throw new Error('fragrances: ' + error.message);
 
   // Details fetched with * so a missing `description` column (migration 003
@@ -70,6 +73,10 @@ async function fetchCatalog() {
     inStock:       f.in_stock,
     is_bestseller: f.is_bestseller,
     updatedAt:     f.updated_at,
+    sale_percent:  f.sale_percent || 0,
+    salePercent:   f.sale_percent || 0,
+    metaTitle:     f.meta_title || '',
+    metaDescription: f.meta_description || '',
     sizes:         (f.fragrance_sizes || []).map(s => ({ ml: s.ml, price: s.price })).sort((a, b) => a.ml - b.ml),
     tags:          (f.fragrance_tags || []).map(t => t.tag),
   }));

@@ -2,7 +2,14 @@ function selectSize(id, btn) {
   document.querySelectorAll('#size-' + id + ' .size-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const priceEl = document.getElementById('price-' + id);
-  if (priceEl) priceEl.textContent = '৳' + btn.dataset.price;
+  if (!priceEl) return;
+  // data-price is the effective (sale) price; data-original the pre-sale price.
+  // Show a struck original + sale price when they differ, else just the price.
+  const eff = Number(btn.dataset.price);
+  const orig = Number(btn.dataset.original) || eff;
+  priceEl.innerHTML = orig > eff
+    ? '<s class="price-was">৳' + orig + '</s> ৳' + eff
+    : '৳' + eff;
 }
 
 // Theme toggle — the saved theme is applied by an inline <head> script on every

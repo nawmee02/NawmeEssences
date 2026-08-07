@@ -497,6 +497,7 @@ input, select { font-family: var(--font-body); }
 .tag-limited { background: #5c3a1a; color: #fff; }
 .tag-discontinued { background: #3a1a1a; color: #fff; }
 .tag-exclusive { background: #3a2a0a; color: #e2c688; }
+.tag-sale { background: #7a1420; color: #fff; }
 .oos-badge { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
 .oos-badge span { background: rgba(0,0,0,0.8); color: var(--text-muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border); }
 /* The chip sits on a black overlay in both themes — keep its text light */
@@ -547,6 +548,8 @@ input, select { font-family: var(--font-body); }
 .size-pill:hover { border-color: var(--gold-dark); color: var(--text); }
 .size-pill.active { border-color: var(--gold-dark); background: rgba(201,164,101,0.1); color: var(--gold); }
 .card-price-live { font-size: 15px; font-weight: 600; color: var(--text); margin-top: auto; margin-bottom: 8px; display: block; }
+/* Struck-through pre-sale price, shown before the sale price in card + PDP. */
+.price-was { color: var(--text-muted); font-weight: 400; text-decoration: line-through; margin-right: 5px; font-size: 0.85em; }
 
 .add-to-cart-btn {
   width: 100%;

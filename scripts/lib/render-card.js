@@ -20,11 +20,24 @@ const TAG_LABEL = {
 };
 const tagLabel = t => TAG_LABEL[t] || (t ? t.charAt(0).toUpperCase() + t.slice(1) : t);
 
+// Effective (sale) price. sp = percent off (0 = no sale). Must stay identical
+// to the client copy in js/api.js so baked + hydrated prices agree.
+function effectivePrice(price, sp) {
+  return sp > 0 ? Math.round(price * (100 - sp) / 100) : price;
+}
+
+// Price-cell markup: struck original + sale price when on sale, else plain.
+function priceCell(orig, eff) {
+  return eff < orig ? `<s class="price-was">৳${orig}</s> ৳${eff}` : `৳${eff}`;
+}
+
 // p: { id, name, brand, sizes:[{ml,price}], tags:[], accords:[], inStock,
-//      image_thumb, image_medium }
+//      image_thumb, image_medium, sale_percent }
 function renderCard(p, { isExclusive = false, priority = false } = {}) {
   const sizes = (p.sizes || []).slice().sort((a, b) => a.ml - b.ml);
+  const sp = Number(p.sale_percent) || 0;
   const minPrice = sizes.length ? Math.min(...sizes.map(s => s.price)) : 0;
+  const minEff = effectivePrice(minPrice, sp);
   const oos = !p.inStock;
   // Cards render at ~190px (2-col mobile) to ~285px (desktop), so the 450px
   // thumb is the right file everywhere and we serve it via plain src — no
@@ -36,11 +49,16 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
   // fast; the rest stay lazy. Fade-in (onload → .loaded) replaces the emoji "pop".
   const loadAttrs = priority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
 
-  const tags = (p.tags || [])
+  // Sale badge sits alongside the tag badges; data-price on each pill is the
+  // effective (sale) price so add-to-cart charges it, data-original drives the
+  // strikethrough. They're equal when there's no sale.
+  const saleBadge = sp > 0 ? `<span class="tag tag-sale">−${sp}%</span>` : '';
+  const tags = saleBadge + (p.tags || [])
     .map(t => `<span class="tag tag-${esc(t)}">${esc(tagLabel(t))}</span>`).join('');
-  const pills = sizes.map((s, i) =>
-    `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${s.price}" onclick="selectSize('${esc(p.id)}', this)">${s.ml}ml</button>`
-  ).join('');
+  const pills = sizes.map((s, i) => {
+    const eff = effectivePrice(s.price, sp);
+    return `<button class="size-pill${i === 0 ? ' active' : ''}" data-ml="${s.ml}" data-price="${eff}" data-original="${s.price}" onclick="selectSize('${esc(p.id)}', this)">${s.ml}ml</button>`;
+  }).join('');
 
   // data-* attributes power the client-side filter / sort / search — no re-render.
   const data = [
@@ -51,7 +69,8 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
     `data-sizes="${esc(sizes.map(s => s.ml).join(' '))}"`,
     `data-accords="${esc((p.accords || []).join('|'))}"`,
     `data-instock="${oos ? 'false' : 'true'}"`,
-    `data-price="${minPrice}"`,
+    `data-price="${minEff}"`,
+    `data-sale="${sp}"`,
   ].join(' ');
 
   return `
@@ -70,10 +89,10 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
       </a>
       <div class="card-footer">
         <div class="size-pills" id="size-${esc(p.id)}">${pills}</div>
-        <span class="card-price-live" id="price-${esc(p.id)}">৳${minPrice}</span>
+        <span class="card-price-live" id="price-${esc(p.id)}">${priceCell(minPrice, minEff)}</span>
         <button class="add-to-cart-btn"${oos ? ' disabled' : ''} onclick="handleAdd('${esc(p.id)}', ${isExclusive})">${oos ? 'Out of Stock' : 'Add to Cart'}</button>
       </div>
     </div>`;
 }
 
-module.exports = { renderCard, esc };
+module.exports = { renderCard, esc, effectivePrice, priceCell };
