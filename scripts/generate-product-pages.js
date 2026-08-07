@@ -380,7 +380,8 @@ ${SCRIPTS}
   function handleAdd() {
     const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
     if (!pill) return;
-    addToCart(PRODUCT.id, pill.dataset.ml, pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive);
+    const sizes = [...document.querySelectorAll('#size-' + PRODUCT.id + ' .size-pill')].map(b => ({ ml: Number(b.dataset.ml), price: Number(b.dataset.price) }));
+    addToCart(PRODUCT.id, pill.dataset.ml, pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive, sizes);
   }
 
   function openLightbox()  {
@@ -502,7 +503,8 @@ const BRAND_INLINE = `<script>
     const pill = document.querySelector('#size-' + id + ' .size-pill.active');
     if (!card || !pill) return;
     const name = card.querySelector('.card-name').textContent.trim();
-    addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
+    const sizes = [...document.querySelectorAll('#size-' + id + ' .size-pill')].map(b => ({ ml: Number(b.dataset.ml), price: Number(b.dataset.price) }));
+    addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive, sizes);
   }
   (function () {
     var grid = document.getElementById('brand-grid');

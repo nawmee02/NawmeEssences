@@ -226,12 +226,29 @@
     emptyEl.style.display = 'none';
     contentEl.style.display = 'grid';
 
-    itemsEl.innerHTML = cart.map(item => `
+    const imgBase = (typeof IMAGE_BASE !== 'undefined' && IMAGE_BASE) || 'https://cdn.nawmeessences.me';
+    itemsEl.innerHTML = cart.map(item => {
+      const thumb = `${imgBase}/storage/v1/object/public/product-images/${item.productId}/thumb.webp`;
+      // Size switcher when the item carries its size list; otherwise a static label
+      // (legacy cart lines added before this feature keep working).
+      // With a size list, the dropdown's option text already shows the per-unit
+      // price, so no separate "· ৳X each". Legacy lines (no sizes) keep the text.
+      const sizeControl = (Array.isArray(item.sizes) && item.sizes.length)
+        ? `<select class="size-select" aria-label="Size" onchange="changeSize('${item.key}', this.value)">
+             ${item.sizes.slice().sort((a, b) => a.ml - b.ml).map(s =>
+               `<option value="${s.ml}"${s.ml === item.ml ? ' selected' : ''}>${s.ml}ml — ৳${s.price}</option>`).join('')}
+           </select>`
+        : `${item.ml}ml · ৳${item.price} each`;
+      return `
       <div class="cart-item" id="item-${item.key}">
+        <div class="cart-item-img">
+          <img src="${thumb}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="cart-item-ph" style="display:none">🫧</div>
+        </div>
         <div class="cart-item-info">
           <div class="brand">${item.brand}</div>
           <div class="name">${item.name}</div>
-          <div class="size-price">${item.ml}ml · ৳${item.price} each${item.isExclusive ? ' · <span style="color:var(--gold);font-size:11px;">Exclusive — Full advance</span>' : ''}</div>
+          <div class="size-price">${sizeControl}${item.isExclusive ? ' · <span style="color:var(--gold);font-size:11px;">Exclusive — Full advance</span>' : ''}</div>
         </div>
         <div class="cart-item-controls">
           <div class="qty-control">
@@ -242,7 +259,8 @@
           <div class="item-subtotal">৳${item.price * item.qty}</div>
           <button class="remove-btn" onclick="removeItem('${item.key}')" title="Remove">✕</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     updateSummary();
   }
@@ -276,6 +294,29 @@
 
   function removeItem(key) {
     removeFromCart(key);
+    renderCart();
+  }
+
+  // Switch a line's size in place using its stored size list. If a line for the
+  // target size already exists, merge the quantities into it.
+  function changeSize(key, newMl) {
+    newMl = Number(newMl);
+    const cart = getCart();
+    const item = cart.find(i => i.key === key);
+    if (!item || item.ml === newMl) return;
+    const size = (item.sizes || []).find(s => Number(s.ml) === newMl);
+    if (!size) return;
+    const newKey = `${item.productId}_${newMl}`;
+    const twin = cart.find(i => i.key === newKey);
+    if (twin) {
+      twin.qty += item.qty;
+      saveCart(cart.filter(i => i.key !== key));
+    } else {
+      item.ml = newMl;
+      item.price = Number(size.price);
+      item.key = newKey;
+      saveCart(cart);
+    }
     renderCart();
   }
 

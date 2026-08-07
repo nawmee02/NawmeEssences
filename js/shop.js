@@ -9,7 +9,8 @@ function handleAdd(id, isExclusive) {
   const pill = document.querySelector('#size-' + id + ' .size-pill.active');
   if (!card || !pill) return;
   const name = card.querySelector('.card-name').textContent.trim();
-  addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive);
+  const sizes = [...document.querySelectorAll('#size-' + id + ' .size-pill')].map(b => ({ ml: Number(b.dataset.ml), price: Number(b.dataset.price) }));
+  addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive, sizes);
 }
 
 function getActiveFilters() {

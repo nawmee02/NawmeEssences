@@ -181,14 +181,25 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/hugo-boss-bottled-tonic/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <loc>https://nawmeessences.me/blog/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/blog/what-is-a-perfume-decant-meaning-sizes-buying-guide/</loc>
+    <lastmod>2026-08-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
-    <lastmod>2026-07-10</lastmod>
+    <loc>https://nawmeessences.me/product/hugo-boss-bottled-tonic/</loc>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -218,7 +229,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/davidoff-cool-water/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -230,7 +241,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/nautica-voyage/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -254,7 +265,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/davidoff-indigo/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

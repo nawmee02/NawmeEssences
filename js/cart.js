@@ -9,14 +9,18 @@ function saveCart(cart) {
   updateCartBadge();
 }
 
-function addToCart(productId, ml, price, name, brand, isExclusive = false) {
+function addToCart(productId, ml, price, name, brand, isExclusive = false, sizes = null) {
   const cart = getCart();
   const key = `${productId}_${ml}`;
   const existing = cart.find(i => i.key === key);
   if (existing) {
     existing.qty += 1;
+    // Backfill sizes on a pre-existing (or legacy) line so its size toggle works.
+    if (sizes && !existing.sizes) existing.sizes = sizes;
   } else {
-    cart.push({ key, productId, ml: Number(ml), price: Number(price), name, brand, qty: 1, isExclusive });
+    // sizes: the product's full size list [{ml, price}] (effective prices), captured
+    // so the cart can offer an in-place size switch without a network call.
+    cart.push({ key, productId, ml: Number(ml), price: Number(price), name, brand, qty: 1, isExclusive, sizes: sizes || null });
   }
   saveCart(cart);
   showToast(`${name} (${ml}ml) added to cart!`);
