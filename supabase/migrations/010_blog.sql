@@ -34,14 +34,29 @@ CREATE TRIGGER blog_posts_set_updated_at
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ─────────────────────────────────────────
---  RLS: public reads published; admins do everything
+--  RLS — follows the hardened pattern from 006_advisor_cleanup:
+--  anon reads published rows WITHOUT calling is_admin() (anon has no
+--  EXECUTE on it), while admins (authenticated) read drafts + write.
+--  A combined `status='published' OR is_admin()` rule would raise
+--  "permission denied for function is_admin" for anon.
 -- ─────────────────────────────────────────
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 
+-- Published posts readable by everyone (no function call).
 DROP POLICY IF EXISTS "public read blog_posts" ON blog_posts;
-CREATE POLICY "public read blog_posts" ON blog_posts
-  FOR SELECT USING (status = 'published' OR is_admin());
+DROP POLICY IF EXISTS "read published blog_posts" ON blog_posts;
+CREATE POLICY "read published blog_posts" ON blog_posts
+  FOR SELECT TO anon, authenticated
+  USING (status = 'published');
 
+-- Admins (authenticated) can also read drafts.
+DROP POLICY IF EXISTS "admin read draft blog_posts" ON blog_posts;
+CREATE POLICY "admin read draft blog_posts" ON blog_posts
+  FOR SELECT TO authenticated
+  USING (is_admin());
+
+-- Admins (authenticated) do all writes.
 DROP POLICY IF EXISTS "admin write blog_posts" ON blog_posts;
 CREATE POLICY "admin write blog_posts" ON blog_posts
-  FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+  FOR ALL TO authenticated
+  USING (is_admin()) WITH CHECK (is_admin());
