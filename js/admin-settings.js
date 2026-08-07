@@ -61,9 +61,44 @@
     row.append(num, suf, lbl, delBtn(row)); $('stat-rows').appendChild(row);
   }
 
+  // Stacked block (multi-field) rows for How-to steps and FAQ items.
+  function blockRow(container, fields) {
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.style.cssText = 'flex-direction:column;align-items:stretch;gap:6px;border:1px solid var(--border);padding:10px;border-radius:6px;';
+    const inputs = fields.map(f => {
+      const el = document.createElement(f.tag || 'input');
+      if (f.tag === 'textarea') el.rows = 2; else el.type = 'text';
+      el.value = f.value || ''; el.placeholder = f.placeholder || ''; el.className = f.cls;
+      row.appendChild(el);
+      return el;
+    });
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'btn-outline btn-sm'; del.textContent = '✕ Remove';
+    del.style.alignSelf = 'flex-end';
+    del.addEventListener('click', () => row.remove());
+    row.appendChild(del);
+    container.appendChild(row);
+    return inputs;
+  }
+  function addHowtoRow(step = {}) {
+    blockRow($('howto-rows'), [
+      { cls: 'howto-title-in', value: step.title, placeholder: 'Step title' },
+      { cls: 'howto-text-in', value: step.text, placeholder: 'Step description' },
+    ]);
+  }
+  function addFaqRow(item = {}) {
+    blockRow($('faq-rows'), [
+      { cls: 'faq-q-in', value: item.q, placeholder: 'Question' },
+      { tag: 'textarea', cls: 'faq-a-in', value: item.a, placeholder: 'Answer' },
+    ]);
+  }
+
   $('ann-add').addEventListener('click', () => addAnnRow());
   $('pickup-add').addEventListener('click', () => addPickupRow());
   $('stat-add').addEventListener('click', () => addStatRow());
+  $('howto-add').addEventListener('click', () => addHowtoRow());
+  $('faq-add').addEventListener('click', () => addFaqRow());
 
   // ─── Load ──────────────────────────────────────────────────
   async function loadSettings() {
@@ -118,6 +153,15 @@
     (s.stats || []).forEach(addStatRow);
     if (!(s.stats || []).length) addStatRow();
 
+    // Homepage sections (How-to + FAQ)
+    const hs = s.homeSections || {};
+    $('howto-rows').innerHTML = '';
+    (hs.howToOrder || []).forEach(addHowtoRow);
+    if (!(hs.howToOrder || []).length) addHowtoRow();
+    $('faq-rows').innerHTML = '';
+    (hs.faq || []).forEach(addFaqRow);
+    if (!(hs.faq || []).length) addFaqRow();
+
     // Meta
     const m = s.meta || {};
     $('s-meta-title').value = m.homeTitle || '';
@@ -135,6 +179,15 @@
     })).filter(s => s.label);
     const numOr = (id, fb) => { const v = Number($(id).value); return Number.isFinite(v) ? v : fb; };
 
+    const howToOrder = [...$('howto-rows').querySelectorAll('.size-row')].map(r => ({
+      title: r.querySelector('.howto-title-in').value.trim(),
+      text: r.querySelector('.howto-text-in').value.trim(),
+    })).filter(x => x.title || x.text);
+    const faq = [...$('faq-rows').querySelectorAll('.size-row')].map(r => ({
+      q: r.querySelector('.faq-q-in').value.trim(),
+      a: r.querySelector('.faq-a-in').value.trim(),
+    })).filter(x => x.q);
+
     // Spread over `loaded` so any keys not in the form are preserved.
     return {
       ...loaded,
@@ -147,6 +200,7 @@
       },
       hero: { eyebrow: $('s-hero-eyebrow').value.trim(), title: $('s-hero-title').value.trim(), subtitle: $('s-hero-subtitle').value.trim() },
       stats,
+      homeSections: { howToOrder, faq },
       meta: { homeTitle: $('s-meta-title').value.trim(), homeDescription: $('s-meta-desc').value.trim() },
     };
   }

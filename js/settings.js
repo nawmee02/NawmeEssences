@@ -76,6 +76,34 @@
       });
     }
 
+    // Homepage sections — How-to-Order steps + FAQ accordion. Rebuilt only when
+    // the row carries homeSections, so an older row keeps the baked defaults.
+    const hs = s.homeSections;
+    if (hs) {
+      const howto = document.querySelector('[data-setting-howto]');
+      if (howto && Array.isArray(hs.howToOrder)) {
+        howto.textContent = '';
+        hs.howToOrder.forEach((step, i) => {
+          const wrap = document.createElement('div'); wrap.className = 'how-step';
+          const num = document.createElement('span'); num.className = 'how-step-num'; num.textContent = String(i + 1);
+          const h = document.createElement('h3'); h.className = 'how-step-title'; h.textContent = step.title || '';
+          const p = document.createElement('p'); p.className = 'how-step-text'; p.textContent = step.text || '';
+          wrap.append(num, h, p); howto.appendChild(wrap);
+        });
+      }
+      const faqEl = document.querySelector('[data-setting-faq]');
+      if (faqEl && Array.isArray(hs.faq)) {
+        faqEl.textContent = '';
+        hs.faq.forEach(item => {
+          const d = document.createElement('details'); d.className = 'faq-item';
+          const sm = document.createElement('summary'); sm.className = 'faq-q'; sm.textContent = item.q || '';
+          const ans = document.createElement('div'); ans.className = 'faq-a';
+          const p = document.createElement('p'); p.textContent = item.a || '';
+          ans.appendChild(p); d.append(sm, ans); faqEl.appendChild(d);
+        });
+      }
+    }
+
     // Homepage <title> + meta description.
     if (document.body && document.body.dataset.settingsMeta === 'home' && s.meta) {
       if (s.meta.homeTitle) document.title = s.meta.homeTitle;

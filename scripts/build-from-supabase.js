@@ -229,6 +229,9 @@ function injectSettings(settings) {
   const s = settings;
   const anns = Array.isArray(s.announcements) ? s.announcements : [];
   const stats = Array.isArray(s.stats) ? s.stats : [];
+  const hs = s.homeSections || {};
+  const howto = Array.isArray(hs.howToOrder) ? hs.howToOrder : [];
+  const faq = Array.isArray(hs.faq) ? hs.faq : [];
 
   const blocks = {
     meta:
@@ -249,6 +252,23 @@ function injectSettings(settings) {
         `      <div class="stat-number" data-target="${esc(String(st.target))}" data-suffix="${esc(st.suffix || '')}">${esc(String(st.target) + (st.suffix || ''))}</div>\n` +
         `      <div class="stat-label">${esc(st.label)}</div>\n` +
         `    </div>`).join('\n') +
+      `\n  </div>`,
+    howto:
+      `<div class="how-steps" data-setting-howto>\n` +
+      howto.map((step, i) =>
+        `    <div class="how-step">\n` +
+        `      <span class="how-step-num">${i + 1}</span>\n` +
+        `      <h3 class="how-step-title">${esc(step.title)}</h3>\n` +
+        `      <p class="how-step-text">${esc(step.text)}</p>\n` +
+        `    </div>`).join('\n') +
+      `\n  </div>`,
+    faq:
+      `<div class="faq-list" data-setting-faq>\n` +
+      faq.map(item =>
+        `    <details class="faq-item">\n` +
+        `      <summary class="faq-q">${esc(item.q)}</summary>\n` +
+        `      <div class="faq-a"><p>${esc(item.a)}</p></div>\n` +
+        `    </details>`).join('\n') +
       `\n  </div>`,
   };
 
