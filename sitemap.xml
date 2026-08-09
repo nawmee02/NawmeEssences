@@ -176,6 +176,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://nawmeessences.me/brands/xerjoff/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://nawmeessences.me/brands/yves-saint-laurent/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -192,8 +197,20 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://nawmeessences.me/product/xerjoff/</loc>
+    <lastmod>2026-08-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
     <lastmod>2026-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/rayhaan-nocturno-elixir/</loc>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -205,25 +222,25 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/rayhaan-azul/</loc>
-    <lastmod>2026-07-09</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/rayhaan-aquatica/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/rayhaan-lion/</loc>
-    <lastmod>2026-07-10</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/rayhaan-terra/</loc>
-    <lastmod>2026-07-10</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -235,7 +252,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/riiffs-fareed/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -259,7 +276,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/armaf-cdni-edp/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -343,19 +360,19 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/armaf-cdni-milestone/</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/bentley-silverlake/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/armaf-cdni-iconic/</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -535,7 +552,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/azzaro-most-wanted-edp-intense/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -553,13 +570,13 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/armaf-cdni-extrait/</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/azzaro-most-wanted-parfum/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -577,7 +594,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/bvlgari-man-in-black-edp/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -601,7 +618,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/ysl-y-edp/</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -49,7 +49,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){document.documentElement.dataset.theme='light'}</script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -128,6 +128,26 @@
 
   <h3 style="font-family:var(--font-head);font-size:18px;color:var(--gold);margin-bottom:16px;">✦ Exclusive Decants</h3>
   <div class="product-grid" id="exclusive-grid"><!--GRID:exclusive:start-->
+
+    <div class="product-card" data-id="xerjoff" data-name="xerjoff" data-brand="Xerjoff" data-tags="new exclusive" data-sizes="3 5 10" data-accords="Citrus|Green|Aromatic|Fresh Spicy|Woody|White Floral" data-instock="true" data-price="690" data-sale="0">
+      <a class="card-link" href="/product/xerjoff/">
+        <div class="card-img">
+          <img src="https://cdn.nawmeessences.me/storage/v1/object/public/product-images/xerjoff/thumb.webp?v=1786205965" alt="Xerjoff Xerjoff perfume decant" width="450" height="450" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="card-img-placeholder">🫧</div>
+          <div class="tag-badges"><span class="tag tag-new">New</span><span class="tag tag-exclusive">Exclusive</span></div>
+          
+        </div>
+        <div class="card-body">
+          <div class="card-brand">Xerjoff</div>
+          <h3 class="card-name">Xerjoff</h3>
+        </div>
+      </a>
+      <div class="card-footer">
+        <div class="size-pills" id="size-xerjoff"><button class="size-pill active" data-ml="3" data-price="690" data-original="690" onclick="selectSize('xerjoff', this)">3ml</button><button class="size-pill" data-ml="5" data-price="1070" data-original="1070" onclick="selectSize('xerjoff', this)">5ml</button><button class="size-pill" data-ml="10" data-price="2100" data-original="2100" onclick="selectSize('xerjoff', this)">10ml</button></div>
+        <span class="card-price-live" id="price-xerjoff">৳690</span>
+        <button class="add-to-cart-btn" onclick="handleAdd('xerjoff', true)">Add to Cart</button>
+      </div>
+    </div>
 
     <div class="product-card" data-id="bogart-silver-scent-pure" data-name="jacques bogart silver scent pure" data-brand="Jacques Bogart" data-tags="discontinued" data-sizes="3 5" data-accords="" data-instock="true" data-price="220" data-sale="0">
       <a class="card-link" href="/product/bogart-silver-scent-pure/">
