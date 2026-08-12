@@ -26,6 +26,7 @@ const { fetchSettings } = require('./lib/settings');
 const { fetchPosts } = require('./lib/blog');
 
 const SIZES = [
+  { name: 'small',  width: 360,  quality: 80 },
   { name: 'thumb',  width: 450,  quality: 80 },
   { name: 'medium', width: 800,  quality: 85 },
   { name: 'large',  width: 1600, quality: 90 },
@@ -97,7 +98,10 @@ async function fetchCatalog() {
   return { allProducts, productDetails };
 }
 
-// ─── Optimize newly-uploaded originals → 3 WebP sizes ────────
+// ─── Generate any MISSING WebP variant from the best available source ────────
+// Generates only the sizes a product is missing (so adding a new size like
+// `small` backfills existing products without re-encoding the ones they have).
+// Source preference: original.* → large → medium → thumb (all downscales).
 async function optimizeImages(allProducts) {
   const imageSet = new Set();
   let optimized = 0, skipped = 0, missing = 0, errors = 0;
@@ -106,23 +110,29 @@ async function optimizeImages(allProducts) {
     const { data: files, error } = await sb.storage.from(BUCKET).list(p.id, { limit: 100 });
     if (error) { console.error(`  ✗ list ${p.id}: ${error.message}`); errors++; continue; }
 
-    const names = (files || []).map(f => f.name);
-    if (names.includes('thumb.webp')) { imageSet.add(p.id); skipped++; continue; }
+    const names = new Set((files || []).map(f => f.name));
+    const hasThumb = names.has('thumb.webp');   // the card's src — product is usable with it
+    const missingSizes = SIZES.filter(s => !names.has(`${s.name}.webp`));
 
-    const original = names.find(n => /^original\.(jpe?g|png|webp|avif|tiff)$/i.test(n));
-    if (!original) { missing++; continue; }
+    if (missingSizes.length === 0) { imageSet.add(p.id); skipped++; continue; }
 
-    // Optimizing requires Storage write access (service_role). Without it we
-    // leave the product image-less (page uses placeholder) rather than failing.
-    if (!CAN_WRITE) { missing++; continue; }
+    const source = [...names].find(n => /^original\.(jpe?g|png|webp|avif|tiff)$/i.test(n))
+      || ['large.webp', 'medium.webp', 'thumb.webp'].find(n => names.has(n));
+
+    // Can't backfill without a source image or write access. A product that still
+    // has its thumb is fine (cards use it); only truly image-less ones count.
+    if (!source || !CAN_WRITE) {
+      if (hasThumb) { imageSet.add(p.id); skipped++; } else { missing++; }
+      continue;
+    }
 
     try {
-      const sharp = require('sharp'); // lazy — only load when optimizing
-      const { data: blob, error: dlErr } = await sb.storage.from(BUCKET).download(`${p.id}/${original}`);
+      const sharp = require('sharp'); // lazy — only load when generating
+      const { data: blob, error: dlErr } = await sb.storage.from(BUCKET).download(`${p.id}/${source}`);
       if (dlErr) throw new Error(dlErr.message);
       const input = Buffer.from(await blob.arrayBuffer());
 
-      for (const { name, width, quality } of SIZES) {
+      for (const { name, width, quality } of missingSizes) {
         const out = await sharp(input).resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer();
         const { error: upErr } = await sb.storage.from(BUCKET)
           .upload(`${p.id}/${name}.webp`, out, { contentType: 'image/webp', upsert: true, cacheControl: CACHE_CONTROL });
@@ -130,14 +140,14 @@ async function optimizeImages(allProducts) {
       }
       imageSet.add(p.id);
       optimized++;
-      console.log(`  optimized  ${p.id}`);
+      console.log(`  generated  ${p.id} (${missingSizes.map(s => s.name).join(', ')})`);
     } catch (e) {
       console.error(`  ✗ ${p.id}: ${e.message}`);
       errors++;
     }
   }
 
-  console.log(`\n📸 images — optimized ${optimized}, already-done ${skipped}, no-image ${missing}, errors ${errors}`);
+  console.log(`\n📸 images — generated ${optimized}, already-done ${skipped}, no-image ${missing}, errors ${errors}`);
   return { imageSet, errors };
 }
 
@@ -189,6 +199,7 @@ function injectGrids(allProducts, productDetails) {
   const card = (p, isExclusive, priority = false) => renderCard({
     ...p,
     accords: (productDetails[p.id] && productDetails[p.id].accords) || [],
+    image_small:  publicUrl(p.id, 'small',  imageVersion(p.updatedAt)),
     image_thumb:  publicUrl(p.id, 'thumb',  imageVersion(p.updatedAt)),
     image_medium: publicUrl(p.id, 'medium', imageVersion(p.updatedAt)),
   }, { isExclusive, priority });

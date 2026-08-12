@@ -197,13 +197,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
-    <lastmod>2026-08-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.me/product/rayhaan-nocturno-elixir/</loc>
+    <loc>https://nawmeessences.me/product/xerjoff/</loc>
     <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -215,8 +209,14 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/xerjoff/</loc>
+    <loc>https://nawmeessences.me/product/rayhaan-nocturno-elixir/</loc>
     <lastmod>2026-08-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -318,13 +318,13 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/afnan-modest-une/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/afnan-9pm/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -426,13 +426,13 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/afnan-supremacy-not-only-intense/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/afnan-turathi-brown/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -516,7 +516,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/afnan-supremacy-collectors/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

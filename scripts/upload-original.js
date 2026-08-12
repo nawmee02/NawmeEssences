@@ -17,6 +17,7 @@ const sharp = require('sharp');
 const { getSupabase, BUCKET } = require('./lib/catalog');
 
 const SIZES = [
+  { name: 'small',  width: 360,  quality: 80 },
   { name: 'thumb',  width: 450,  quality: 80 },
   { name: 'medium', width: 800,  quality: 85 },
   { name: 'large',  width: 1600, quality: 90 },

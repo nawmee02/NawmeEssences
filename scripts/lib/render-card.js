@@ -39,12 +39,12 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
   const minPrice = sizes.length ? Math.min(...sizes.map(s => s.price)) : 0;
   const minEff = effectivePrice(minPrice, sp);
   const oos = !p.inStock;
-  // Cards render at ~190px (2-col mobile) to ~285px (desktop), so the 450px
-  // thumb is the right file everywhere and we serve it via plain src — no
-  // srcset. A srcset listing `medium 800w` made high-DPR phones download the
-  // 800px file (46vw × 2.6 DPR ≈ 500px needed > 450), ~3x the bytes for no
-  // visible gain. Descriptors would also be wrong: some thumbs are <450px.
+  // Cards render at ~180px (2-col mobile) to ~290px (desktop). srcset offers a
+  // 360px `small` and the 450px `thumb` ONLY — never `medium` (800), so low/mid-
+  // DPR devices (incl. Lighthouse's 1.75 → ~330px need) pick 360, while flagship
+  // phones (need >450) cap at 450 instead of pulling the heavy 800px file.
   const imgThumb = p.image_thumb;
+  const imgSmall = p.image_small || imgThumb;   // fall back to thumb if not generated
   // Above-the-fold cards load eagerly with high priority so the first row paints
   // fast; the rest stay lazy. Fade-in (onload → .loaded) replaces the emoji "pop".
   const loadAttrs = priority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
@@ -77,7 +77,7 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
     <div class="product-card${oos ? ' out-of-stock' : ''}" ${data}>
       <a class="card-link" href="/product/${esc(p.id)}/">
         <div class="card-img">
-          <img src="${esc(imgThumb)}" alt="${esc(p.name)} ${esc(p.brand)} perfume decant" width="450" height="450" ${loadAttrs} decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <img src="${esc(imgThumb)}" srcset="${esc(imgSmall)} 360w, ${esc(imgThumb)} 450w" sizes="(max-width:640px) 46vw, 300px" alt="${esc(p.name)} ${esc(p.brand)} perfume decant" width="450" height="450" ${loadAttrs} decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="card-img-placeholder">🫧</div>
           <div class="tag-badges">${tags}</div>
           ${oos ? '<div class="oos-badge"><span>Out of Stock</span></div>' : ''}

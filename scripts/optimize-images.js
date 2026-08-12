@@ -9,6 +9,7 @@ const GENERATED_DIR = path.join(__dirname, '..', 'assets', 'images', 'generated'
 // currently in Storage, and a narrower thumb here would silently downgrade
 // every live thumbnail the next time these are regenerated + uploaded.
 const SIZES = [
+  { name: 'small',  width: 360,  quality: 80 },
   { name: 'thumb',  width: 450,  quality: 80 },
   { name: 'medium', width: 800,  quality: 85 },
   { name: 'large',  width: 1600, quality: 90 },

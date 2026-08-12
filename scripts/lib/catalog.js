@@ -13,7 +13,7 @@ const MANIFEST_PATH = path.join(ROOT, 'assets', 'images', '.upload-manifest.json
 
 const SUPABASE_URL = 'https://knviffeqzvzqwgztchks.supabase.co';
 const BUCKET       = 'product-images';
-const SIZES        = ['thumb', 'medium', 'large'];
+const SIZES        = ['small', 'thumb', 'medium', 'large'];
 
 // Public image host. Set IMAGE_CDN to a CDN that edge-caches Supabase Storage
 // (a pull-proxy mirroring the /storage/v1/object/public/... path) to serve

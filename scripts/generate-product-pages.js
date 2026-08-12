@@ -51,6 +51,7 @@ function occasionsFor(accords) {
 let hasImage = hasGeneratedImages;
 function setImageChecker(fn) { hasImage = fn; }
 
+function heroSmall(id, v)  { return hasImage(id) ? publicUrl(id, 'small',  v) : `${SITE}/images/products/${id}.jpg`; }
 function heroThumb(id, v)  { return hasImage(id) ? publicUrl(id, 'thumb',  v) : `${SITE}/images/products/${id}.jpg`; }
 function heroLarge(id, v)  { return hasImage(id) ? publicUrl(id, 'large',  v) : `${SITE}/images/products/${id}.jpg`; }
 function heroMedium(id, v) { return hasImage(id) ? publicUrl(id, 'medium', v) : `${SITE}/images/products/${id}.jpg`; }
@@ -172,7 +173,7 @@ function relatedProducts(p, all, detailsMap) {
   const cards = scored.map(r => `
         <a class="related-card" href="/product/${attr(r.id)}/">
           <div class="related-img">
-            <img src="${attr(heroThumb(r.id, imageVersion(r.updatedAt)))}" alt="${attr(r.name)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <img src="${attr(heroThumb(r.id, imageVersion(r.updatedAt)))}" srcset="${attr(heroSmall(r.id, imageVersion(r.updatedAt)))} 360w, ${attr(heroThumb(r.id, imageVersion(r.updatedAt)))} 450w" sizes="(max-width:900px) 46vw, 220px" alt="${attr(r.name)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="card-img-placeholder">🫧</div>
           </div>
           <div class="related-brand">${esc(r.brand)}</div>

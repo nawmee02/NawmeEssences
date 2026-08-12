@@ -9,6 +9,7 @@
   const GH_RUNS = 'https://api.github.com/repos/nawmee02/NawmeEssences/actions/runs?per_page=1';
   const GH_ACTIONS = 'https://github.com/nawmee02/NawmeEssences/actions';
   const IMG_SIZES = [
+    { name: 'small',  width: 360,  quality: 0.8 },
     { name: 'thumb',  width: 450,  quality: 0.8 },
     { name: 'medium', width: 800,  quality: 0.85 },
     { name: 'large',  width: 1600, quality: 0.9 },
