@@ -1236,7 +1236,7 @@ input, select { font-family: var(--font-body); }
   .card-body { padding: 10px; gap: 4px; }
   .card-footer { padding: 0 10px 10px; }
 }
-@media (max-width: 360px) {
+@media (max-width: 320px) {
   .product-grid { grid-template-columns: 1fr; }
 }
 
