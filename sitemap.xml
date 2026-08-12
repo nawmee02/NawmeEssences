@@ -197,12 +197,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/xerjoff/</loc>
-    <lastmod>2026-08-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://nawmeessences.me/product/gulf-orchid-naseem/</loc>
     <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -215,14 +209,20 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/hugo-boss-bottled-tonic/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <loc>https://nawmeessences.me/product/rayhaan-azul/</loc>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/rayhaan-azul/</loc>
+    <loc>https://nawmeessences.me/product/xerjoff/</loc>
     <lastmod>2026-08-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/hugo-boss-bottled-tonic/</loc>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -486,7 +486,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/al-haramain-amber-oud-aqua-dubai/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

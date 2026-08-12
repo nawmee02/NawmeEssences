@@ -61,11 +61,43 @@ function sizeList(sizes) { return sizes.map(s => `${s.ml}ml`).join(', '); }
 function minPrice(sizes) { return Math.min(...sizes.map(s => s.price)); }
 function maxPrice(sizes) { return Math.max(...sizes.map(s => s.price)); }
 
+// Compact ml range for meta copy, e.g. "3ml–30ml" (single size → "3ml").
+function mlRange(sizes) {
+  const ml = sizes.map(s => s.ml).sort((a, b) => a - b);
+  return ml.length > 1 ? `${ml[0]}ml–${ml[ml.length - 1]}ml` : `${ml[0]}ml`;
+}
+
+// Generic base/filler notes that add little differentiation — skipped so the
+// description leads with distinctive, recognizable notes from across the pyramid.
+const GENERIC_NOTES = new Set([
+  'musk', 'white musk', 'amber', 'ambroxan', 'ambergris', 'woods', 'woody notes',
+  'cedar', 'cedarwood', 'sandalwood', 'oakmoss', 'moss',
+]);
+
+// Up to 4 distinctive notes from the full pyramid (top→heart→base), generics
+// filtered out first; falls back to the full list if too few distinctive remain.
+function distinctiveNotes(d) {
+  const all = [...(d.top || []), ...(d.heart || []), ...(d.base || [])]
+    .map(n => String(n).trim()).filter(Boolean);
+  const uniq = [...new Set(all)];
+  const distinctive = uniq.filter(n => !GENERIC_NOTES.has(n.toLowerCase()));
+  const chosen = (distinctive.length >= 2 ? distinctive : uniq).slice(0, 4).map(n => n.toLowerCase());
+  if (!chosen.length) return '';
+  return chosen.length > 1 ? `${chosen.slice(0, -1).join(', ')} and ${chosen[chosen.length - 1]}` : chosen[0];
+}
+
+// Lean, product-specific description: fragrance type + distinctive notes + size
+// range + starting price (matches "[product] notes/price/Bangladesh/decant" intent).
 function metaDescription(p, d) {
-  const notes = d ? d.top.slice(0, 3).join(', ') : '';
-  const fam = d ? `${d.family} ` : '';
-  const notePart = notes ? ` with notes of ${notes}` : '';
-  return `Buy ${p.name} decant in Bangladesh — an authentic ${fam}fragrance by ${p.brand}${notePart}. Available in ${sizeList(p.sizes)} from ৳${minPrice(p.sizes)}. Syringe-measured, 100% genuine.`;
+  const range = mlRange(p.sizes);
+  const lo = minPrice(p.sizes);
+  const fam = d && d.family ? `${d.family.toLowerCase()} ` : '';
+  const notes = d ? distinctiveNotes(d) : '';
+  if (!fam && !notes) {
+    return `Buy ${p.name} decant in Bangladesh — 100% authentic. Available in ${range} from ৳${lo}.`;
+  }
+  const notePart = notes ? ` with ${notes}` : '';
+  return `Buy ${p.name} decant in Bangladesh — ${fam}fragrance${notePart}. Available in ${range} from ৳${lo}.`;
 }
 
 function description(p, d) {
@@ -237,7 +269,7 @@ function renderPage(p, all, detailsMap) {
   const desc = description(p, d);
   // Per-product overrides win; otherwise fall back to the auto-generated copy.
   const metaDesc = p.metaDescription || metaDescription(p, d);
-  const title = p.metaTitle || `${p.name} — ${p.brand} Perfume Decant in Bangladesh | NawmeEssences`;
+  const title = p.metaTitle || `${p.name} Decant in Bangladesh`;
   const sp = Number(p.salePercent) || 0;
   const lo = minPrice(p.sizes), hi = maxPrice(p.sizes);
   const loEff = effectivePrice(lo, sp), hiEff = effectivePrice(hi, sp);
@@ -549,7 +581,7 @@ ${others.map(brandTile).join('\n')}
   const sizeList = amp => sizeLabels.length > 1
     ? `${sizeLabels.slice(0, -1).join(', ')} ${amp} ${sizeLabels[sizeLabels.length - 1]}`
     : (sizeLabels[0] || '');
-  const title = `${name} Perfume Decants in Bangladesh | NawmeEssences`;
+  const title = `${name} Perfume Decants in Bangladesh`;
   // Kept under ~155 chars so Google doesn't truncate it — dropped the count and
   // the pickup list; price stays because it lifts click-through.
   const metaDesc = `Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`;
@@ -844,7 +876,7 @@ ${SCRIPTS}
 function renderBlogPost(post) {
   const v = imageVersion(post.updatedAt);
   const url = `${SITE}/blog/${post.id}/`;
-  const title = post.metaTitle || `${post.title} | NawmeEssences Journal`;
+  const title = post.metaTitle || `${post.title} — NawmeEssences`;
   const bodyText = String(post.bodyMd || '').replace(/[#*_`>\-\[\]!]/g, ' ').replace(/\s+/g, ' ').trim();
   const metaDesc = post.metaDescription || post.excerpt || bodyText.slice(0, 155);
   const ogImg = coverUrl(post, 'large');
