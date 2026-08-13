@@ -258,7 +258,7 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/search.js" defer></script>`;
 
 // Shared Organization JSON-LD (same #organization entity as the homepage).
-const ORG_LD = '{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801738221686"]}';
+const ORG_LD = '{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801988536843"]}';
 
 // ─── Page template ───────────────────────────────────────────
 function renderPage(p, all, detailsMap) {

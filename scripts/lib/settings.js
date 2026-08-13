@@ -19,7 +19,7 @@ const DEFAULTS = {
     '💳 Min. advance = delivery charge · 30% advance for orders above ৳2000',
   ],
   contact: {
-    whatsapp: '8801738221686',
+    whatsapp: '8801988536843',
     instagram: 'https://instagram.com/_nawmeessences_',
     facebook: 'https://facebook.com/NawmeEssences',
   },
