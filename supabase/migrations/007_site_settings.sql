@@ -65,7 +65,7 @@ INSERT INTO site_settings (id, data) VALUES (1, '{
   "hero": {
     "eyebrow": "Your Signature Scent · Starts Here ·",
     "title": "Authentic Perfume Decants in Bangladesh",
-    "subtitle": "Choose from 80+ premium fragrances in sizes from 3ml to 30ml, all decanted from authentic original bottles."
+    "subtitle": "Choose from 90+ premium fragrances in sizes from 3ml to 30ml, all decanted from authentic original bottles."
   },
   "stats": [
     { "target": 2000, "suffix": "+", "label": "Orders Delivered" },
