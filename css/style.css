@@ -353,7 +353,11 @@ input, select { font-family: var(--font-body); }
   padding: 18px 0;
 }
 .trust-track {
-  display: flex;
+  /* inline-flex (not flex) so the track sizes to its content width, not the
+     viewport. The `ticker` animation scrolls -50% = exactly one duplicated
+     half, so every item is revealed — otherwise a viewport-width track barely
+     scrolls on mobile and clips most items. Mirrors .brand-track. */
+  display: inline-flex;
   white-space: nowrap;
   animation: ticker var(--trust-ticker-duration) linear infinite;
 }
