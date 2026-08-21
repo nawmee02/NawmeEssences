@@ -56,7 +56,7 @@
   --gold-bg: #c9a465;
   --gold-bg-hover: #b8905a;
   --text: #211d16;
-  --text-muted: #6d675c;
+  --text-muted: #635d52;
   --border: #e3dccd;
   --card-bg: #ffffff;
   --header-bg: rgba(250, 248, 244, 0.96);
@@ -381,7 +381,6 @@ input, select { font-family: var(--font-body); }
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
-  opacity: 0.85;
   padding: 0 30px;
   transition: color 0.2s;
 }
