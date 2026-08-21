@@ -41,7 +41,7 @@ const DEFAULTS = {
   },
   stats: [
     { target: 2000, suffix: '+', label: 'Orders Delivered' },
-    { target: 80, suffix: '+', label: 'Fragrances' },
+    { target: 90, suffix: '+', label: 'Fragrances' },
     { target: 30, suffix: '+', label: 'Brands' },
     { target: 100, suffix: '%', label: 'Authentic' },
   ],

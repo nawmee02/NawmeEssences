@@ -266,6 +266,32 @@ function injectShopFilters(allProducts, productDetails) {
   console.log(`  injected → shop.html (${brands.length} brand + ${accords.length} accord filters)`);
 }
 
+// ─── Bake the home-page brand marquee from the live catalog ────
+// The strip was a hardcoded 12-brand list that drifted from the catalog (it
+// showed 12 of 30+ brands). Derive it from every brand that has a product,
+// ordered by product count (biggest first), and emit the sequence twice so the
+// -50% `ticker` animation loops seamlessly for any number of brands.
+function injectBrandStrip(allProducts) {
+  const counts = new Map();
+  for (const p of allProducts) {
+    const b = (p.brand || '').trim();
+    if (b) counts.set(b, (counts.get(b) || 0) + 1);
+  }
+  const brands = [...counts.keys()].sort((a, b) => counts.get(b) - counts.get(a) || a.localeCompare(b));
+  const seq = brands
+    .map(b => `<span class="brand-name">${esc(b)}</span><span class="brand-sep">◆</span>`)
+    .join('\n    ');
+  const content = `\n    ${seq}\n    <!-- duplicate for seamless loop -->\n    ${seq}\n  `;
+
+  const fp = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  const re = /(<!--BRANDS:start-->)[\s\S]*?(<!--BRANDS:end-->)/;
+  if (!re.test(html)) throw new Error('marker BRANDS not found in index.html');
+  html = html.replace(re, `$1${content}$2`);
+  fs.writeFileSync(fp, html);
+  console.log(`  injected → index.html (${brands.length} brands in marquee)`);
+}
+
 // ─── Bake site settings into the SEO-critical home-page HTML ────
 // Only index.html is baked (its hero/title/description are the indexed copy).
 // The announcement ticker and generated pages update via js/settings.js
@@ -327,6 +353,15 @@ function injectSettings(settings) {
     if (!re.test(html)) throw new Error(`marker SET:${name} not found in index.html`);
     html = html.replace(re, `$1\n  ${content}\n  $2`);
   }
+
+  // Trust-bar "Fragrances" line follows the admin's Fragrances stat so the
+  // count updates from the dashboard instead of needing a manual code edit.
+  const fragStat = stats.find(st => /fragrance/i.test(st.label || ''));
+  if (fragStat) {
+    const fragText = `${fragStat.target}${fragStat.suffix || ''} Fragrances`;
+    html = html.replace(/(<span data-setting-fragrances>)[^<]*(<\/span>)/g, `$1${esc(fragText)}$2`);
+  }
+
   fs.writeFileSync(fp, html);
   console.log('  injected → index.html (settings)');
 }
@@ -347,6 +382,7 @@ async function run() {
 
   console.log('\n🧩 Injecting static grids...');
   injectGrids(allProducts, productDetails);
+  injectBrandStrip(allProducts);
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);

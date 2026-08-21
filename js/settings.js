@@ -74,6 +74,14 @@
         }
         if (label && st.label) label.textContent = st.label;
       });
+
+      // Trust-bar "Fragrances" line follows the same Fragrances stat, so an
+      // admin count change updates it live without a manual code edit.
+      const frag = s.stats.find(st => /fragrance/i.test(st.label || ''));
+      if (frag) {
+        const text = String(frag.target) + (frag.suffix || '') + ' Fragrances';
+        document.querySelectorAll('[data-setting-fragrances]').forEach(el => { el.textContent = text; });
+      }
     }
 
     // Homepage sections — How-to-Order steps + FAQ accordion. Rebuilt only when
