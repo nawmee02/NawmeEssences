@@ -256,7 +256,9 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/supabase.js" defer></script>
 <script src="/js/settings.js" defer></script>
 <script src="/js/api.js" defer></script>
-<script src="/js/search.js" defer></script>`;
+<script src="/js/search.js" defer></script>
+<script src="/js/commerce-adapter.js" defer></script>
+<script src="/js/webmcp.js" defer></script>`;
 
 // Shared, canonical Organization JSON-LD — identical #organization node on every
 // page (from scripts/lib/schema.js), so the graph never drifts. Its founder ref
