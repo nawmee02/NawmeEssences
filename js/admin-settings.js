@@ -84,6 +84,7 @@
       const el = document.createElement(f.tag || 'input');
       if (f.tag === 'textarea') el.rows = 2; else el.type = 'text';
       el.value = f.value || ''; el.placeholder = f.placeholder || ''; el.className = f.cls;
+      el.style.width = '100%'; el.style.boxSizing = 'border-box';
       row.appendChild(el);
       return el;
     });
