@@ -342,6 +342,7 @@ function renderPage(p, all, detailsMap) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -649,6 +650,7 @@ ${others.map(brandTile).join('\n')}
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -752,6 +754,7 @@ function renderBrandsIndex(groups) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -858,6 +861,7 @@ function renderBlogIndex(posts) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -937,6 +941,7 @@ function renderBlogPost(post) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />

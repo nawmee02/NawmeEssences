@@ -15,6 +15,16 @@
 
 const SITE = 'https://nawmeessences.me';
 
+// WebMCP origin-trial token (feature "WebMCP", expires 2026-11-17). Enables
+// document.modelContext on this origin in Chrome 150+ WITHOUT a user flag — so
+// the WebMCP tools work for real agents and Lighthouse/PSI can score the
+// Agentic-Browsing WebMCP audits. Renew at chrome.com/origintrials before expiry
+// and replace this string (single source of truth for every page).
+const ORIGIN_TRIAL_TOKEN = 'AgEogXN8DniVock4DWRQ/AZeu5OyUOE6gEfm6ZsTWfs60qZCIKB3fjdex9nx5YvosZE9ama4X7dEXCiXzXMeeAQAAABjeyJvcmlnaW4iOiJodHRwczovL25hd21lZXNzZW5jZXMubWU6NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTc5NDg3MzYwMCwiaXNTdWJkb21haW4iOnRydWV9';
+function originTrialMeta() {
+  return ORIGIN_TRIAL_TOKEN ? `<meta http-equiv="origin-trial" content="${ORIGIN_TRIAL_TOKEN}" />` : '';
+}
+
 // ─── Config: fill with real, verifiable URLs ─────────────────
 // Base social handles already used across the site.
 const BASE_SAMEAS = [
@@ -169,5 +179,5 @@ module.exports = {
   SITE, ORG_ID, SITE_ID, FOUNDER_ID,
   ref, brandId,
   organizationNode, websiteNode, founderNode, founderInline, brandNode, faqPageNode,
-  graphScript,
+  graphScript, originTrialMeta,
 };

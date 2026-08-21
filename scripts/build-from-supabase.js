@@ -379,6 +379,23 @@ function injectSettings(settings) {
   console.log('  injected → index.html (settings)');
 }
 
+// Inject the WebMCP origin-trial <meta> into the static pages' <head> (right
+// after viewport). Idempotent: strips any existing token first, so re-running
+// or renewing the token never duplicates it. Generated pages get it via the
+// generator's head template.
+function injectOriginTrial() {
+  const meta = schema.originTrialMeta();
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html'];
+  for (const file of files) {
+    const fp = path.join(ROOT, file);
+    let html = fs.readFileSync(fp, 'utf8');
+    html = html.replace(/\n\s*<meta http-equiv="origin-trial"[^>]*>/g, '');
+    if (meta) html = html.replace(/(<meta name="viewport"[^>]*\/>)/, `$1\n  ${meta}`);
+    fs.writeFileSync(fp, html);
+  }
+  console.log(`  injected → origin-trial meta (${meta ? files.length + ' static pages' : 'cleared — no token'})`);
+}
+
 // Replace the thin Organization stub on the static collection/about pages with
 // the single canonical #organization node, so every page agrees (the homepage
 // carries the fuller graph incl. WebSite/Person/FAQPage).
@@ -418,6 +435,7 @@ async function run() {
   const settings = await fetchSettings(sb);
   injectSettings(settings);
   injectStaticOrg();
+  injectOriginTrial();
   injectShopFilters(allProducts, productDetails);
 
   console.log('\n📝 Fetching blog posts...');
