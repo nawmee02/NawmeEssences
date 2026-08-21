@@ -213,6 +213,10 @@ const HEADER = `<div class="announcement-bar">
       <a href="/about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
+      <form class="nav-search" role="search" method="get" action="/shop.html" toolname="search_catalog" tooldescription="Search NawmeEssences perfume decants by name or brand and open the matching results." toolautosubmit>
+        <input type="search" name="q" class="nav-search-input" placeholder="Search…" aria-label="Search fragrances" autocomplete="off" toolparamdescription="Perfume or brand name to search for, e.g. 'rasasi hawas' or 'lattafa'." required />
+        <button type="submit" class="nav-search-btn" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      </form>
       <button class="theme-toggle" id="theme-toggle" aria-label="Switch to light theme" title="Switch theme"><svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
       <a href="/cart.html" class="cart-btn">🛒 <span class="cart-label">Cart</span> <span class="cart-count" style="display:none">0</span></a>
       <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>

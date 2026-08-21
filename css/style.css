@@ -173,6 +173,49 @@ input, select { font-family: var(--font-body); }
 .nav-link:hover, .nav-link.active { color: var(--gold); background: rgba(201,164,101,0.07); }
 .nav-link.exclusive-link { color: var(--gold); }
 .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Header search — a real declarative form (WebMCP tool "search_catalog"); JS
+   opens the live-results overlay, no-JS/agents submit to /shop.html?q=. */
+.nav-search { display: flex; align-items: center; }
+.nav-search-input {
+  width: 160px; max-width: 26vw;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.nav-search-input::placeholder { color: var(--text-muted); }
+.nav-search-input:focus { border-color: var(--gold); }
+.nav-search-btn {
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 6px 9px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.nav-search-btn:hover { color: var(--gold); }
+@media (max-width: 900px) {
+  /* Collapse to an icon-only trigger; keep the input in the DOM (clipped, not
+     display:none) so it stays a valid form field and WebMCP tool. */
+  .nav-search-input {
+    position: absolute; width: 1px; height: 1px; min-width: 0;
+    padding: 0; border: none; opacity: 0; pointer-events: none;
+  }
+  .nav-search-btn {
+    border-left: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px;
+  }
+}
 .cart-btn {
   position: relative;
   background: transparent;

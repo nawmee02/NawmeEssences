@@ -15,14 +15,35 @@
   // ─── Inject header button + overlay ────────────────────────
   function inject() {
     const actions = document.querySelector('.nav-actions');
-    if (actions && !document.getElementById('search-open-btn')) {
+    const navForm = document.querySelector('.nav-search');
+    // The static declarative search form (js/webmcp.js tool "search_catalog")
+    // is the visible entry now; only inject the legacy icon if it's absent.
+    if (actions && !navForm && !document.getElementById('search-open-btn')) {
       const btn = document.createElement('button');
       btn.id = 'search-open-btn';
       btn.className = 'search-open-btn';
       btn.setAttribute('aria-label', 'Search');
       btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
       actions.insertBefore(btn, actions.firstChild);
-      btn.addEventListener('click', open);
+      btn.addEventListener('click', () => open());
+    }
+    // Enhance the static header form: open the rich live-results overlay on
+    // focus/submit. Agent-triggered submits (toolautosubmit) navigate natively.
+    if (navForm && !navForm.dataset.enhanced) {
+      navForm.dataset.enhanced = '1';
+      const navInput = navForm.querySelector('input');
+      const navBtn = navForm.querySelector('.nav-search-btn');
+      const openOverlay = () => open(navInput ? navInput.value : '');
+      if (navInput) navInput.addEventListener('focus', openOverlay);
+      // Button opens the overlay before native submit/validation runs.
+      if (navBtn) navBtn.addEventListener('click', (e) => { e.preventDefault(); openOverlay(); });
+      // Native submit only fires with JS off or via WebMCP toolautosubmit; let
+      // agent-invoked submits navigate to /shop.html?q=.
+      navForm.addEventListener('submit', (e) => {
+        if (e.agentInvoked) return;
+        e.preventDefault();
+        openOverlay();
+      });
     }
     if (!document.getElementById('search-overlay')) {
       const ov = document.createElement('div');
@@ -105,11 +126,12 @@
   }
 
   // ─── Open / close ──────────────────────────────────────────
-  function open() {
+  function open(prefill) {
     document.getElementById('search-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
     const input = document.getElementById('global-search');
-    input.value = ''; render();
+    input.value = typeof prefill === 'string' ? prefill : '';
+    render();
     input.focus();
     ensureCatalog().then(render);
   }
