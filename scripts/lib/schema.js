@@ -23,9 +23,13 @@ const BASE_SAMEAS = [
   'https://wa.me/8801988536843',
 ];
 // Google Business Profile / Maps listing URL — strong local KG signal. '' = none yet.
-const GOOGLE_BUSINESS_PROFILE_URL = '';
+const GOOGLE_BUSINESS_PROFILE_URL = 'https://maps.app.goo.gl/TXQzzgoSDC9C2jR78';
 // Extra public profiles (TikTok / YouTube / X / LinkedIn …). Add full URLs.
-const EXTRA_SOCIALS = [];
+const EXTRA_SOCIALS = [
+  'https://www.tiktok.com/@nawmeessences',
+  'https://www.linkedin.com/company/nawmeessences',
+  'https://x.com/nawmeessences',
+];
 // Per-brand external authority links (official site, Wikidata …), keyed by brand slug.
 // Empty for now; extend as you verify links, e.g. { 'afnan': ['https://…', 'https://www.wikidata.org/wiki/Q…'] }.
 const BRAND_SAMEAS = {};
