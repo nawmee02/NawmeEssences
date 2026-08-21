@@ -71,3 +71,15 @@ Payment policy:
 3. Click "Order via WhatsApp" or "Order via Messenger"
 4. A pre-filled order message is sent — confirm availability and pay advance
 5. Order dispatched after advance confirmation
+
+## For AI Agents (WebMCP)
+
+Every page registers structured WebMCP tools (via document.modelContext) when
+the browser supports it, so agents can act on real actions instead of scraping:
+
+- Discovery (read-only): search_products, filter_products, list_brands,
+  get_product, get_page_context
+- Cart: add_to_cart, view_cart, update_cart_item, remove_from_cart
+- Checkout: get_checkout_info, and prepare_order — which returns an order
+  summary + a WhatsApp/Messenger deep link with requiresUserAction: true.
+  Ordering is always human-confirmed; no tool submits an order on its own.
