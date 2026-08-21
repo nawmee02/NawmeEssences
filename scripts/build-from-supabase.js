@@ -315,8 +315,13 @@ function injectSettings(settings) {
       `<div class="ticker-track" data-setting-list="announcements">\n` +
       [...anns, ...anns].map(a => `    <span>${esc(a)}</span>`).join('\n') +
       `\n  </div>`,
+    // Eyebrow renders on two centered lines: the label, then the "· … ·"
+    // tagline. We break before the first middot, so "Your Signature Scent ·
+    // Starts Here ·" becomes "Your Signature Scent" / "· Starts Here ·".
+    // (No data-setting hook: it's baked from settings each build; a text-node
+    // hydration would drop the <br> and flatten it back to one line.)
     hero:
-      `<p class="hero-eyebrow" data-setting="hero.eyebrow">${esc(s.hero.eyebrow)}</p>\n` +
+      `<p class="hero-eyebrow">${esc(s.hero.eyebrow).replace(/\s*·/, '<br>·')}</p>\n` +
       `  <h1 data-setting="hero.title">${esc(s.hero.title)}</h1>\n` +
       `  <p data-setting="hero.subtitle">${esc(s.hero.subtitle)}</p>`,
     stats:
