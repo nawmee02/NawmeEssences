@@ -33,6 +33,18 @@
     ],
   };
 
+  // Fallback trust-bar badges so the editor never loads blank. Mirrors
+  // DEFAULTS.trustBar in scripts/lib/settings.js.
+  const DEFAULT_TRUST = [
+    '100% Authentic',
+    '90+ Fragrances',
+    'Sizes: 3ml · 5ml · 10ml · 15ml',
+    'Pickup: Aftabnagar · Banasree · NSU',
+    'Dhaka ৳70 · Suburb ৳90 · Outside ৳120',
+    'WhatsApp Orders',
+    'Prices Fixed & Fair',
+  ];
+
   function toast(msg) {
     const t = $('toast'); if (!t) return;
     t.textContent = msg; t.classList.add('show');
@@ -60,6 +72,11 @@
     const row = document.createElement('div'); row.className = 'size-row';
     const i = rowInput(value, 'Announcement line', 'ann-input'); i.style.flex = '1';
     row.append(i, delBtn(row)); $('ann-rows').appendChild(row);
+  }
+  function addTrustRow(value = '') {
+    const row = document.createElement('div'); row.className = 'size-row';
+    const i = rowInput(value, 'Trust badge', 'trust-input'); i.style.flex = '1';
+    row.append(i, delBtn(row)); $('trust-rows').appendChild(row);
   }
   function addPickupRow(value = '') {
     const row = document.createElement('div'); row.className = 'size-row';
@@ -110,6 +127,7 @@
   }
 
   $('ann-add').addEventListener('click', () => addAnnRow());
+  $('trust-add').addEventListener('click', () => addTrustRow());
   $('pickup-add').addEventListener('click', () => addPickupRow());
   $('stat-add').addEventListener('click', () => addStatRow());
   $('howto-add').addEventListener('click', () => addHowtoRow());
@@ -135,6 +153,11 @@
     $('ann-rows').innerHTML = '';
     (s.announcements || []).forEach(addAnnRow);
     if (!(s.announcements || []).length) addAnnRow();
+
+    // Trust bar — fall back to defaults so the editor is never blank (a blank
+    // list + Save would wipe the badges).
+    $('trust-rows').innerHTML = '';
+    ((s.trustBar && s.trustBar.length) ? s.trustBar : DEFAULT_TRUST).forEach(addTrustRow);
 
     // Contact
     const c = s.contact || {};
@@ -188,6 +211,7 @@
   // ─── Collect + save ────────────────────────────────────────
   function collect() {
     const anns = [...document.querySelectorAll('.ann-input')].map(i => i.value.trim()).filter(Boolean);
+    const trust = [...document.querySelectorAll('.trust-input')].map(i => i.value.trim()).filter(Boolean);
     const pickups = [...document.querySelectorAll('.pickup-input')].map(i => i.value.trim()).filter(Boolean);
     const stats = [...$('stat-rows').querySelectorAll('.size-row')].map(r => ({
       target: Number(r.querySelector('.stat-target').value) || 0,
@@ -209,6 +233,7 @@
     return {
       ...loaded,
       announcements: anns,
+      trustBar: trust,
       contact: { whatsapp: $('s-whatsapp').value.trim(), instagram: $('s-instagram').value.trim(), facebook: $('s-facebook').value.trim() },
       payment: { bkash: $('s-bkash').value.trim(), nagad: $('s-nagad').value.trim(), advanceNote: $('s-advance').value.trim() },
       delivery: {

@@ -74,13 +74,20 @@
         }
         if (label && st.label) label.textContent = st.label;
       });
+    }
 
-      // Trust-bar "Fragrances" line follows the same Fragrances stat, so an
-      // admin count change updates it live without a manual code edit.
-      const frag = s.stats.find(st => /fragrance/i.test(st.label || ''));
-      if (frag) {
-        const text = String(frag.target) + (frag.suffix || '') + ' Fragrances';
-        document.querySelectorAll('[data-setting-fragrances]').forEach(el => { el.textContent = text; });
+    // Trust bar — rebuild from the editable list, emitted twice so the ticker
+    // loops seamlessly. Empty list keeps the baked default content.
+    if (Array.isArray(s.trustBar) && s.trustBar.length) {
+      const track = document.querySelector('.trust-track');
+      if (track) {
+        track.textContent = '';
+        [...s.trustBar, ...s.trustBar].forEach(t => {
+          const item = document.createElement('div'); item.className = 'trust-item';
+          const dot = document.createElement('span'); dot.className = 'dot'; dot.textContent = '◆';
+          item.append(dot, document.createTextNode(' ' + t));
+          track.appendChild(item);
+        });
       }
     }
 

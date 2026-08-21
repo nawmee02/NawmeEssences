@@ -301,6 +301,7 @@ function injectSettings(settings) {
   const s = settings;
   const anns = Array.isArray(s.announcements) ? s.announcements : [];
   const stats = Array.isArray(s.stats) ? s.stats : [];
+  const trust = (Array.isArray(s.trustBar) && s.trustBar.length) ? s.trustBar : DEFAULTS.trustBar;
   const hs = s.homeSections || {};
   // An empty array means "not configured" — fall back to the defaults so a
   // rebuild never wipes the How-to-Order / FAQ sections to nothing.
@@ -315,6 +316,12 @@ function injectSettings(settings) {
       `<div class="ticker-track" data-setting-list="announcements">\n` +
       [...anns, ...anns].map(a => `    <span>${esc(a)}</span>`).join('\n') +
       `\n  </div>`,
+    // Trust-bar badges — emitted twice so the -50% `ticker` animation loops
+    // seamlessly (see .trust-track). Fully admin-editable via the trust list.
+    trust:
+      [...trust, ...trust]
+        .map(t => `    <div class="trust-item"><span class="dot">◆</span> ${esc(t)}</div>`)
+        .join('\n'),
     // Eyebrow renders on two centered lines: the label, then the "· … ·"
     // tagline. We break before the first middot, so "Your Signature Scent ·
     // Starts Here ·" becomes "Your Signature Scent" / "· Starts Here ·".
@@ -357,14 +364,6 @@ function injectSettings(settings) {
     const re = new RegExp(`(<!--SET:${name}:start-->)[\\s\\S]*?(<!--SET:${name}:end-->)`);
     if (!re.test(html)) throw new Error(`marker SET:${name} not found in index.html`);
     html = html.replace(re, `$1\n  ${content}\n  $2`);
-  }
-
-  // Trust-bar "Fragrances" line follows the admin's Fragrances stat so the
-  // count updates from the dashboard instead of needing a manual code edit.
-  const fragStat = stats.find(st => /fragrance/i.test(st.label || ''));
-  if (fragStat) {
-    const fragText = `${fragStat.target}${fragStat.suffix || ''} Fragrances`;
-    html = html.replace(/(<span data-setting-fragrances>)[^<]*(<\/span>)/g, `$1${esc(fragText)}$2`);
   }
 
   fs.writeFileSync(fp, html);

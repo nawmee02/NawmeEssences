@@ -73,6 +73,15 @@ INSERT INTO site_settings (id, data) VALUES (1, '{
     { "target": 30,   "suffix": "+", "label": "Brands" },
     { "target": 100,  "suffix": "%", "label": "Authentic" }
   ],
+  "trustBar": [
+    "100% Authentic",
+    "90+ Fragrances",
+    "Sizes: 3ml · 5ml · 10ml · 15ml",
+    "Pickup: Aftabnagar · Banasree · NSU",
+    "Dhaka ৳70 · Suburb ৳90 · Outside ৳120",
+    "WhatsApp Orders",
+    "Prices Fixed & Fair"
+  ],
   "meta": {
     "homeTitle": "NawmeEssences — Luxury Fragrance Decants in Bangladesh",
     "homeDescription": "Authentic luxury perfume decants in Bangladesh. Shop Rasasi, JPG, Hugo Boss, Armaf, and more. 3ml, 5ml, 10ml, 15ml sizes. Free delivery info inside."
