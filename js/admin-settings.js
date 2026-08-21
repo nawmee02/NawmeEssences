@@ -202,6 +202,9 @@
     $('faq-rows').innerHTML = '';
     faqs.forEach(addFaqRow);
 
+    // Interactions
+    $('s-sound').checked = s.sound !== false;   // default on
+
     // Meta
     const m = s.meta || {};
     $('s-meta-title').value = m.homeTitle || '';
@@ -234,6 +237,7 @@
       ...loaded,
       announcements: anns,
       trustBar: trust,
+      sound: $('s-sound').checked,
       contact: { whatsapp: $('s-whatsapp').value.trim(), instagram: $('s-instagram').value.trim(), facebook: $('s-facebook').value.trim() },
       payment: { bkash: $('s-bkash').value.trim(), nagad: $('s-nagad').value.trim(), advanceNote: $('s-advance').value.trim() },
       delivery: {

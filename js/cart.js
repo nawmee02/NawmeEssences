@@ -1,5 +1,44 @@
 const CART_KEY = "nawme_cart";
 
+// ── UI sound (ultra-light Web Audio; no files, one shared context) ──────────
+// A single lazily-created AudioContext (made on the first click — a user
+// gesture, which browser autoplay policy requires) reused for every blip, so
+// rapid clicks never exhaust the browser's context limit. Muted via the admin
+// setting, mirrored to localStorage.sfx by js/settings.js (default on).
+const Sfx = (() => {
+  let ctx;
+  const on = () => { try { return localStorage.getItem('sfx') !== '0'; } catch (e) { return true; } };
+  function tone(freq, dur, vol, delay = 0) {
+    if (!on()) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = ctx || new AC();
+      if (ctx.state === 'suspended') ctx.resume();
+      const t = ctx.currentTime + delay;
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      // Non-zero gain anchor right before the ramp so the exponential fade is
+      // smooth on mobile (it misbehaves ramping from/through 0 or unanchored).
+      g.gain.setValueAtTime(vol, t);
+      g.gain.setValueAtTime(vol, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + dur);
+      // Disconnect after playback so the routing graph stays clean under rapid
+      // clicks and the one-shot (non-reusable) nodes get garbage-collected.
+      setTimeout(() => { try { osc.disconnect(); g.disconnect(); } catch (e) {} },
+        (dur + delay) * 1000 + 100);
+    } catch (e) { /* never break the UI */ }
+  }
+  return {
+    tick() { tone(700, 0.05, 0.05); },                              // size switch
+    add()  { tone(587, 0.06, 0.09); tone(880, 0.07, 0.09, 0.05); }, // add to cart
+  };
+})();
+window.Sfx = Sfx;
+
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 }
@@ -24,6 +63,7 @@ function addToCart(productId, ml, price, name, brand, isExclusive = false, sizes
   }
   saveCart(cart);
   showToast(`${name} (${ml}ml) added to cart!`);
+  Sfx.add();
 }
 
 function removeFromCart(key) {

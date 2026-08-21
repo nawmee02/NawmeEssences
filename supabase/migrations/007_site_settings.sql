@@ -73,6 +73,7 @@ INSERT INTO site_settings (id, data) VALUES (1, '{
     { "target": 30,   "suffix": "+", "label": "Brands" },
     { "target": 100,  "suffix": "%", "label": "Authentic" }
   ],
+  "sound": true,
   "trustBar": [
     "100% Authentic",
     "90+ Fragrances",

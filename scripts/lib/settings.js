@@ -45,6 +45,7 @@ const DEFAULTS = {
     { target: 30, suffix: '+', label: 'Brands' },
     { target: 100, suffix: '%', label: 'Authentic' },
   ],
+  sound: true,
   trustBar: [
     '100% Authentic',
     '90+ Fragrances',

@@ -1,6 +1,7 @@
 function selectSize(id, btn) {
   document.querySelectorAll('#size-' + id + ' .size-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  if (window.Sfx) Sfx.tick();
   const priceEl = document.getElementById('price-' + id);
   if (!priceEl) return;
   // data-price is the effective (sale) price; data-original the pre-sale price.

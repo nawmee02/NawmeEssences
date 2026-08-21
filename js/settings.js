@@ -25,6 +25,10 @@
   function applySettings(s) {
     if (!s || typeof s !== 'object') return;
 
+    // UI-sound mute flag → localStorage so js/cart.js Sfx can read it
+    // synchronously at click time. Missing/not-yet-migrated value → on.
+    try { localStorage.setItem('sfx', (s && s.sound === false) ? '0' : '1'); } catch (e) {}
+
     // Plain text nodes
     document.querySelectorAll('[data-setting]').forEach(el => {
       const v = get(s, el.getAttribute('data-setting'));
