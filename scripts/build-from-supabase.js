@@ -24,6 +24,7 @@ const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
+const { buildAssetMap, versionHtml } = require('./lib/asset-version');
 const { fetchPosts } = require('./lib/blog');
 
 const SIZES = [
@@ -379,6 +380,37 @@ function injectSettings(settings) {
   console.log('  injected → index.html (settings)');
 }
 
+// Cache-bust local css/js by stamping ?v=<content-hash> onto every reference,
+// across root HTML + all generated pages. Runs LAST so no later step clobbers
+// the query. Content-hash → the URL only changes when the file changes, so a
+// long Cloudflare cache stays safe (no stale assets / hard refresh on deploy).
+function collectHtml(dir, out = []) {
+  if (!fs.existsSync(dir)) return out;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) collectHtml(p, out);
+    else if (e.name.endsWith('.html')) out.push(p);
+  }
+  return out;
+}
+function versionAssets() {
+  const map = buildAssetMap(ROOT);
+  const files = [
+    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html']
+      .map(f => path.join(ROOT, f)),
+    ...collectHtml(path.join(ROOT, 'product')),
+    ...collectHtml(path.join(ROOT, 'brands')),
+    ...collectHtml(path.join(ROOT, 'blog')),
+  ].filter(fs.existsSync);
+  let n = 0;
+  for (const fp of files) {
+    const html = fs.readFileSync(fp, 'utf8');
+    const out = versionHtml(html, map);
+    if (out !== html) { fs.writeFileSync(fp, out); n++; }
+  }
+  console.log(`  versioned css/js refs in ${n} page(s)`);
+}
+
 // Inject the WebMCP origin-trial <meta> into the static pages' <head> (right
 // after viewport). Idempotent: strips any existing token first, so re-running
 // or renewing the token never duplicates it. Generated pages get it via the
@@ -444,6 +476,9 @@ async function run() {
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts });
+
+  console.log('\n🔖 Cache-busting assets...');
+  versionAssets();
 
   // Image errors never block the deploy — the page just uses a placeholder.
   if (errors) console.log(`\n⚠️  ${errors} image error(s) — those products fall back to placeholders.`);
