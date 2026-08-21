@@ -22,7 +22,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/catalog');
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
-const { fetchSettings } = require('./lib/settings');
+const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const { fetchPosts } = require('./lib/blog');
 
 const SIZES = [
@@ -276,8 +276,10 @@ function injectSettings(settings) {
   const anns = Array.isArray(s.announcements) ? s.announcements : [];
   const stats = Array.isArray(s.stats) ? s.stats : [];
   const hs = s.homeSections || {};
-  const howto = Array.isArray(hs.howToOrder) ? hs.howToOrder : [];
-  const faq = Array.isArray(hs.faq) ? hs.faq : [];
+  // An empty array means "not configured" — fall back to the defaults so a
+  // rebuild never wipes the How-to-Order / FAQ sections to nothing.
+  const howto = (Array.isArray(hs.howToOrder) && hs.howToOrder.length) ? hs.howToOrder : DEFAULTS.homeSections.howToOrder;
+  const faq = (Array.isArray(hs.faq) && hs.faq.length) ? hs.faq : DEFAULTS.homeSections.faq;
 
   const blocks = {
     meta:

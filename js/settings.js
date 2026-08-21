@@ -81,7 +81,9 @@
     const hs = s.homeSections;
     if (hs) {
       const howto = document.querySelector('[data-setting-howto]');
-      if (howto && Array.isArray(hs.howToOrder)) {
+      // An empty array means "not configured" — keep the baked default content
+      // rather than wiping the section to nothing.
+      if (howto && Array.isArray(hs.howToOrder) && hs.howToOrder.length) {
         howto.textContent = '';
         hs.howToOrder.forEach((step, i) => {
           const wrap = document.createElement('div'); wrap.className = 'how-step';
@@ -92,7 +94,7 @@
         });
       }
       const faqEl = document.querySelector('[data-setting-faq]');
-      if (faqEl && Array.isArray(hs.faq)) {
+      if (faqEl && Array.isArray(hs.faq) && hs.faq.length) {
         faqEl.textContent = '';
         hs.faq.forEach(item => {
           const d = document.createElement('details'); d.className = 'faq-item';

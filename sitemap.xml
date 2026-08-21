@@ -111,6 +111,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://nawmeessences.me/brands/hermes/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://nawmeessences.me/brands/hugo-boss/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -122,6 +127,16 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/brands/jean-paul-gaultier/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/brands/junaid-perfumes/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/brands/kenzo/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -197,8 +212,8 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.me/product/xerjoff/</loc>
-    <lastmod>2026-08-08</lastmod>
+    <loc>https://nawmeessences.me/product/afnan-9pm-rebel/</loc>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -222,7 +237,43 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/hugo-boss-bottled-tonic/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/lalique-encre-noire-a-l-extreme/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/lalique-encre-indigo/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/junaid-perfumes-sanaya/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/xerjoff/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/terre-d-herm-s-eau-givree/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.me/product/kenzo-homme-edp/</loc>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -366,7 +417,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/bentley-silverlake/</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -378,19 +429,19 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-aether/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-liquid-brun/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/lalique-encre-noire-sport/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -408,19 +459,19 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-vulcan-feu/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-vulcan-sable/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-atlantis/</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -438,19 +489,19 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-magnetiq/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-platine-blanc/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.me/product/french-avenue-vulcan-black-friday/</loc>
-    <lastmod>2026-07-04</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -498,7 +549,7 @@
   </url>
   <url>
     <loc>https://nawmeessences.me/product/al-haramain-amber-oud-999/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
