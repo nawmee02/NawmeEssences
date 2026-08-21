@@ -9,7 +9,8 @@
     "seed": "node scripts/seed-database.js",
     "validate": "node scripts/validate-catalog.js",
     "generate-pages": "node scripts/generate-product-pages.js",
-    "build": "node scripts/build-from-supabase.js",
+    "build": "node scripts/build-from-supabase.js && node scripts/verify-schema.js",
+    "verify-schema": "node scripts/verify-schema.js",
     "upload-original": "node scripts/upload-original.js"
   },
   "devDependencies": {

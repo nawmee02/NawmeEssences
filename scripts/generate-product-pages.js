@@ -14,6 +14,7 @@ const {
 } = require('./lib/catalog');
 const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
+const schema = require('./lib/schema');
 
 const SITE = 'https://nawmeessences.me';
 const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
@@ -257,8 +258,25 @@ const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 <script src="/js/api.js" defer></script>
 <script src="/js/search.js" defer></script>`;
 
-// Shared Organization JSON-LD (same #organization entity as the homepage).
-const ORG_LD = '{"@context":"https://schema.org","@type":"Organization","@id":"https://nawmeessences.me/#organization","name":"NawmeEssences","url":"https://nawmeessences.me/","logo":"https://nawmeessences.me/images/logo.png","sameAs":["https://www.facebook.com/NawmeEssences","https://www.instagram.com/_nawmeessences_","https://wa.me/8801988536843"]}';
+// Shared, canonical Organization JSON-LD — identical #organization node on every
+// page (from scripts/lib/schema.js), so the graph never drifts. Its founder ref
+// resolves to the Person node declared on the homepage / about-me.
+const ORG_LD = JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() });
+
+// Fragrance notes/accords/family → consistent PropertyValue list (semantic
+// enrichment; values are clean comma-joined strings, never one ambiguous blob).
+function fragranceProperties(d) {
+  if (!d) return undefined;
+  const join = a => (Array.isArray(a) ? a.filter(Boolean).join(', ') : '');
+  const out = [];
+  if (d.family) out.push({ '@type': 'PropertyValue', name: 'Fragrance family', value: d.family });
+  const top = join(d.top), heart = join(d.heart), base = join(d.base), acc = join(d.accords);
+  if (top) out.push({ '@type': 'PropertyValue', name: 'Top notes', value: top });
+  if (heart) out.push({ '@type': 'PropertyValue', name: 'Heart notes', value: heart });
+  if (base) out.push({ '@type': 'PropertyValue', name: 'Base notes', value: base });
+  if (acc) out.push({ '@type': 'PropertyValue', name: 'Accords', value: acc });
+  return out.length ? out : undefined;
+}
 
 // ─── Page template ───────────────────────────────────────────
 function renderPage(p, all, detailsMap) {
@@ -280,11 +298,13 @@ function renderPage(p, all, detailsMap) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.name,
-    brand: { '@type': 'Brand', name: p.brand },
+    // Reference the Brand entity whose full node lives on the brand hub page.
+    brand: { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand },
     image: [heroLarge(p.id, v), heroMedium(p.id, v)],
     description: metaDesc,
     sku: p.id,
     category: d ? d.family : 'Fragrance',
+    mainEntityOfPage: url,
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'BDT',
@@ -293,8 +313,11 @@ function renderPage(p, all, detailsMap) {
       offerCount: p.sizes.length,
       availability,
       url,
+      seller: { '@id': schema.ORG_ID },
     },
   };
+  const props = fragranceProperties(d);
+  if (props) productLd.additionalProperty = props;
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -592,7 +615,9 @@ ${others.map(brandTile).join('\n')}
     '@context': 'https://schema.org', '@type': 'CollectionPage',
     name: `${name} Perfume Decants in Bangladesh`, url,
     isPartOf: { '@id': `${SITE}/#website` },
-    about: { '@type': 'Brand', name },
+    // This hub is the brand's entity home on our domain (our representation of
+    // the external brand — not an ownership claim).
+    about: schema.brandNode(slug, name),
     mainEntity: {
       '@type': 'ItemList', numberOfItems: count,
       itemListElement: products.map((p, i) => ({
@@ -889,7 +914,7 @@ function renderBlogPost(post) {
     image: post.cover ? [coverUrl(post, 'large')] : [DEFAULT_OG],
     datePublished: post.publishedAt || undefined,
     dateModified: post.updatedAt || post.publishedAt || undefined,
-    author: { '@id': `${SITE}/#organization` },
+    author: schema.founderInline(),
     publisher: { '@id': `${SITE}/#organization` },
     mainEntityOfPage: url,
   };

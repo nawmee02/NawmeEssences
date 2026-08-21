@@ -23,6 +23,7 @@ const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/c
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
+const schema = require('./lib/schema');
 const { fetchPosts } = require('./lib/blog');
 
 const SIZES = [
@@ -312,6 +313,14 @@ function injectSettings(settings) {
     meta:
       `<title>${esc(s.meta.homeTitle)}</title>\n` +
       `  <meta name="description" content="${esc(s.meta.homeDescription)}" />`,
+    // Canonical entity graph (Organization+Store, WebSite, founder Person, FAQPage)
+    // from scripts/lib/schema.js — the one authoritative #organization node.
+    ld: schema.graphScript(
+      schema.organizationNode(),
+      schema.websiteNode(),
+      schema.founderNode(),
+      schema.faqPageNode(faq),
+    ),
     announcement:
       `<div class="ticker-track" data-setting-list="announcements">\n` +
       [...anns, ...anns].map(a => `    <span>${esc(a)}</span>`).join('\n') +
@@ -370,6 +379,23 @@ function injectSettings(settings) {
   console.log('  injected → index.html (settings)');
 }
 
+// Replace the thin Organization stub on the static collection/about pages with
+// the single canonical #organization node, so every page agrees (the homepage
+// carries the fuller graph incl. WebSite/Person/FAQPage).
+function injectStaticOrg() {
+  const orgScript = `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() })}</script>`;
+  let n = 0;
+  for (const file of ['shop.html', 'exclusive.html', 'about.html', 'about-me.html']) {
+    const fp = path.join(ROOT, file);
+    let html = fs.readFileSync(fp, 'utf8');
+    const re = /(<!--SET:orgld:start-->)[\s\S]*?(<!--SET:orgld:end-->)/;
+    if (!re.test(html)) { console.warn(`  ⚠ SET:orgld not found in ${file}`); continue; }
+    fs.writeFileSync(fp, html.replace(re, `$1\n  ${orgScript}\n  $2`));
+    n++;
+  }
+  console.log(`  injected → canonical org schema (${n} static pages)`);
+}
+
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
@@ -391,6 +417,7 @@ async function run() {
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
   injectSettings(settings);
+  injectStaticOrg();
   injectShopFilters(allProducts, productDetails);
 
   console.log('\n📝 Fetching blog posts...');
