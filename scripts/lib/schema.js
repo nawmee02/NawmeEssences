@@ -20,7 +20,7 @@ const SITE = 'https://nawmeessences.com';
 // the WebMCP tools work for real agents and Lighthouse/PSI can score the
 // Agentic-Browsing WebMCP audits. Renew at chrome.com/origintrials before expiry
 // and replace this string (single source of truth for every page).
-const ORIGIN_TRIAL_TOKEN = 'AgEogXN8DniVock4DWRQ/AZeu5OyUOE6gEfm6ZsTWfs60qZCIKB3fjdex9nx5YvosZE9ama4X7dEXCiXzXMeeAQAAABjeyJvcmlnaW4iOiJodHRwczovL25hd21lZXNzZW5jZXMubWU6NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTc5NDg3MzYwMCwiaXNTdWJkb21haW4iOnRydWV9';
+const ORIGIN_TRIAL_TOKEN = 'As57SiyvGZPH7BBw1u8A0T1emm7cXxA+fBx9zlMD/Tqb36viRUM8SJ0qGoW/3BBjtH4k52nUz/v7qpWMVX44xwUAAABkeyJvcmlnaW4iOiJodHRwczovL25hd21lZXNzZW5jZXMuY29tOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlfQ==';
 function originTrialMeta() {
   return ORIGIN_TRIAL_TOKEN ? `<meta http-equiv="origin-trial" content="${ORIGIN_TRIAL_TOKEN}" />` : '';
 }
