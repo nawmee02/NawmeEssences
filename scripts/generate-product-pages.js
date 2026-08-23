@@ -16,7 +16,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const schema = require('./lib/schema');
 
-const SITE = 'https://nawmeessences.me';
+const SITE = 'https://nawmeessences.com';
 const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
 
 // ─── HTML escaping ───────────────────────────────────────────

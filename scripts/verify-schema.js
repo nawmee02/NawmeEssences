@@ -17,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const SITE = 'https://nawmeessences.me';
+const SITE = 'https://nawmeessences.com';
 const IDENTITY_FIELDS = ['@type', 'name', 'url', 'logo', 'image', 'sameAs', 'founder'];
 const CANONICAL = new Set([`${SITE}/#organization`, `${SITE}/#website`, `${SITE}/#founder`]);
 const BRAND_ID_RE = new RegExp(`^${SITE.replace(/[.]/g, '\\.')}/brands/[a-z0-9-]+/#brand$`);

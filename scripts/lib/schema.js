@@ -13,7 +13,7 @@
 //  entity graph reflects only visible page content.
 // ============================================================
 
-const SITE = 'https://nawmeessences.me';
+const SITE = 'https://nawmeessences.com';
 
 // WebMCP origin-trial token (feature "WebMCP", expires 2026-11-17). Enables
 // document.modelContext on this origin in Chrome 150+ WITHOUT a user flag — so
