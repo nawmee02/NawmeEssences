@@ -577,18 +577,15 @@ input, select { font-family: var(--font-body); }
 .size-select:focus { border-color: var(--gold-dark); }
 
 /* ===== SIZE PILLS ===== */
-.size-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+.size-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .size-pill {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
   border-radius: 6px;
-  /* ≥24px tap target with breathing room (WCAG 2.5.8 / Lighthouse touch targets) */
-  min-height: 32px;
-  padding: 4px 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  /* taller vertical padding → ~30px tall so it clears the 24px touch-target
+     minimum, while staying a compact content-width inline pill (no stretch) */
+  padding: 8px 11px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
