@@ -4,7 +4,7 @@ A static e-commerce website for perfume decants, based in Bangladesh.
 
 ## Live Site
 
-[nawmeessences.me](https://nawmeessences.me/)
+[nawmeessences.com](https://nawmeessences.com/)
 
 ## Features
 
