@@ -93,6 +93,12 @@ function hasExclusiveItem() {
   return getCart().some(i => i.isExclusive);
 }
 
+// Sum of exclusive items' line totals. Mandatory advance when the cart has
+// exclusive items = this + delivery (not full-order advance).
+function exclusiveSubtotal() {
+  return getCart().filter(i => i.isExclusive).reduce((s, i) => s + i.price * i.qty, 0);
+}
+
 function updateCartBadge() {
   const count = getCartCount();
   document.querySelectorAll(".cart-count").forEach(el => {
@@ -111,7 +117,8 @@ function buildWhatsAppMessage(deliveryZone, buyerName, buyerPhone, buyerAddress)
   let hasExclusive = hasExclusiveItem();
   let advanceNote = "";
   if (hasExclusive) {
-    advanceNote = `Full advance required (includes exclusive items): \u09F3${total}`;
+    const exTotal = exclusiveSubtotal();
+    advanceNote = `Advance required: \u09F3${exTotal + deliveryCharge} (exclusive items \u09F3${exTotal} + delivery \u09F3${deliveryCharge})`;
   } else if (total > 2000) {
     advanceNote = `30% advance required: \u09F3${Math.ceil(total * 0.3)}`;
   } else {

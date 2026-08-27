@@ -129,7 +129,7 @@
         <strong style="color:var(--gold);">Payment Policy</strong><br>
         · Min. advance = delivery charge (৳70–৳90–৳120)<br>
         · 30% advance for orders above ৳2000<br>
-        · Full advance for exclusive/rare items<br>
+        · Exclusive/rare items: item price + delivery as advance<br>
         · Prices are fixed
       </div>
     </div>
@@ -177,7 +177,7 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script><script src="js/cart.js?v=e1f8bf8a" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script><script src="js/cart.js?v=9225a7dc" defer></script>
 <script src="js/main.js?v=86bc6a6d" defer></script>
 <script src="js/supabase-config.js?v=bf21f5e9" defer></script>
 <script src="js/supabase.js?v=f03b193c" defer></script>
@@ -285,7 +285,8 @@
 
     let note = '';
     if (hasExclusive) {
-      note = `⚠️ Full advance required: ৳${total} (cart includes exclusive items)`;
+      const exTotal = exclusiveSubtotal();
+      note = `⚠️ Advance required: ৳${exTotal + delivery} (exclusive items ৳${exTotal} + delivery ৳${delivery})`;
     } else if (total > 2000) {
       note = `💳 30% advance required: ৳${Math.ceil(total * 0.3)}`;
     } else {
@@ -411,7 +412,7 @@
     text += `\nSubtotal: ৳${subtotal}`;
     text += `\nDelivery (${zoneLabel}): ৳${delivery}`;
     text += `\nTotal: ৳${total}`;
-    if (hasExclusive) text += `\nFull advance required: ৳${total}`;
+    if (hasExclusive) { const exTotal = exclusiveSubtotal(); text += `\nAdvance required: ৳${exTotal + delivery} (exclusive items ৳${exTotal} + delivery ৳${delivery})`; }
     else if (total > 2000) text += `\n30% advance required: ৳${Math.ceil(total * 0.3)}`;
     else text += `\nMin. advance (delivery): ৳${delivery}`;
     text += `\n\nBuyer Details:`;
