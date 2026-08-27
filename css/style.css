@@ -1342,6 +1342,8 @@ input, select { font-family: var(--font-body); }
   text-transform: uppercase;
   margin-bottom: 8px;
 }
+.pd-brand a { color: inherit; text-decoration: none; }
+.pd-brand a:hover { text-decoration: underline; }
 .pd-name {
   font-family: var(--font-head);
   font-size: 38px;

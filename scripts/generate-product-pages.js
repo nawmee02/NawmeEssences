@@ -401,7 +401,7 @@ ${HEADER}
   </div>
 
   <div class="pd-info">
-    <div class="pd-brand">${esc(p.brand)}</div>
+    <div class="pd-brand"><a href="/brands/${attr(bSlug)}/">${esc(p.brand)}</a></div>
     <h1 class="pd-name">${esc(p.name)}</h1>
     <div class="pd-occasions">${occasionChips(d ? d.accords : [])}</div>
 
