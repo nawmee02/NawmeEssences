@@ -8,13 +8,15 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <!-- Cart thumbnails come from this host; no crossorigin (see index.html). -->
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
   <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){document.documentElement.dataset.theme='light'}</script>
-  <link rel="stylesheet" href="css/style.css?v=d68e4138" />
+  <link rel="stylesheet" href="css/style.css?v=a86eb106" />
 </head>
 <body>
 
@@ -100,15 +102,15 @@
         <h4>Your Details</h4>
         <div class="buyer-field">
           <label for="buyer-name">Name <span style="color:#e05555;">*</span></label>
-          <input type="text" id="buyer-name" placeholder="Full name" autocomplete="name">
+          <input type="text" id="buyer-name" placeholder="Full name" autocomplete="name" maxlength="100">
         </div>
         <div class="buyer-field">
           <label for="buyer-phone">Phone <span style="color:#e05555;">*</span></label>
-          <input type="tel" id="buyer-phone" placeholder="01XXXXXXXXX" autocomplete="tel">
+          <input type="tel" id="buyer-phone" placeholder="01XXXXXXXXX" autocomplete="tel" maxlength="20">
         </div>
         <div class="buyer-field">
           <label for="buyer-address">Delivery Address <span style="color:#e05555;">*</span></label>
-          <textarea id="buyer-address" rows="2" placeholder="Road, area, city..."></textarea>
+          <textarea id="buyer-address" rows="2" placeholder="Road, area, city..." maxlength="500"></textarea>
         </div>
         <!-- Honeypot field (invisible). If filled, treat as bot and block submission -->
         <input type="text" id="hp-field" style="display:none" autocomplete="off" tabindex="-1">
@@ -177,12 +179,14 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script><script src="js/cart.js?v=9225a7dc" defer></script>
-<script src="js/main.js?v=86bc6a6d" defer></script>
-<script src="js/supabase-config.js?v=bf21f5e9" defer></script>
-<script src="js/supabase.js?v=f03b193c" defer></script>
+<!-- supabase-js is loaded on demand by js/supabase.js — here that means the
+     checkout click, via saveOrderToSupabase(). -->
+<script src="js/cart.js?v=0e80cfd9" defer></script>
+<script src="js/main.js?v=18935c3e" defer></script>
+<script src="js/supabase-config.js?v=8879e998" defer></script>
+<script src="js/supabase.js?v=ddb183ba" defer></script>
 <script src="js/settings.js?v=540574f4" defer></script>
-<script src="js/search.js?v=88483c7c" defer></script>
+<script src="js/search.js?v=5e4a11d4" defer></script>
 <script src="js/commerce-adapter.js?v=d667b304" defer></script>
 <script src="js/webmcp.js?v=5cb0579d" defer></script>
 <script>
@@ -336,23 +340,43 @@
     return { name, phone, address };
   }
 
+  // These MIRROR the DB check constraints added in migration 005
+  // (orders_name_len 2-100, orders_phone_len 6-20, orders_address_len 10-500).
+  // They must stay in step: the checkout opens WhatsApp regardless of whether
+  // the insert succeeds, so a client that is laxer than Postgres means the
+  // customer completes their order while it is silently never recorded.
+  const BUYER_RULES = [
+    { id: 'buyer-name',    label: 'Name',    min: 2,  max: 100, hint: 'at least 2 characters' },
+    { id: 'buyer-phone',   label: 'Phone',   min: 6,  max: 20,  hint: 'a valid phone number' },
+    { id: 'buyer-address', label: 'Address', min: 10, max: 500, hint: 'a full delivery address (at least 10 characters)' },
+  ];
+
   function validateBuyer() {
-    const nameEl = document.getElementById('buyer-name');
-    const phoneEl = document.getElementById('buyer-phone');
-    const addressEl = document.getElementById('buyer-address');
-    let valid = true;
-    [nameEl, phoneEl, addressEl].forEach(el => el.classList.remove('field-error'));
-    if (!nameEl.value.trim()) { nameEl.classList.add('field-error'); valid = false; }
-    if (!phoneEl.value.trim()) { phoneEl.classList.add('field-error'); valid = false; }
-    if (!addressEl.value.trim()) { addressEl.classList.add('field-error'); valid = false; }
-    // Honeypot check
+    // Honeypot first — a filled hidden field is a bot, so bail before hinting
+    // at what a valid submission would look like.
     const hp = document.getElementById('hp-field');
     if (hp && hp.value.trim()) {
       showToast('Bot detected — submission blocked.');
       return false;
     }
-    if (!valid) { nameEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); showToast('Please fill in your name, phone and address.'); }
-    return valid;
+
+    const problems = [];
+    let firstBad = null;
+    for (const rule of BUYER_RULES) {
+      const el = document.getElementById(rule.id);
+      el.classList.remove('field-error');
+      const len = el.value.trim().length;
+      if (len >= rule.min && len <= rule.max) continue;
+      el.classList.add('field-error');
+      if (!firstBad) firstBad = el;
+      problems.push(len === 0 ? rule.label + ' is required' : rule.label + ' needs ' + rule.hint);
+    }
+    if (!problems.length) return true;
+
+    firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try { firstBad.focus({ preventScroll: true }); } catch (e) { firstBad.focus(); }
+    showToast(problems.join(' · '));
+    return false;
   }
 
   async function checkoutWhatsApp() {
@@ -384,11 +408,17 @@
         }),
         new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'timeout (>4s)' }), 4000))
       ]);
-      // TEMP DIAGNOSTIC: surface why the DB write didn't happen
+      // The order itself is NOT lost when this fails — it still reaches Nawmee
+      // as the WhatsApp message below; only our own copy of it didn't save. So
+      // log for developers rather than alarming the customer with raw Postgres
+      // text. Operational alerting is already handled inside
+      // saveOrderToSupabase() via NOTIFY_WEBHOOK_URL.
       if (result && !result.ok) {
-        alert('Order NOT saved to database:\n\n' + result.error);
+        console.error('[order] not saved to Supabase:', result.error);
       }
-    } catch (e) { alert('Order save threw:\n\n' + (e && e.message ? e.message : e)); }
+    } catch (e) {
+      console.error('[order] save threw:', e);
+    }
 
     if (waWindow && !waWindow.closed) waWindow.location.href = url;
     else window.location.href = url; // popup blocked → navigate current tab (write already done)
