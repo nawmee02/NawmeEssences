@@ -257,7 +257,12 @@
     (data.fragrance_sizes || []).sort((a,b)=>a.ml-b.ml).forEach(s => addSizeRow(s.ml, s.price));
     if (!data.fragrance_sizes?.length) addSizeRow();
     (data.fragrance_tags || []).forEach(t => { const c=document.querySelector(`.f-tag[value="${t.tag}"]`); if (c) c.checked = true; });
-    const d = data.fragrance_details?.[0];
+    // fragrance_id is fragrance_details' PRIMARY KEY *and* its FK, so PostgREST
+    // treats the embed as to-ONE and returns an object — not the array this used
+    // to assume. Reading [0] off it yielded undefined, the form loaded blank, and
+    // the save then overwrote every detail column with empties. Accept both shapes.
+    const fd = data.fragrance_details;
+    const d = Array.isArray(fd) ? fd[0] : fd;
     if (d) {
       $('f-top').value = (d.top_notes||[]).join(', ');
       $('f-heart').value = (d.heart_notes||[]).join(', ');
