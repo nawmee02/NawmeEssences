@@ -533,7 +533,7 @@ input, select { font-family: var(--font-body); }
   inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
-  transition: opacity 0.5s ease, transform 0.4s ease;
+  transition: opacity 0.15s ease, transform 0.4s ease;
 }
 .product-card:hover .card-img img { transform: scale(1.04); }
 .card-img-placeholder {
@@ -548,7 +548,12 @@ input, select { font-family: var(--font-body); }
 /* ── Image fade-in (progressive enhancement) ───────────────────────────────
    .img-fade is set on <html> by an early inline script only when JS runs, so
    no-JS users still see images at full opacity. onload (inline) + main.js add
-   .loaded, fading each image in over the neutral card background — no emoji pop. */
+   .loaded, fading each image in over the neutral card background — no emoji pop.
+
+   Keep the fade SHORT (0.15s). It starts at opacity:0 and only runs once the
+   image has fully decoded, so its duration is added on top of download time —
+   a 5KB thumb that arrives in 40ms was taking ~540ms to become visible at the
+   old 0.5s. Long fades here read as slow loading, not as polish. */
 .img-fade .card-img img,
 .img-fade .related-img img,
 .img-fade .pd-image img { opacity: 0; }
@@ -1354,7 +1359,7 @@ input, select { font-family: var(--font-body); }
   object-fit: cover;
   cursor: zoom-in;
   display: block;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.15s ease;
 }
 .pd-placeholder {
   position: absolute; inset: 0;
@@ -1442,7 +1447,7 @@ input, select { font-family: var(--font-body); }
 }
 .related-card:hover { border-color: var(--gold-dark); transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
 .related-img { position: relative; aspect-ratio: 1 / 1; background: var(--bg); overflow: hidden; }
-.related-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.5s ease; }
+.related-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.15s ease; }
 .related-img .card-img-placeholder { position: absolute; inset: 0; display: none; }
 .related-brand { color: var(--gold); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 12px 2px; }
 .related-name { font-size: 13px; padding: 0 12px; line-height: 1.3; }
