@@ -19,7 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion } = require('./lib/catalog');
+const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion, brandSlug } = require('./lib/catalog');
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
@@ -98,7 +98,22 @@ async function fetchCatalog() {
     };
   }
 
-  return { allProducts, productDetails };
+  // Brand logos (migration 012). Keyed by the DERIVED slug — brandSlug(name) is
+  // what every /brands/<slug>/ URL is built from, while brands.slug can drift
+  // from the name after a rename, so the derived value is the safe join key.
+  // A pre-012 database errors on the logo column; fall back to no logos rather
+  // than breaking the build, as the sale/meta fetch above does.
+  const brandLogos = new Map();
+  const { data: brandRows, error: bErr } = await sb.from('brands').select('name, logo, updated_at');
+  if (bErr) {
+    console.warn('  ⚠️  brands.logo not found — run migration 012. Building with monograms.');
+  } else {
+    for (const b of brandRows || []) {
+      if (b.logo) brandLogos.set(brandSlug(b.name), { updatedAt: b.updated_at });
+    }
+  }
+
+  return { allProducts, productDetails, brandLogos };
 }
 
 // ─── Generate any MISSING WebP variant from the best available source ────────
@@ -451,7 +466,7 @@ async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
 
   console.log('📥 Fetching catalog from Supabase...');
-  const { allProducts, productDetails } = await fetchCatalog();
+  const { allProducts, productDetails, brandLogos } = await fetchCatalog();
   console.log(`   ${allProducts.length} products`);
 
   console.log('\n🖼️  Optimizing images...');
@@ -476,7 +491,7 @@ async function run() {
   console.log(`   ${posts.length} published posts`);
 
   console.log('\n📄 Generating pages...');
-  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts });
+  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos });
 
   console.log('\n🔖 Cache-busting assets...');
   versionAssets();

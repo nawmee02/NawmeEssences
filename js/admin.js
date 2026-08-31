@@ -26,19 +26,18 @@
   const $ = id => document.getElementById(id);
   const show = (id, on) => { $(id).style.display = on ? '' : 'none'; };
 
-  // Shared switcher for the top-level admin sections (products / site content / blog).
-  // Shows the chosen view and reveals the nav buttons for the OTHER sections.
-  // Used by admin-settings.js and admin-blog.js so the three views never overlap.
+  // Shared switcher for the top-level admin sections
+  // (products / site content / brands / blog). Shows the chosen view and
+  // reveals the nav buttons for the OTHER sections. Used by admin-settings.js,
+  // admin-brands.js and admin-blog.js so the views never overlap.
+  const SECTIONS = ['settings', 'brands', 'blog'];
   window.setAdminView = function (view) {
     show('list-view', view === 'products');
     show('form-view', false);
-    ['settings-view', 'blog-view'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
-    if (view === 'settings') { const e = $('settings-view'); if (e) e.style.display = ''; }
-    if (view === 'blog') { const e = $('blog-view'); if (e) e.style.display = ''; }
+    SECTIONS.forEach(s => { const e = $(s + '-view'); if (e) e.style.display = s === view ? '' : 'none'; });
     const btn = (id, hide) => { const b = $(id); if (b) b.style.display = hide ? 'none' : ''; };
     btn('nav-products', view === 'products');
-    btn('nav-settings', view === 'settings');
-    btn('nav-blog', view === 'blog');
+    SECTIONS.forEach(s => btn('nav-' + s, view === s));
   };
 
   const slugify = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -379,6 +378,11 @@
 
   // ─── Client-side image optimization + upload ───────────────
   async function uploadImages(id, file) {
+    // Resize helpers are shared with the blog + brands tabs (js/admin-image.js).
+    // Resolved here rather than at module load so a stale cached page missing
+    // that script breaks only the upload, not the whole dashboard.
+    const { loadImage, resizeToWebp } = window.AdminImage;
+
     // Replace: delete existing variants first (no stale files)
     const { data: existing } = await sb.storage.from(BUCKET).list(id);
     if (existing?.length) await sb.storage.from(BUCKET).remove(existing.map(f => `${id}/${f.name}`));
@@ -393,22 +397,6 @@
       if (error) throw new Error(`image ${name}: ${error.message}`);
     }
     URL.revokeObjectURL(img.src);
-  }
-
-  function loadImage(file) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.onload = () => res(img); img.onerror = () => rej(new Error('could not read image'));
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  function resizeToWebp(img, targetW, quality) {
-    const scale = Math.min(1, targetW / img.naturalWidth);
-    const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    return new Promise(res => c.toBlob(res, 'image/webp', quality));
   }
 
   initAuth();

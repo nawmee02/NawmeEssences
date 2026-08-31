@@ -558,11 +558,29 @@ function monogram(name) {
   return esc((words.map(w => w[0]).join('').slice(0, 3) || '?').toUpperCase());
 }
 
+// Brand logos live under a brands/ prefix in the same bucket as products —
+// same trick as blog covers. The key is the DERIVED slug (brandSlug(name)),
+// which is also what the page URL uses, so the two can never disagree.
+function brandLogoUrl(g, size) {
+  return publicUrl('brands/' + g.slug, size, imageVersion(g.logo && g.logo.updatedAt));
+}
+
+// The brand's visual mark: an uploaded logo when there is one, otherwise the
+// typographic monogram. `lg` selects the larger brand-page-header variant.
+// The onerror swap means a flag set with the files missing degrades to the
+// monogram in the browser instead of showing a broken image.
+function brandMark(g, lg) {
+  if (!g.logo) return `<span class="brand-monogram${lg ? ' brand-monogram-lg' : ''}" aria-hidden="true">${monogram(g.name)}</span>`;
+  const cls = `brand-logo${lg ? ' brand-logo-lg' : ''}`;
+  const mono = `<span class="brand-monogram${lg ? ' brand-monogram-lg' : ''}" style="display:none" aria-hidden="true">${monogram(g.name)}</span>`;
+  return `<img class="${cls}" src="${attr(brandLogoUrl(g, 'small'))}" alt="${attr(g.name)} logo" loading="lazy" decoding="async" width="46" height="46" onerror="this.style.display='none';this.nextElementSibling.style.display=''">${mono}`;
+}
+
 // Shared brand tile (hub grid + "explore other brands" section).
 function brandTile(g) {
   const n = g.products.length;
   return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
-      <span class="brand-monogram" aria-hidden="true">${monogram(g.name)}</span>
+      ${brandMark(g, false)}
       <span class="brand-tile-name">${esc(g.name)}</span>
       <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
     </a>`;
@@ -633,7 +651,7 @@ ${others.map(brandTile).join('\n')}
     isPartOf: { '@id': `${SITE}/#website` },
     // This hub is the brand's entity home on our domain (our representation of
     // the external brand — not an ownership claim).
-    about: schema.brandNode(slug, name),
+    about: schema.brandNode(slug, name, brand.logo ? brandLogoUrl(brand, 'medium') : null),
     mainEntity: {
       '@type': 'ItemList', numberOfItems: count,
       itemListElement: products.map((p, i) => ({
@@ -695,7 +713,7 @@ ${HEADER}
 
 <div class="section" style="padding-top:20px;">
   <div class="brand-header">
-    <span class="brand-monogram brand-monogram-lg" aria-hidden="true">${monogram(name)}</span>
+    ${brandMark(brand, true)}
     <div>
       <h1 class="brand-h1">${esc(name)} <span>Perfume Decants</span></h1>
       <div class="brand-stats">
@@ -1055,8 +1073,11 @@ function generateFromData(allProducts, productDetails, opts = {}) {
     fs.writeFileSync(path.join(dir, 'index.html'), renderPage(p, allProducts, productDetails));
     written++;
   }
-  // Brand hub pages
+  // Brand hub pages. groupByBrand() only knows the products, so attach any
+  // uploaded logo here — keyed by the same derived slug the URL uses. The
+  // local products.js path passes none, so it renders all monograms.
   const groups = groupByBrand(allProducts);
+  if (opts.brandLogos) for (const g of groups) g.logo = opts.brandLogos.get(g.slug) || null;
   const brandsRoot = path.join(ROOT, 'brands');
   fs.mkdirSync(brandsRoot, { recursive: true });
   fs.writeFileSync(path.join(brandsRoot, 'index.html'), renderBrandsIndex(groups));

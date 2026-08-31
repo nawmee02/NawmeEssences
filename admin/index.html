@@ -31,6 +31,7 @@
     <div class="admin-header-right">
       <button id="nav-products" class="btn-outline btn-sm" style="display:none">← Products</button>
       <button id="nav-settings" class="btn-outline btn-sm">Site content</button>
+      <button id="nav-brands" class="btn-outline btn-sm">Brands</button>
       <button id="nav-blog" class="btn-outline btn-sm">Blog</button>
       <a href="/" target="_blank" class="admin-link">View site ↗</a>
       <span id="build-status" class="admin-build" title="Latest deploy">build: …</span>
@@ -259,6 +260,24 @@
       </form>
     </div>
 
+    <!-- BRANDS -->
+    <div id="brands-view" style="display:none">
+      <div class="admin-toolbar">
+        <h2>Brands <span id="brand-count" class="admin-muted"></span></h2>
+      </div>
+      <p class="admin-muted" style="margin:-6px 0 14px">
+        Upload a logo to replace the initials shown on the brands page. Square or icon-style
+        marks work best — the slot is a circle. Leave a brand alone to keep its monogram.
+        Brands themselves are created automatically when you save a product.
+      </p>
+      <!-- NB: not "brand-list" — that id is taken by the product form's
+           brand-autocomplete <datalist> above. -->
+      <div id="brand-rows"></div>
+      <!-- One shared picker for every row; the clicked row is held in pendingId. -->
+      <input type="file" id="brand-file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+      <p class="admin-muted" style="margin-top:14px">💡 Logos appear on the live site after the next build: GitHub → Actions → “Deploy to GitHub Pages” → <strong>Run workflow</strong> (or wait for the nightly rebuild).</p>
+    </div>
+
     <!-- BLOG -->
     <div id="blog-view" style="display:none">
       <div class="admin-toolbar">
@@ -323,8 +342,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
+<script src="/js/admin-image.js" defer></script>
 <script src="/js/admin.js" defer></script>
 <script src="/js/admin-settings.js" defer></script>
+<script src="/js/admin-brands.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js" defer></script>
 <script src="/js/admin-blog.js" defer></script>
 </body>

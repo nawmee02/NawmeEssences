@@ -467,6 +467,33 @@ input, select { font-family: var(--font-body); }
 }
 .brand-tile:hover .brand-monogram { border-color: var(--gold-dark); }
 
+/* Uploaded brand logo — occupies the SAME circle as the monogram above, so a
+   grid mixing the two stays perfectly aligned and adding a logo never shifts
+   the layout. `contain` + padding letterboxes the mark instead of cropping it;
+   the gradient shows through a transparent PNG. */
+.brand-logo {
+  width: 46px; height: 46px; flex-shrink: 0;
+  object-fit: contain; padding: 5px; box-sizing: border-box;
+  background: linear-gradient(150deg, rgba(201,164,101,0.14), rgba(201,164,101,0.05));
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: border-color var(--transition), background var(--transition);
+}
+.brand-tile:hover .brand-logo { border-color: var(--gold-dark); }
+.brand-logo-lg { width: 64px; height: 64px; padding: 7px; }
+
+/* Admin brands table: same circle, so the dashboard preview matches the site. */
+.admin-brand-logo, .admin-brand-mono {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: linear-gradient(150deg, rgba(201,164,101,0.14), rgba(201,164,101,0.05));
+}
+.admin-brand-logo { object-fit: contain; padding: 5px; box-sizing: border-box; display: block; }
+.admin-brand-mono {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--gold);
+}
+
 /* Brand-page header: monogram + title + stat chips */
 .brand-header { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
 .brand-header .brand-h1 { margin: 0 0 8px; }
@@ -492,6 +519,7 @@ input, select { font-family: var(--font-body); }
 @media (max-width: 480px) {
   .brand-header { gap: 14px; }
   .brand-monogram-lg { width: 52px; height: 52px; font-size: 23px; }
+  .brand-logo-lg { width: 52px; height: 52px; padding: 6px; }
 }
 .card-link { text-decoration: none; color: inherit; display: block; }
 .card-img {
