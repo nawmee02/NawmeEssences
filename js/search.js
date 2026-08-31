@@ -76,7 +76,7 @@
     loaded = true;
     if (!hasSupabase()) return;
     try {
-      const sb = getSupabaseClient();
+      const sb = await getSupabaseClientAsync();
       const { data } = await sb.from('fragrances')
         .select('id, name, updated_at, brands(name)')
         .eq('status', 'published')

@@ -10,4 +10,11 @@ function handleAdd(id, isExclusive) {
   addToCart(id, pill.dataset.ml, pill.dataset.price, name, card.dataset.brand, isExclusive, sizes);
 }
 
-if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
+// Scheduled after paint — this is what pulls in supabase-js, so it must not
+// compete with the LCP image. requestIdleCallback is an enhancement only, with
+// a timeout so reconciliation can't be starved on a busy browser.
+window.addEventListener('load', () => {
+  const hydrate = () => { if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards(); };
+  if ('requestIdleCallback' in window) requestIdleCallback(hydrate, { timeout: 1500 });
+  else setTimeout(hydrate, 0);
+});

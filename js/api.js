@@ -48,7 +48,7 @@ const ProductAPI = (() => {
 
   async function _load() {
     if (_cache) return _cache;
-    const sb = getSupabaseClient();
+    const sb = await getSupabaseClientAsync();
     const q = cols => sb.from('fragrances').select(`${cols}, ${LIST_REL}`).eq('status', 'published').order('sort_order');
     let { data, error } = await q(`${LIST_BASE}, sale_percent`);
     if (error) ({ data, error } = await q(LIST_BASE));
@@ -59,7 +59,7 @@ const ProductAPI = (() => {
 
   // ─── Detail shape (product page): full image set + notes ─────
   async function getProduct(id) {
-    const sb = getSupabaseClient();
+    const sb = await getSupabaseClientAsync();
     const rel = 'brands ( name ), fragrance_sizes ( ml, price ), fragrance_tags ( tag ), fragrance_details ( top_notes, heart_notes, base_notes, accords, family, description )';
     const base = 'id, name, collection, in_stock, updated_at';
     const q = cols => sb.from('fragrances').select(`${cols}, ${rel}`).eq('id', id).maybeSingle();

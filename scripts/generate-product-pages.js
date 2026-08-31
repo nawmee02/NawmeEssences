@@ -262,8 +262,10 @@ const FOOTER = `<footer class="site-footer">
   </div>
 </footer>`;
 
-const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="/js/cart.js" defer></script>
+// No eager supabase-js tag: everything on these pages is baked at build time,
+// so the SDK is fetched on demand by js/supabase.js (stock hydration after load,
+// or a checkout click) rather than competing with the LCP image.
+const SCRIPTS = `<script src="/js/cart.js" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
@@ -375,6 +377,7 @@ function renderPage(p, all, detailsMap) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -608,7 +611,14 @@ const BRAND_INLINE = `<script>
       cards.forEach(function (c) { grid.appendChild(c); });
     };
   })();
-  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
+  // After paint: this is what pulls in supabase-js, so keep it off the LCP path.
+  // requestIdleCallback is an enhancement only, with a timeout so reconciliation
+  // can't be starved on a busy browser.
+  window.addEventListener('load', function () {
+    var hydrate = function () { if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards(); };
+    if ('requestIdleCallback' in window) requestIdleCallback(hydrate, { timeout: 1500 });
+    else setTimeout(hydrate, 0);
+  });
 </script>`;
 
 function renderBrandPage(brand, detailsMap, groups = []) {
@@ -693,6 +703,7 @@ ${others.map(brandTile).join('\n')}
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -797,6 +808,7 @@ function renderBrandsIndex(groups) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -904,6 +916,7 @@ function renderBlogIndex(posts) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -990,6 +1003,7 @@ function renderBlogPost(post) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
