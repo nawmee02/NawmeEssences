@@ -125,6 +125,18 @@
           <label>Accords<input type="text" id="f-accords" placeholder="Woody, Fresh, Spicy" /></label>
         </fieldset>
 
+        <fieldset class="admin-fieldset">
+          <legend>Occasions</legend>
+          <div class="admin-checks">
+            <label class="admin-check"><input type="checkbox" class="f-occ" value="Office" /> Office</label>
+            <label class="admin-check"><input type="checkbox" class="f-occ" value="Gym / Sport" /> Gym / Sport</label>
+            <label class="admin-check"><input type="checkbox" class="f-occ" value="Date Night" /> Date Night</label>
+            <label class="admin-check"><input type="checkbox" class="f-occ" value="Party" /> Party</label>
+            <label class="admin-check"><input type="checkbox" class="f-occ" value="Everyday" /> Everyday</label>
+          </div>
+          <label>Custom<input type="text" id="f-occasions" placeholder="Winter, Wedding, Travel" /><small class="admin-muted">Comma-separated extras, added after the ticked ones. Leave the whole section blank to auto-infer from the accords.</small></label>
+        </fieldset>
+
         <label>Description<textarea id="f-description" rows="4" placeholder="Optional — falls back to an auto blurb if empty"></textarea></label>
 
         <fieldset class="admin-fieldset">

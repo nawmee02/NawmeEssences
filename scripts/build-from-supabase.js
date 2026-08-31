@@ -94,6 +94,7 @@ async function fetchCatalog() {
       accords:     d.accords || [],
       family:      d.family || '',
       description: d.description || '',
+      occasions:   d.occasions || [],
     };
   }
 

@@ -45,6 +45,15 @@ function occasionsFor(accords) {
   return [...set].slice(0, 4);
 }
 
+// Admin-set occasions (fragrance_details.occasions) win outright and are NOT
+// capped — an explicit editorial pick renders in full. Empty falls back to the
+// inference above, which stays capped at 4.
+function occasionsOf(d) {
+  const manual = (d && Array.isArray(d.occasions) ? d.occasions : [])
+    .map(o => String(o).trim()).filter(Boolean);
+  return manual.length ? manual : occasionsFor(d ? d.accords : []);
+}
+
 // ─── Image helpers ───────────────────────────────────────────
 // hasImage(id) decides whether optimized WebP exists (in Storage). The local
 // products.js path uses on-disk generated files; the Supabase build passes a
@@ -117,8 +126,8 @@ function tagBadges(tags) {
   return tags.map(t => `<span class="tag tag-${esc(t)}">${esc(label(t))}</span>`).join('');
 }
 
-function occasionChips(accords) {
-  return occasionsFor(accords).map(o => `<span class="occasion-chip">${esc(o)}</span>`).join('');
+function occasionChips(d) {
+  return occasionsOf(d).map(o => `<span class="occasion-chip">${esc(o)}</span>`).join('');
 }
 
 function sizePills(p) {
@@ -403,7 +412,7 @@ ${HEADER}
   <div class="pd-info">
     <div class="pd-brand"><a href="/brands/${attr(bSlug)}/">${esc(p.brand)}</a></div>
     <h1 class="pd-name">${esc(p.name)}</h1>
-    <div class="pd-occasions">${occasionChips(d ? d.accords : [])}</div>
+    <div class="pd-occasions">${occasionChips(d)}</div>
 
     <div class="pd-buy">
       <div class="pd-stock ${oos ? 'oos' : 'in'}" id="pd-stock"><span class="pd-stock-dot"></span>${oos ? 'Out of Stock' : 'In Stock'}</div>

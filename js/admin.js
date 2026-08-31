@@ -235,8 +235,8 @@
 
     // reset
     $('sizes-rows').innerHTML = '';
-    document.querySelectorAll('.f-tag').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
+    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -263,6 +263,7 @@
       $('f-heart').value = (d.heart_notes||[]).join(', ');
       $('f-base').value = (d.base_notes||[]).join(', ');
       $('f-accords').value = (d.accords||[]).join(', ');
+      setOccasions(d.occasions || []);
       $('f-family').value = d.family || '';
       $('f-description').value = d.description || '';
     }
@@ -271,6 +272,34 @@
   }
 
   function showList() { show('form-view', false); show('list-view', true); }
+
+  // ─── Occasions: standard checkboxes + free-text extras ─────
+  // Stored as one flat array. Anything matching a checkbox (case-insensitively)
+  // ticks it; everything else lands in the custom box, so hand-written values
+  // from before this UI — and any typed later — survive a round trip.
+  function setOccasions(list) {
+    const occ = (Array.isArray(list) ? list : []).map(o => String(o).trim()).filter(Boolean);
+    const ticked = new Set();
+    document.querySelectorAll('.f-occ').forEach(c => {
+      const hit = occ.some(o => o.toLowerCase() === c.value.toLowerCase());
+      c.checked = hit;
+      if (hit) ticked.add(c.value.toLowerCase());
+    });
+    $('f-occasions').value = occ.filter(o => !ticked.has(o.toLowerCase())).join(', ');
+  }
+
+  // Ticked boxes first (in the order listed), then custom extras. Deduped
+  // case-insensitively so ticking Office AND typing "office" yields one chip.
+  function getOccasions() {
+    const picked = [...document.querySelectorAll('.f-occ:checked')].map(c => c.value);
+    const seen = new Set(picked.map(o => o.toLowerCase()));
+    const extra = csv($('f-occasions').value).filter(o => {
+      const k = o.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+    return [...picked, ...extra];
+  }
 
   function collectForm() {
     const id = slugify($('f-id').value || $('f-name').value);
@@ -288,7 +317,8 @@
       sizes, tags,
       details: {
         top: csv($('f-top').value), heart: csv($('f-heart').value), base: csv($('f-base').value),
-        accords: csv($('f-accords').value), family: $('f-family').value.trim(), description: $('f-description').value.trim(),
+        accords: csv($('f-accords').value), occasions: getOccasions(),
+        family: $('f-family').value.trim(), description: $('f-description').value.trim(),
       },
     };
   }
