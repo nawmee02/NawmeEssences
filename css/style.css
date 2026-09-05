@@ -1414,6 +1414,17 @@ input, select { font-family: var(--font-body); }
 .pd-price { font-family: var(--font-head); font-size: 30px; font-weight: 600; color: var(--gold-light); }
 .pd-price-row .add-to-cart-btn { flex: 0 0 auto; width: auto; min-width: 180px; padding: 12px 32px; font-size: 14px; }
 
+.pd-desc a {
+  color: var(--gold);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pd-desc a:hover {
+  color: var(--gold-dark);
+}
+
 .pd-desc { color: var(--text-muted); line-height: 1.7; margin: 0 0 28px; }
 
 .pd-notes h2, .pd-related h2 {
