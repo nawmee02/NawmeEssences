@@ -166,21 +166,11 @@
   }
 
   // ─── Cover image: optimize in-browser + upload (like products) ──
-  function loadImage(file) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.onload = () => res(img); img.onerror = () => rej(new Error('could not read image'));
-      img.src = URL.createObjectURL(file);
-    });
-  }
-  function resizeToWebp(img, targetW, q) {
-    const scale = Math.min(1, targetW / img.naturalWidth);
-    const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    return new Promise(r => c.toBlob(r, 'image/webp', q));
-  }
   async function uploadCover(id, file) {
+    // Shared with the product + brands tabs (js/admin-image.js); resolved here
+    // rather than at module load so a stale cached page breaks only the upload.
+    const { loadImage, resizeToWebp } = window.AdminImage;
+
     const { data: existing } = await sb.storage.from(BUCKET).list('blog/' + id);
     if (existing && existing.length) await sb.storage.from(BUCKET).remove(existing.map(f => `blog/${id}/${f.name}`));
     const img = await loadImage(file);

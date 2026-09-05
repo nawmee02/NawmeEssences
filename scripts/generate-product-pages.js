@@ -45,6 +45,15 @@ function occasionsFor(accords) {
   return [...set].slice(0, 4);
 }
 
+// Admin-set occasions (fragrance_details.occasions) win outright and are NOT
+// capped — an explicit editorial pick renders in full. Empty falls back to the
+// inference above, which stays capped at 4.
+function occasionsOf(d) {
+  const manual = (d && Array.isArray(d.occasions) ? d.occasions : [])
+    .map(o => String(o).trim()).filter(Boolean);
+  return manual.length ? manual : occasionsFor(d ? d.accords : []);
+}
+
 // ─── Image helpers ───────────────────────────────────────────
 // hasImage(id) decides whether optimized WebP exists (in Storage). The local
 // products.js path uses on-disk generated files; the Supabase build passes a
@@ -133,8 +142,8 @@ function tagBadges(tags) {
   return tags.map(t => `<span class="tag tag-${esc(t)}">${esc(label(t))}</span>`).join('');
 }
 
-function occasionChips(accords) {
-  return occasionsFor(accords).map(o => `<span class="occasion-chip">${esc(o)}</span>`).join('');
+function occasionChips(d) {
+  return occasionsOf(d).map(o => `<span class="occasion-chip">${esc(o)}</span>`).join('');
 }
 
 function sizePills(p) {
@@ -269,8 +278,10 @@ const FOOTER = `<footer class="site-footer">
   </div>
 </footer>`;
 
-const SCRIPTS = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="/js/cart.js" defer></script>
+// No eager supabase-js tag: everything on these pages is baked at build time,
+// so the SDK is fetched on demand by js/supabase.js (stock hydration after load,
+// or a checkout click) rather than competing with the LCP image.
+const SCRIPTS = `<script src="/js/cart.js" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
@@ -382,6 +393,7 @@ function renderPage(p, all, detailsMap) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -419,7 +431,7 @@ ${HEADER}
   <div class="pd-info">
     <div class="pd-brand"><a href="/brands/${attr(bSlug)}/">${esc(p.brand)}</a></div>
     <h1 class="pd-name">${esc(p.name)}</h1>
-    <div class="pd-occasions">${occasionChips(d ? d.accords : [])}</div>
+    <div class="pd-occasions">${occasionChips(d)}</div>
 
     <div class="pd-buy">
       <div class="pd-stock ${oos ? 'oos' : 'in'}" id="pd-stock"><span class="pd-stock-dot"></span>${oos ? 'Out of Stock' : 'In Stock'}</div>
@@ -565,11 +577,29 @@ function monogram(name) {
   return esc((words.map(w => w[0]).join('').slice(0, 3) || '?').toUpperCase());
 }
 
+// Brand logos live under a brands/ prefix in the same bucket as products —
+// same trick as blog covers. The key is the DERIVED slug (brandSlug(name)),
+// which is also what the page URL uses, so the two can never disagree.
+function brandLogoUrl(g, size) {
+  return publicUrl('brands/' + g.slug, size, imageVersion(g.logo && g.logo.updatedAt));
+}
+
+// The brand's visual mark: an uploaded logo when there is one, otherwise the
+// typographic monogram. `lg` selects the larger brand-page-header variant.
+// The onerror swap means a flag set with the files missing degrades to the
+// monogram in the browser instead of showing a broken image.
+function brandMark(g, lg) {
+  if (!g.logo) return `<span class="brand-monogram${lg ? ' brand-monogram-lg' : ''}" aria-hidden="true">${monogram(g.name)}</span>`;
+  const cls = `brand-logo${lg ? ' brand-logo-lg' : ''}`;
+  const mono = `<span class="brand-monogram${lg ? ' brand-monogram-lg' : ''}" style="display:none" aria-hidden="true">${monogram(g.name)}</span>`;
+  return `<img class="${cls}" src="${attr(brandLogoUrl(g, 'small'))}" alt="${attr(g.name)} logo" loading="lazy" decoding="async" width="46" height="46" onerror="this.style.display='none';this.nextElementSibling.style.display=''">${mono}`;
+}
+
 // Shared brand tile (hub grid + "explore other brands" section).
 function brandTile(g) {
   const n = g.products.length;
   return `    <a class="brand-tile" href="/brands/${attr(g.slug)}/">
-      <span class="brand-monogram" aria-hidden="true">${monogram(g.name)}</span>
+      ${brandMark(g, false)}
       <span class="brand-tile-name">${esc(g.name)}</span>
       <span class="brand-tile-count">${n} decant${n !== 1 ? 's' : ''}</span>
     </a>`;
@@ -597,7 +627,14 @@ const BRAND_INLINE = `<script>
       cards.forEach(function (c) { grid.appendChild(c); });
     };
   })();
-  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards();
+  // After paint: this is what pulls in supabase-js, so keep it off the LCP path.
+  // requestIdleCallback is an enhancement only, with a timeout so reconciliation
+  // can't be starved on a busy browser.
+  window.addEventListener('load', function () {
+    var hydrate = function () { if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards(); };
+    if ('requestIdleCallback' in window) requestIdleCallback(hydrate, { timeout: 1500 });
+    else setTimeout(hydrate, 0);
+  });
 </script>`;
 
 function renderBrandPage(brand, detailsMap, groups = []) {
@@ -640,7 +677,7 @@ ${others.map(brandTile).join('\n')}
     isPartOf: { '@id': `${SITE}/#website` },
     // This hub is the brand's entity home on our domain (our representation of
     // the external brand — not an ownership claim).
-    about: schema.brandNode(slug, name),
+    about: schema.brandNode(slug, name, brand.logo ? brandLogoUrl(brand, 'medium') : null),
     mainEntity: {
       '@type': 'ItemList', numberOfItems: count,
       itemListElement: products.map((p, i) => ({
@@ -682,6 +719,7 @@ ${others.map(brandTile).join('\n')}
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -702,7 +740,7 @@ ${HEADER}
 
 <div class="section" style="padding-top:20px;">
   <div class="brand-header">
-    <span class="brand-monogram brand-monogram-lg" aria-hidden="true">${monogram(name)}</span>
+    ${brandMark(brand, true)}
     <div>
       <h1 class="brand-h1">${esc(name)} <span>Perfume Decants</span></h1>
       <div class="brand-stats">
@@ -786,6 +824,7 @@ function renderBrandsIndex(groups) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -893,6 +932,7 @@ function renderBlogIndex(posts) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -979,6 +1019,7 @@ function renderBlogPost(post) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -1062,8 +1103,11 @@ function generateFromData(allProducts, productDetails, opts = {}) {
     fs.writeFileSync(path.join(dir, 'index.html'), renderPage(p, allProducts, productDetails));
     written++;
   }
-  // Brand hub pages
+  // Brand hub pages. groupByBrand() only knows the products, so attach any
+  // uploaded logo here — keyed by the same derived slug the URL uses. The
+  // local products.js path passes none, so it renders all monograms.
   const groups = groupByBrand(allProducts);
+  if (opts.brandLogos) for (const g of groups) g.logo = opts.brandLogos.get(g.slug) || null;
   const brandsRoot = path.join(ROOT, 'brands');
   fs.mkdirSync(brandsRoot, { recursive: true });
   fs.writeFileSync(path.join(brandsRoot, 'index.html'), renderBrandsIndex(groups));

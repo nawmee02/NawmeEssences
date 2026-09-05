@@ -26,19 +26,18 @@
   const $ = id => document.getElementById(id);
   const show = (id, on) => { $(id).style.display = on ? '' : 'none'; };
 
-  // Shared switcher for the top-level admin sections (products / site content / blog).
-  // Shows the chosen view and reveals the nav buttons for the OTHER sections.
-  // Used by admin-settings.js and admin-blog.js so the three views never overlap.
+  // Shared switcher for the top-level admin sections
+  // (products / site content / brands / blog). Shows the chosen view and
+  // reveals the nav buttons for the OTHER sections. Used by admin-settings.js,
+  // admin-brands.js and admin-blog.js so the views never overlap.
+  const SECTIONS = ['settings', 'brands', 'blog'];
   window.setAdminView = function (view) {
     show('list-view', view === 'products');
     show('form-view', false);
-    ['settings-view', 'blog-view'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
-    if (view === 'settings') { const e = $('settings-view'); if (e) e.style.display = ''; }
-    if (view === 'blog') { const e = $('blog-view'); if (e) e.style.display = ''; }
+    SECTIONS.forEach(s => { const e = $(s + '-view'); if (e) e.style.display = s === view ? '' : 'none'; });
     const btn = (id, hide) => { const b = $(id); if (b) b.style.display = hide ? 'none' : ''; };
     btn('nav-products', view === 'products');
-    btn('nav-settings', view === 'settings');
-    btn('nav-blog', view === 'blog');
+    SECTIONS.forEach(s => btn('nav-' + s, view === s));
   };
 
   const slugify = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -235,8 +234,8 @@
 
     // reset
     $('sizes-rows').innerHTML = '';
-    document.querySelectorAll('.f-tag').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
+    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -257,12 +256,18 @@
     (data.fragrance_sizes || []).sort((a,b)=>a.ml-b.ml).forEach(s => addSizeRow(s.ml, s.price));
     if (!data.fragrance_sizes?.length) addSizeRow();
     (data.fragrance_tags || []).forEach(t => { const c=document.querySelector(`.f-tag[value="${t.tag}"]`); if (c) c.checked = true; });
-    const d = data.fragrance_details?.[0];
+    // fragrance_id is fragrance_details' PRIMARY KEY *and* its FK, so PostgREST
+    // treats the embed as to-ONE and returns an object — not the array this used
+    // to assume. Reading [0] off it yielded undefined, the form loaded blank, and
+    // the save then overwrote every detail column with empties. Accept both shapes.
+    const fd = data.fragrance_details;
+    const d = Array.isArray(fd) ? fd[0] : fd;
     if (d) {
       $('f-top').value = (d.top_notes||[]).join(', ');
       $('f-heart').value = (d.heart_notes||[]).join(', ');
       $('f-base').value = (d.base_notes||[]).join(', ');
       $('f-accords').value = (d.accords||[]).join(', ');
+      setOccasions(d.occasions || []);
       $('f-family').value = d.family || '';
       $('f-description').value = d.description || '';
     }
@@ -271,6 +276,34 @@
   }
 
   function showList() { show('form-view', false); show('list-view', true); }
+
+  // ─── Occasions: standard checkboxes + free-text extras ─────
+  // Stored as one flat array. Anything matching a checkbox (case-insensitively)
+  // ticks it; everything else lands in the custom box, so hand-written values
+  // from before this UI — and any typed later — survive a round trip.
+  function setOccasions(list) {
+    const occ = (Array.isArray(list) ? list : []).map(o => String(o).trim()).filter(Boolean);
+    const ticked = new Set();
+    document.querySelectorAll('.f-occ').forEach(c => {
+      const hit = occ.some(o => o.toLowerCase() === c.value.toLowerCase());
+      c.checked = hit;
+      if (hit) ticked.add(c.value.toLowerCase());
+    });
+    $('f-occasions').value = occ.filter(o => !ticked.has(o.toLowerCase())).join(', ');
+  }
+
+  // Ticked boxes first (in the order listed), then custom extras. Deduped
+  // case-insensitively so ticking Office AND typing "office" yields one chip.
+  function getOccasions() {
+    const picked = [...document.querySelectorAll('.f-occ:checked')].map(c => c.value);
+    const seen = new Set(picked.map(o => o.toLowerCase()));
+    const extra = csv($('f-occasions').value).filter(o => {
+      const k = o.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+    return [...picked, ...extra];
+  }
 
   function collectForm() {
     const id = slugify($('f-id').value || $('f-name').value);
@@ -288,7 +321,8 @@
       sizes, tags,
       details: {
         top: csv($('f-top').value), heart: csv($('f-heart').value), base: csv($('f-base').value),
-        accords: csv($('f-accords').value), family: $('f-family').value.trim(), description: $('f-description').value.trim(),
+        accords: csv($('f-accords').value), occasions: getOccasions(),
+        family: $('f-family').value.trim(), description: $('f-description').value.trim(),
       },
     };
   }
@@ -344,6 +378,11 @@
 
   // ─── Client-side image optimization + upload ───────────────
   async function uploadImages(id, file) {
+    // Resize helpers are shared with the blog + brands tabs (js/admin-image.js).
+    // Resolved here rather than at module load so a stale cached page missing
+    // that script breaks only the upload, not the whole dashboard.
+    const { loadImage, resizeToWebp } = window.AdminImage;
+
     // Replace: delete existing variants first (no stale files)
     const { data: existing } = await sb.storage.from(BUCKET).list(id);
     if (existing?.length) await sb.storage.from(BUCKET).remove(existing.map(f => `${id}/${f.name}`));
@@ -358,22 +397,6 @@
       if (error) throw new Error(`image ${name}: ${error.message}`);
     }
     URL.revokeObjectURL(img.src);
-  }
-
-  function loadImage(file) {
-    return new Promise((res, rej) => {
-      const img = new Image();
-      img.onload = () => res(img); img.onerror = () => rej(new Error('could not read image'));
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  function resizeToWebp(img, targetW, quality) {
-    const scale = Math.min(1, targetW / img.naturalWidth);
-    const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    return new Promise(res => c.toBlob(res, 'image/webp', quality));
   }
 
   initAuth();

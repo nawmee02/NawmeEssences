@@ -119,8 +119,17 @@ function init() {
   if (q) document.getElementById('search-input').value = q;
 
   applyFilters();
-  // Deferred: refresh live stock on the server-rendered cards, then re-filter.
-  if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards().then(c => { if (c) applyFilters(); });
+  // Refresh live stock on the server-rendered cards, then re-filter. Scheduled
+  // after paint because this is what pulls in supabase-js — it must not compete
+  // with the LCP image. requestIdleCallback is an enhancement only, with a
+  // timeout so reconciliation can't be starved on a busy browser.
+  const hydrate = () => {
+    if (typeof ProductAPI !== 'undefined') ProductAPI.hydrateCards().then(c => { if (c) applyFilters(); });
+  };
+  window.addEventListener('load', () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(hydrate, { timeout: 1500 });
+    else setTimeout(hydrate, 0);
+  });
 }
 
 // Listeners (elements exist in the static HTML; checkbox changes bubble to the containers)

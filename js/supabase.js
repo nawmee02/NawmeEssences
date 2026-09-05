@@ -36,13 +36,57 @@ const SUPABASE_ANON_KEY = (typeof __SUPABASE_ANON_KEY__ !== 'undefined') ? __SUP
 const NOTIFY_WEBHOOK_URL = (typeof __NOTIFY_WEBHOOK_URL__ !== 'undefined') ? __NOTIFY_WEBHOOK_URL__ :
   (typeof window !== 'undefined' && window.__NOTIFY_WEBHOOK_URL__) ? window.__NOTIFY_WEBHOOK_URL__ : '';
 
-// Initialise client (SDK loaded via CDN in HTML files)
+// Initialise client. SYNCHRONOUS — assumes the SDK global is already present.
+// admin/index.html still loads supabase-js with an eager <script>, and every
+// admin module calls this directly; that path is deliberately unchanged.
+// Public pages have no eager tag and must use getSupabaseClientAsync() below.
 let _sb = null;
 function getSupabaseClient() {
   if (!_sb) {
     _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
   return _sb;
+}
+
+// ─── Lazy SDK loading (public pages) ─────────────────────────
+// Product cards, prices, filters and stock badges are all baked into the HTML
+// at build time, so nothing before first paint needs the SDK. Shipping it as an
+// eager <script> meant every visitor downloaded ~54KB (gzipped) that only stock
+// hydration and checkout ever use, competing with the LCP image. It is now
+// fetched on first real use instead.
+//
+// Pinned to an EXACT version — not @2, not ^2.x — so the bytes behind a long
+// CDN cache are reproducible. Keep in step with package.json.
+const SUPABASE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2';
+
+const _sdkReady = () => typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function';
+let _sdkPromise = null;
+
+function loadSupabaseSdk() {
+  if (_sdkReady()) return Promise.resolve();          // already there (e.g. admin)
+  if (_sdkPromise) return _sdkPromise;                // in flight — share it
+  _sdkPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = SUPABASE_SDK_URL;
+    s.async = true;
+    // A 200 that didn't define the global is still a failure. Verify rather
+    // than resolving into an "undefined is not a function" further downstream.
+    s.onload = () => _sdkReady() ? resolve() : reject(new Error('supabase-js loaded but window.supabase is missing'));
+    s.onerror = () => reject(new Error('supabase-js failed to load'));
+    document.head.appendChild(s);
+  }).catch(err => {
+    // Drop the memo so a later call retries. Caching the rejection would break
+    // checkout permanently after a single flaky moment.
+    _sdkPromise = null;
+    throw err;
+  });
+  return _sdkPromise;
+}
+
+// Async counterpart to getSupabaseClient() — loads the SDK first if needed.
+async function getSupabaseClientAsync() {
+  await loadSupabaseSdk();
+  return getSupabaseClient();
 }
 
 // Generate a valid UUID v4 for the order id.
@@ -103,7 +147,10 @@ async function saveOrderToSupabase({
   }
 
   try {
-    const sb = getSupabaseClient();
+    // Loads the SDK on demand (checkout click). Inside the existing try/catch,
+    // so a CDN failure degrades exactly as an unreachable Supabase already did:
+    // the order isn't recorded, but the WhatsApp/Messenger checkout completes.
+    const sb = await getSupabaseClientAsync();
     const orderId = generateUUID();
 
     // 1. Insert order header

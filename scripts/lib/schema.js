@@ -140,13 +140,18 @@ function brandId(slug) { return `${SITE}/brands/${slug}/#brand`; }
 
 // A Brand node: our representation of / page about an external brand — NOT an
 // ownership claim. `sameAs` only when verifiably known (BRAND_SAMEAS).
-function brandNode(slug, name) {
+// `logo` is the uploaded brand image when there is one. NOTE: verify-schema.js
+// treats `logo` as an identity field, so every page declaring this @id must
+// agree on it — which holds because the node is declared on the brand hub page
+// only; everywhere else references the @id.
+function brandNode(slug, name, logo) {
   const node = {
     '@type': 'Brand',
     '@id': brandId(slug),
     name,
     url: `${SITE}/brands/${slug}/`,
   };
+  if (logo) node.logo = logo;
   const same = BRAND_SAMEAS[slug];
   if (Array.isArray(same) && same.length) node.sameAs = same;
   return node;
