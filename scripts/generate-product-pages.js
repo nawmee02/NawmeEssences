@@ -424,7 +424,7 @@ ${HEADER}
            fetchpriority="high" decoding="async" onclick="openLightbox()" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="card-img-placeholder pd-placeholder">🫧</div>
       <div class="tag-badges">${sp > 0 ? `<span class="tag tag-sale">−${sp}%</span>` : ''}${tagBadges(p.tags)}</div>
-      ${oos ? '<div class="oos-badge" id="stock-badge"><span>Out of Stock</span></div>' : '<div class="oos-badge" id="stock-badge" style="display:none"><span>Out of Stock</span></div>'}
+      ${oos ? '<div class="oos-badge" id="stock-badge"><span>Out of Stock</span></div>' : ''}
     </div>
   </div>
 
@@ -517,16 +517,24 @@ ${SCRIPTS}
       }
 
       const addBtn = document.getElementById('add-btn');
-      const badge = document.getElementById('stock-badge');
       const stock = document.getElementById('pd-stock');
       if (p.inStock === false) {
         addBtn.disabled = true; addBtn.textContent = 'Out of Stock';
+        let badge = document.getElementById('stock-badge');
+        if (!badge) {
+          badge = document.createElement('div');
+          badge.id = 'stock-badge';
+          badge.className = 'oos-badge';
+          badge.innerHTML = '<span>Out of Stock</span>';
+          document.querySelector('.pd-image')?.appendChild(badge);
+        }
         if (badge) badge.style.display = '';
         if (stock) { stock.className = 'pd-stock oos'; stock.innerHTML = '<span class="pd-stock-dot"></span>Out of Stock'; }
       } else {
         addBtn.disabled = false;
         if (addBtn.textContent === 'Out of Stock') addBtn.textContent = 'Add to Cart';
-        if (badge) badge.style.display = 'none';
+        const badge = document.getElementById('stock-badge');
+        if (badge) badge.remove();
         if (stock) { stock.className = 'pd-stock in'; stock.innerHTML = '<span class="pd-stock-dot"></span>In Stock'; }
       }
       // Re-price the size pills + badge from live data (incl. any sale %), so a
