@@ -17,7 +17,7 @@ const { renderMarkdown } = require('./lib/blog');
 const schema = require('./lib/schema');
 
 const SITE = 'https://nawmeessences.com';
-const DEFAULT_OG = `${SITE}/images/products/rasasi-hawas-ice.jpg`;
+const DEFAULT_OG = `${SITE}/images/logo.png`;
 
 // ─── HTML escaping ───────────────────────────────────────────
 function esc(s) {
@@ -59,6 +59,22 @@ function heroMedium(id, v) { return hasImage(id) ? publicUrl(id, 'medium', v) : 
 function ogImage(id, v)    { return hasImage(id) ? publicUrl(id, 'large',  v) : DEFAULT_OG; }
 
 // ─── Copy builders ───────────────────────────────────────────
+// Render plain-text descriptions while allowing safe same-site Markdown links.
+function renderProductDescription(text) {
+  const escaped = esc(String(text || ''));
+
+  return escaped.replace(
+    /\[([^\]]+)\]\((\/[^)\s]*)\)/g,
+    (_, label, href) => {
+      if (!href.startsWith('/') || href.startsWith('//')) {
+        return `[${label}](${href})`;
+      }
+
+      return `<a href="${href}">${label}</a>`;
+    }
+  );
+}
+
 function sizeList(sizes) { return sizes.map(s => `${s.ml}ml`).join(', '); }
 function minPrice(sizes) { return Math.min(...sizes.map(s => s.price)); }
 function maxPrice(sizes) { return Math.max(...sizes.map(s => s.price)); }
@@ -417,7 +433,7 @@ ${HEADER}
       </div>
     </div>
 
-    <p class="pd-desc">${esc(desc)}</p>
+    <div class="pd-desc">${renderProductDescription(desc)}</div>
     ${notesBlock(d)}
   </div>
 </div>
