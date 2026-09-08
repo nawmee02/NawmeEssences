@@ -32,7 +32,10 @@
     // Plain text nodes
     document.querySelectorAll('[data-setting]').forEach(el => {
       const v = get(s, el.getAttribute('data-setting'));
-      if (v != null && typeof v !== 'object') el.textContent = String(v);
+      if (v != null && typeof v !== 'object') {
+        const text = String(v);
+        if (el.textContent !== text) el.textContent = text;
+      }
     });
 
     // Links (href). WhatsApp stores a bare number → wa.me URL.
