@@ -1,6 +1,17 @@
 const ProductAPI = (() => {
   let _cache = null;
 
+  async function restGet(path) {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!response.ok) throw new Error(`Supabase REST request failed: ${response.status}`);
+    return response.json();
+  }
+
   // Image URLs are derived deterministically from the product id, so a product
   // added in Supabase Studio needs no image_* columns — just the WebP files in
   // Storage at product-images/{id}/{size}.webp.
@@ -29,6 +40,7 @@ const ProductAPI = (() => {
       name:          row.name,
       brand:         row.brands?.name ?? '',
       collection:    row.collection,
+      updatedAt:     row.updated_at,
       salePercent:   row.sale_percent || 0,
       sizes:         (row.fragrance_sizes || [])
                        .map(s => ({ ml: s.ml, price: s.price }))
@@ -48,11 +60,16 @@ const ProductAPI = (() => {
 
   async function _load() {
     if (_cache) return _cache;
-    const sb = await getSupabaseClientAsync();
-    const q = cols => sb.from('fragrances').select(`${cols}, ${LIST_REL}`).eq('status', 'published').order('sort_order');
-    let { data, error } = await q(`${LIST_BASE}, sale_percent`);
-    if (error) ({ data, error } = await q(LIST_BASE));
-    if (error) throw error;
+    const query = params => restGet(`fragrances?${params}`);
+    const baseParams = `status=eq.published&order=sort_order`;
+    let data;
+    try {
+      const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}, sale_percent`);
+      data = await query(`select=${select}&${baseParams}`);
+    } catch {
+      const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}`);
+      data = await query(`select=${select}&${baseParams}`);
+    }
     _cache = data.map(_normList);
     return _cache;
   }

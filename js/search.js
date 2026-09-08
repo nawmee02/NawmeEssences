@@ -10,7 +10,6 @@
   let loaded = false;
 
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const hasSupabase = () => typeof getSupabaseClient === 'function';
 
   // ─── Inject header button + overlay ────────────────────────
   function inject() {
@@ -74,14 +73,12 @@
   async function ensureCatalog() {
     if (loaded) return;
     loaded = true;
-    if (!hasSupabase()) return;
+    if (typeof ProductAPI === 'undefined') return;
     try {
-      const sb = await getSupabaseClientAsync();
-      const { data } = await sb.from('fragrances')
-        .select('id, name, updated_at, brands(name)')
-        .eq('status', 'published')
-        .order('name');
-      catalog = (data || []).map(r => ({ id: r.id, name: r.name, brand: r.brands?.name || '', v: verToken(r.updated_at) }));
+      const products = await ProductAPI.getAll();
+      catalog = products
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(p => ({ id: p.id, name: p.name, brand: p.brand, v: verToken(p.updatedAt) }));
     } catch { catalog = null; }
   }
 
