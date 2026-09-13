@@ -457,7 +457,7 @@
     // Auto-copy then open Messenger
     navigator.clipboard.writeText(text)
       .then(() => {
-        showToast('✅ Message copied! Messenger opens in 3 seconds...');
+        showToast('✅Copied! Paste in Messenger. Opening in 3 sec…');
         setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
       })
       .catch(() => {
