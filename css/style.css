@@ -864,6 +864,8 @@ input, select { font-family: var(--font-body); }
   }
   .shop-exclusive-heading,
   .shop-exclusive-details { grid-column: 1; }
+  .shop-exclusive-heading,
+  .shop-exclusive-details { align-items: center; text-align: center; }
   .shop-exclusive-heading { gap: 6px; }
   .shop-exclusive-details { gap: 10px; }
   .shop-exclusive-link { padding: 6px 0; }
