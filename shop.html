@@ -136,14 +136,16 @@
 
       <div class="filter-group">
         <div class="filter-title">Tags</div>
-        <label><input type="checkbox" value="new" class="tag-filter" /> New Release</label>
+        <label><input type="checkbox" value="new" class="tag-filter" /> New Arrival</label>
         <label><input type="checkbox" value="restocked" class="tag-filter" /> Restocked</label>
         <label><input type="checkbox" value="limited" class="tag-filter" /> Limited</label>
+        <label><input type="checkbox" value="sale" class="tag-filter" /> On Sale</label>
       </div>
 
       <div class="filter-group">
         <div class="filter-title">Availability</div>
-        <label><input type="checkbox" id="instock-filter" /> In Stock Only</label>
+        <label><input type="checkbox" id="instock-filter" /> In Stock</label>
+        <label><input type="checkbox" id="outofstock-filter" /> Out of Stock</label>
       </div>
 
       <div class="filter-group">
@@ -1821,7 +1823,7 @@
 <script src="js/supabase.js?v=ddb183ba" defer></script>
 <script src="js/settings.js?v=540574f4" defer></script>
 <script src="js/api.js?v=514cce49" defer></script>
-<script src="js/shop.js?v=9fb0aae8" defer></script>
+<script src="js/shop.js?v=availability-filter" defer></script>
 <script src="js/commerce-adapter.js?v=d667b304" defer></script>
 <script src="js/webmcp.js?v=5cb0579d" defer></script>
 </body>

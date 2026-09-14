@@ -21,6 +21,7 @@ function getActiveFilters() {
     tags: [...document.querySelectorAll('.tag-filter:checked')].map(c => c.value),
     accords: [...document.querySelectorAll('.accord-filter:checked')].map(c => c.value),
     inStockOnly: document.getElementById('instock-filter').checked,
+    outOfStockOnly: document.getElementById('outofstock-filter').checked,
     sort: document.getElementById('sort-select').value,
   };
 }
@@ -35,13 +36,14 @@ function cardMatches(card, f) {
   }
   if (f.tags.length) {
     const tags = d.tags ? d.tags.split(' ') : [];
-    if (!f.tags.some(t => tags.includes(t))) return false;
+    if (!f.tags.some(t => t === 'sale' ? Number(d.sale) > 0 : tags.includes(t))) return false;
   }
   if (f.accords.length) {
     const accords = d.accords ? d.accords.split('|') : [];
     if (!f.accords.some(a => accords.includes(a))) return false;
   }
   if (f.inStockOnly && d.instock !== 'true') return false;
+  if (f.outOfStockOnly && d.instock === 'true') return false;
   return true;
 }
 
@@ -71,6 +73,7 @@ function clearFilters() {
   document.getElementById('search-input').value = '';
   document.querySelectorAll('.brand-filter, .size-filter, .tag-filter, .accord-filter').forEach(c => c.checked = false);
   document.getElementById('instock-filter').checked = false;
+  document.getElementById('outofstock-filter').checked = false;
   document.getElementById('sort-select').value = 'default';
   applyFilters();
 }
@@ -135,7 +138,7 @@ function init() {
 // Listeners (elements exist in the static HTML; checkbox changes bubble to the containers)
 document.getElementById('search-input').addEventListener('input', debouncedApplyFilters);
 document.querySelectorAll('.size-filter, .tag-filter').forEach(c => c.addEventListener('change', applyFilters));
-document.getElementById('instock-filter').addEventListener('change', applyFilters);
+document.querySelectorAll('#instock-filter, #outofstock-filter').forEach(c => c.addEventListener('change', applyFilters));
 document.getElementById('sort-select').addEventListener('change', applyFilters);
 document.getElementById('brand-filters').addEventListener('change', applyFilters);
 document.getElementById('accord-filters').addEventListener('change', applyFilters);
