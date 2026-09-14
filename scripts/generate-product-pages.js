@@ -679,6 +679,7 @@ ${others.map(brandTile).join('\n')}
   // the pickup list; price stays because it lifts click-through.
   const metaDesc = `Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`;
   const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop ${sizeList('&amp;')} sizes with fast nationwide delivery.`;
+  const socialImage = brand.logo ? brandLogoUrl(brand, 'medium') : `${SITE}/images/og-card.jpg`;
 
   const collectionLd = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
@@ -724,7 +725,12 @@ ${others.map(brandTile).join('\n')}
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="${attr(name + ' Perfume Decants in Bangladesh')}" />
   <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${attr(socialImage)}" />
   <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(name + ' Perfume Decants in Bangladesh')}" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${attr(socialImage)}" />
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
