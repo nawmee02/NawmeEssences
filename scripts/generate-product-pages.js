@@ -27,6 +27,21 @@ function esc(s) {
 }
 function attr(s) { return esc(s); }
 
+// Keep the product name intact while fitting the strongest SEO title into the
+// ideal length first, then the absolute maximum length.
+function productMetaTitle(name) {
+  const keywordCandidates = [
+    `${name} Decant Price in Bangladesh`,
+    `${name} Decant Price Bangladesh`,
+    `${name} Decant Price`,
+    `${name} Price Bangladesh`,
+  ];
+
+  return keywordCandidates.find(title => title.length <= 60)
+    || keywordCandidates.find(title => title.length <= 67)
+    || name;
+}
+
 // ─── Occasion inference from accords ─────────────────────────
 const OCCASION_RULES = {
   'Office':     ['Fresh', 'Aquatic', 'Citrus', 'Green', 'Aromatic', 'Marine', 'Tea', 'Powdery'],
@@ -321,7 +336,7 @@ function renderPage(p, all, detailsMap) {
   const desc = description(p, d);
   // Per-product overrides win; otherwise fall back to the auto-generated copy.
   const metaDesc = p.metaDescription || metaDescription(p, d);
-  const title = p.metaTitle || `${p.name} Decant in Bangladesh`;
+  const title = p.metaTitle || productMetaTitle(p.name);
   const sp = Number(p.salePercent) || 0;
   const lo = minPrice(p.sizes), hi = maxPrice(p.sizes);
   const loEff = effectivePrice(lo, sp), hiEff = effectivePrice(hi, sp);
@@ -1154,7 +1169,7 @@ function run() {
   return generateFromData(allProducts, productDetails);
 }
 
-module.exports = { run, generateFromData };
+module.exports = { run, generateFromData, productMetaTitle };
 
 if (require.main === module) {
   run();
