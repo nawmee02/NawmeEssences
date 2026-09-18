@@ -9,7 +9,7 @@
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <!-- Cart thumbnails come from this host; no crossorigin (see index.html). -->
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" />
@@ -237,7 +237,7 @@
     emptyEl.style.display = 'none';
     contentEl.style.display = 'grid';
 
-    const imgBase = (typeof IMAGE_BASE !== 'undefined' && IMAGE_BASE) || 'https://cdn.nawmeessences.me';
+    const imgBase = (typeof IMAGE_BASE !== 'undefined' && IMAGE_BASE) || 'https://cdn.nawmeessences.com';
     itemsEl.innerHTML = cart.map(item => {
       const thumb = `${imgBase}/storage/v1/object/public/product-images/${item.productId}/thumb.webp`;
       // Size switcher when the item carries its size list; otherwise a static label

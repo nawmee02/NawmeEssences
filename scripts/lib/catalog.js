@@ -19,7 +19,7 @@ const SIZES        = ['small', 'thumb', 'medium', 'large'];
 // (a pull-proxy mirroring the /storage/v1/object/public/... path) to serve
 // product images from a PoP near customers. Only affects PUBLIC image URLs —
 // the Supabase API/auth client stays on SUPABASE_URL. Defaults to Supabase direct.
-const IMAGE_BASE = process.env.IMAGE_CDN || 'https://cdn.nawmeessences.me';
+const IMAGE_BASE = process.env.IMAGE_CDN || 'https://cdn.nawmeessences.com';
 
 // ─── Supabase (service role) ─────────────────────────────────
 let _sb = null;

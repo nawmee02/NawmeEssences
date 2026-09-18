@@ -384,7 +384,7 @@ function renderPage(p, all, detailsMap) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preload" as="image" href="${attr(heroMedium(p.id, v))}" fetchpriority="high" />
   ${schema.originTrialMeta()}
   <title>${esc(title)}</title>
@@ -749,7 +749,7 @@ ${others.map(brandTile).join('\n')}
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -854,7 +854,7 @@ function renderBrandsIndex(groups) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -962,7 +962,7 @@ function renderBlogIndex(posts) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -1049,7 +1049,7 @@ function renderBlogPost(post) {
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
-  <link rel="preconnect" href="https://cdn.nawmeessences.me" />
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
