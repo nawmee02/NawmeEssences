@@ -33,6 +33,7 @@
       <button id="nav-settings" class="btn-outline btn-sm">Site content</button>
       <button id="nav-brands" class="btn-outline btn-sm">Brands</button>
       <button id="nav-blog" class="btn-outline btn-sm">Blog</button>
+      <button id="nav-reviews" class="btn-outline btn-sm">Reviews</button>
       <a href="/" target="_blank" class="admin-link">View site ↗</a>
       <span id="build-status" class="admin-build" title="Latest deploy">build: …</span>
       <span id="admin-user" class="admin-muted"></span>
@@ -334,6 +335,96 @@
         </form>
       </div>
     </div>
+
+    <!-- REVIEWS -->
+    <div id="reviews-view" style="display:none">
+      <div class="admin-toolbar">
+        <h2>Reviews <span id="review-count" class="admin-muted"></span></h2>
+        <button id="review-add" class="btn-primary">+ Add review</button>
+      </div>
+
+      <!-- Homepage strip: which 3 are live, in slot order. Set from each review's form. -->
+      <div id="review-home-strip" class="admin-home-strip"></div>
+
+      <div id="review-list"></div>
+
+      <div id="review-form-view" style="display:none">
+        <div class="admin-toolbar">
+          <h2 id="review-form-title">Add review</h2>
+          <button id="review-cancel" class="btn-outline btn-sm">← Back to reviews</button>
+        </div>
+        <form id="review-form" class="admin-form">
+          <div class="admin-grid">
+            <label>Source *
+              <select id="r-source">
+                <option value="facebook">Facebook recommendation</option>
+                <option value="whatsapp">WhatsApp feedback</option>
+                <option value="messenger">Messenger feedback</option>
+                <option value="instagram">Instagram</option>
+                <option value="google">Google review</option>
+                <option value="website">Website review</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>Rating
+              <select id="r-rating">
+                <option value="">No stars — a “recommends” (Facebook)</option>
+                <option value="5">★★★★★ 5</option>
+                <option value="4">★★★★☆ 4</option>
+                <option value="3">★★★☆☆ 3</option>
+                <option value="2">★★☆☆☆ 2</option>
+                <option value="1">★☆☆☆☆ 1</option>
+              </select>
+              <small class="admin-muted">Leave blank for Facebook recommendations — the site shows “Recommends NawmeEssences”, never made-up stars.</small>
+            </label>
+            <label>Display name *<input type="text" id="r-name" required placeholder="As shown on the site — anonymise if the customer prefers" /></label>
+            <label>Source URL<input type="url" id="r-url" placeholder="https://www.facebook.com/…/posts/…" /><small class="admin-muted">Original post link → “View on Facebook →” on the card. Must start with https://</small></label>
+            <label>Fragrance (optional)<input type="text" id="r-product" placeholder="e.g. Rasasi Hawas" /></label>
+            <label>Date reviewed<input type="date" id="r-date" /></label>
+            <label>Language
+              <select id="r-lang">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+              </select>
+            </label>
+            <label>Homepage slot
+              <select id="r-slot">
+                <option value="">Not on homepage</option>
+                <option value="1">Slot 1</option>
+                <option value="2">Slot 2</option>
+                <option value="3">Slot 3</option>
+              </select>
+              <small class="admin-muted" id="r-slot-hint"></small>
+            </label>
+            <label>Status
+              <select id="r-status">
+                <option value="draft">Draft (hidden)</option>
+                <option value="published">Published (live)</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Review text *<textarea id="r-body" rows="5" required placeholder="The customer’s words, verbatim"></textarea></label>
+
+          <div class="admin-checks">
+            <label class="admin-check"><input type="checkbox" id="r-verified" /> Verified order <span class="admin-muted">— tick only if you confirmed this person actually ordered</span></label>
+          </div>
+
+          <fieldset class="admin-fieldset">
+            <legend>Photo (optional)</legend>
+            <div id="r-current-photo" class="admin-current-img"></div>
+            <input type="file" id="r-photo" accept="image/jpeg,image/png,image/webp" />
+            <small class="admin-muted">A screenshot or package/product photo the customer agreed to share. JPG/PNG/WebP, ≤ 5 MB. Optimized in your browser.</small>
+          </fieldset>
+
+          <div id="review-error" class="admin-error"></div>
+          <div class="admin-form-actions">
+            <button type="submit" class="btn-primary" id="review-save">Save review</button>
+          </div>
+          <p class="admin-muted" style="margin-top:10px">⚠️ Only publish WhatsApp/Messenger feedback with the customer’s permission.<br>💡 Saving stores the review. It appears on the site after the next build: GitHub → Actions → “Deploy to GitHub Pages” → <strong>Run workflow</strong> (or wait for the nightly rebuild).</p>
+        </form>
+      </div>
+    </div>
   </main>
 </section>
 
@@ -348,5 +439,6 @@
 <script src="/js/admin-brands.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js" defer></script>
 <script src="/js/admin-blog.js" defer></script>
+<script src="/js/admin-reviews.js" defer></script>
 </body>
 </html>

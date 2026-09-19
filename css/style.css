@@ -37,6 +37,11 @@
   --gold-gradient: linear-gradient(135deg, #e2c688 0%, #c9a465 52%, #b58f4f 100%);
   --gold-gradient-hover: linear-gradient(135deg, #eed3a0 0%, #d9b578 52%, #c9a465 100%);
   --divider-line: linear-gradient(90deg, transparent 0%, rgba(201,164,101,0.35) 50%, transparent 100%);
+  /* Review cards: on the near-black page a flat #141414 card with a #2a2a2a
+     border has almost no edge, so dark uses a faint top-lit gradient + a
+     gold-tinted border. Light keeps a plain white card. */
+  --review-card-bg: linear-gradient(180deg, #1a1a1a 0%, #111111 100%);
+  --review-card-border: rgba(201,164,101,0.22);
   --font-head: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --radius: 8px;
@@ -77,6 +82,8 @@
     linear-gradient(180deg, #f4ecdb 0%, var(--bg) 62%);
   --hero-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238a672a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   --stats-glow: radial-gradient(ellipse 60% 135% at 50% 0%, rgba(201,164,101,0.16) 0%, transparent 74%);
+  --review-card-bg: #ffffff;
+  --review-card-border: var(--border);
   color-scheme: light;
 }
 
@@ -481,6 +488,21 @@ input, select { font-family: var(--font-body); }
 }
 .brand-tile:hover .brand-logo { border-color: var(--gold-dark); }
 .brand-logo-lg { width: 64px; height: 64px; padding: 7px; }
+
+/* Admin reviews tab: the "what's on the homepage" strip (slots 1–3). */
+.admin-home-strip { margin: -6px 0 18px; }
+.admin-home-slots { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-home-slot {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px;
+}
+.admin-home-slot-num {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #000; background: var(--gold-bg);
+}
 
 /* Admin brands table: same circle, so the dashboard preview matches the site. */
 .admin-brand-logo, .admin-brand-mono {
@@ -1291,6 +1313,97 @@ input, select { font-family: var(--font-body); }
 @media (max-width: 480px) {
   .how-steps { grid-template-columns: 1fr; }
 }
+
+/* ===== CUSTOMER REVIEWS & RECOMMENDATIONS =====
+   One minimal card (scripts/lib/reviews.js): quote → name → one muted meta
+   line. Homepage shows 3 (line-clamped); /reviews/ shows all, full text.
+   Grid rows stretch so every card in a row shares one height; the footer is
+   pinned to the bottom so footers align. */
+.reviews-grid { display: grid; gap: 18px; align-items: stretch; }
+.reviews-grid--home { grid-template-columns: repeat(3, 1fr); }
+/* The full page is a packed column flow (masonry-like): cards are content-
+   height and stack top-to-bottom, so a photo card never pads its neighbours
+   and short quotes never leave voids. */
+.reviews-grid--page { display: block; columns: 3 300px; column-gap: 18px; margin-top: 8px; }
+.reviews-grid--page .review-card { height: auto; break-inside: avoid; margin-bottom: 18px; }
+/* JS masonry (see the inline script on /reviews/): flex columns replace the CSS column flow */
+.reviews-grid--page.is-masonry { columns: auto; display: flex; gap: 18px; align-items: flex-start; }
+.reviews-col { flex: 1 1 0; min-width: 0; }
+@media (max-width: 900px) { .reviews-grid--home { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .reviews-grid--home { grid-template-columns: 1fr; } }
+
+.review-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 26px 22px;
+  background: var(--review-card-bg);
+  border: 1px solid var(--review-card-border);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Head row exists only when there are stars and/or a verified badge. */
+.review-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.review-stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; line-height: 1; }
+.review-verified { font-size: 12px; font-weight: 500; color: var(--stock-in); }
+
+/* The quote: serif, no ornament. */
+.review-body {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.review-body--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Bengali text: system Bengali face, slightly smaller so line height matches. */
+.review-card[lang="bn"] .review-body {
+  font-family: 'Noto Sans Bengali', 'Nirmala UI', 'Vrinda', var(--font-body);
+  font-size: 15.5px;
+  line-height: 1.7;
+}
+
+.review-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: zoom-in;
+}
+
+.review-foot { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+.review-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.review-product { font-weight: 400; color: var(--text-muted); }
+.review-meta { display: flex; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--text-muted); }
+
+.review-dot { padding: 0 7px; opacity: 0.6; }
+.review-origin { font-size: 12.5px; color: var(--gold); align-self: flex-start; margin-top: 2px; }
+.review-origin:hover { text-decoration: underline; }
+
+.reviews-more { text-align: center; margin-top: 32px; }
+
+/* /reviews/ page header extras */
+.reviews-stats { font-size: 14px; color: var(--text-muted); margin: -6px 0 14px; }
+.reviews-stats strong { color: var(--text); font-weight: 600; }
+.reviews-note { font-size: 13px; color: var(--text-muted); max-width: 640px; line-height: 1.6; margin: 0 0 14px; }
+.reviews-fb-link { display: inline-block; font-size: 14px; font-weight: 500; color: var(--gold); margin-bottom: 30px; }
+.reviews-fb-link:hover { text-decoration: underline; }
+.reviews-empty { color: var(--text-muted); padding: 40px 0; }
+.reviews-cta {
+  display: flex; flex-wrap: wrap; gap: 10px 28px;
+  margin-top: 40px; padding-top: 22px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+.reviews-cta a { color: var(--gold); }
+.reviews-cta a:hover { text-decoration: underline; }
 
 /* ===== CARD FRAGRANCE NOTES PANEL ===== */
 .details-toggle {

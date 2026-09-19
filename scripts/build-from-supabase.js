@@ -26,6 +26,7 @@ const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
 const { fetchPosts } = require('./lib/blog');
+const { fetchReviews, renderReviewCard, homepageReviews, reviewStats, countLabel } = require('./lib/reviews');
 
 const SIZES = [
   { name: 'small',  width: 360,  quality: 80 },
@@ -396,6 +397,35 @@ function injectSettings(settings) {
   console.log('  injected → index.html (settings)');
 }
 
+// ─── Bake the homepage "What Customers Say" section ────────────
+// Three admin-chosen cards (reviews.home_slot 1–3) between the Stats block
+// and the Exclusive teaser, plus a "Read all N …" link whose count and
+// wording come from the live data. The WHOLE section lives inside the
+// SET:reviews markers, so with no published reviews it is omitted entirely
+// (no empty block on the live site). Cards use the shared renderer from
+// lib/reviews.js — the same one the /reviews/ page uses.
+function injectReviews(reviews) {
+  const picks = homepageReviews(reviews, 3);
+  const content = picks.length
+    ? `\n<section class="section reviews-section" aria-labelledby="reviews-heading">\n` +
+      `  <div class="faq-head">\n` +
+      `    <h2 class="section-title" id="reviews-heading">What Customers <span>Say</span></h2>\n` +
+      `    <p class="section-subtitle">Real experiences from NawmeEssences customers — each with a link to the original source.</p>\n` +
+      `  </div>\n` +
+      `  <div class="reviews-grid reviews-grid--home">${picks.map(r => renderReviewCard(r, { clamp: true })).join('\n')}\n  </div>\n` +
+      `  <p class="reviews-more"><a class="btn-outline" href="/reviews/">Read all ${esc(countLabel(reviewStats(reviews)))} →</a></p>\n` +
+      `</section>\n\n<hr class="divider" />\n`
+    : '\n';
+
+  const fp = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  const re = /(<!--SET:reviews:start-->)[\s\S]*?(<!--SET:reviews:end-->)/;
+  if (!re.test(html)) throw new Error('marker SET:reviews not found in index.html');
+  html = html.replace(re, `$1${content}$2`);
+  fs.writeFileSync(fp, html);
+  console.log(`  injected → index.html (${picks.length} homepage review${picks.length === 1 ? '' : 's'})`);
+}
+
 // Cache-bust local css/js by stamping ?v=<content-hash> onto every reference,
 // across root HTML + all generated pages. Runs LAST so no later step clobbers
 // the query. Content-hash → the URL only changes when the file changes, so a
@@ -417,6 +447,7 @@ function versionAssets() {
     ...collectHtml(path.join(ROOT, 'product')),
     ...collectHtml(path.join(ROOT, 'brands')),
     ...collectHtml(path.join(ROOT, 'blog')),
+    ...collectHtml(path.join(ROOT, 'reviews')),
   ].filter(fs.existsSync);
   let n = 0;
   for (const fp of files) {
@@ -490,8 +521,13 @@ async function run() {
   const posts = await fetchPosts(sb);
   console.log(`   ${posts.length} published posts`);
 
+  console.log('\n⭐ Fetching reviews...');
+  const reviews = await fetchReviews(sb);
+  console.log(`   ${reviews.length} published reviews`);
+  injectReviews(reviews);
+
   console.log('\n📄 Generating pages...');
-  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos });
+  const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos, reviews });
 
   console.log('\n🔖 Cache-busting assets...');
   versionAssets();
@@ -501,7 +537,7 @@ async function run() {
   return { ok: gen.ok, written: gen.written, imageErrors: errors };
 }
 
-module.exports = { run };
+module.exports = { run, injectReviews };
 
 if (require.main === module) {
   run()

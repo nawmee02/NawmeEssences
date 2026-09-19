@@ -14,6 +14,7 @@ const {
 } = require('./lib/catalog');
 const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
+const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
 
 const SITE = 'https://nawmeessences.com';
@@ -284,6 +285,7 @@ const FOOTER = `<footer class="site-footer">
       <a href="/about.html#payment">Payment Policy</a>
       <a href="/about.html#refund">Refund Policy</a>
       <a href="/about.html#contact">Contact Us</a>
+      <a href="/reviews/">Reviews</a>
       <a href="/about-me.html">About Me</a>
     </div>
   </div>
@@ -1089,8 +1091,166 @@ ${SCRIPTS}
 `;
 }
 
+// ─── Reviews & recommendations page ──────────────────────────
+// All published entries, newest first, in the shared uniform card. Header
+// chips only appear when meaningful (see the rules inline) so the page never
+// shows an empty or misleading stat; the wording keeps Facebook
+// recommendations (no rating) distinct from star-rated reviews.
+function renderReviewsPage(reviews) {
+  const url = `${SITE}/reviews/`;
+  const s = reviewStats(reviews);
+  const label = countLabel(s);
+  const title = 'Customer Reviews & Recommendations — NawmeEssences';
+  const metaDesc = reviews.length
+    ? `${label.charAt(0).toUpperCase() + label.slice(1)} from NawmeEssences customers — collected from our Facebook page and customer messages. Every entry links to its original source.`
+    : 'Reviews and recommendations from NawmeEssences customers — authentic perfume decants in Bangladesh.';
+
+  const chips = [];
+  if (s.recommendationCount) chips.push(`<strong>${s.recommendationCount}</strong> recommendation${s.recommendationCount === 1 ? '' : 's'}`);
+  if (s.ratedCount) chips.push(`<strong>${s.ratedCount}</strong> review${s.ratedCount === 1 ? '' : 's'}`);
+  if (s.ratedCount >= 3 && s.avgRating) chips.push(`★ <strong>${s.avgRating}</strong> average`);
+  if (s.count && s.recommendPct === 100) chips.push(`<strong>100%</strong> recommend`);
+  if (s.verifiedCount) chips.push(`<strong>${s.verifiedCount}</strong> verified order${s.verifiedCount === 1 ? '' : 's'}`);
+
+  const cards = reviews.map(r => renderReviewCard(r)).join('\n');
+
+  // Review nodes only for entries with text (always true here) — rating only
+  // when one exists; itemReviewed resolves to the canonical #organization.
+  const pageLd = {
+    '@context': 'https://schema.org', '@type': 'WebPage',
+    name: 'Customer Reviews & Recommendations', url,
+    isPartOf: { '@id': `${SITE}/#website` },
+    mainEntity: {
+      '@type': 'ItemList', numberOfItems: reviews.length,
+      itemListElement: reviews.map((r, i) => {
+        const node = {
+          '@type': 'Review',
+          author: { '@type': 'Person', name: r.name },
+          reviewBody: r.body,
+          itemReviewed: { '@id': schema.ORG_ID },
+        };
+        if (r.rating) node.reviewRating = { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 };
+        if (r.reviewedAt) node.datePublished = String(r.reviewedAt).slice(0, 10);
+        if (r.sourceUrl) node.url = r.sourceUrl;
+        return { '@type': 'ListItem', position: i + 1, item: node };
+      }),
+    },
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'Reviews', item: url },
+    ],
+  };
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(metaDesc)}" />
+  <link rel="canonical" href="${attr(url)}" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta name="application-name" content="NawmeEssences" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:url" content="${attr(url)}" />
+  <meta property="og:title" content="${attr(title)}" />
+  <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(title)}" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
+  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${JSON.stringify(pageLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <link rel="preconnect" href="https://cdn.nawmeessences.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="/">Home</a> <span>›</span>
+  <span class="crumb-current">Reviews</span>
+</nav>
+
+<div class="section" style="padding-top:20px;">
+  <h1 class="brand-h1">Customer Reviews &amp; <span>Recommendations</span></h1>
+  <p class="brand-intro">Real experiences from NawmeEssences customers.</p>
+  ${chips.length ? `<p class="reviews-stats">${chips.join('<span class="review-dot" aria-hidden="true">·</span>')}</p>` : ''}
+  <p class="reviews-note">Collected from the NawmeEssences Facebook page and from WhatsApp/Messenger with the customer's permission. "Verified order" means NawmeEssences confirmed the purchase.</p>
+  <a class="reviews-fb-link" href="https://www.facebook.com/NawmeEssences/reviews" target="_blank" rel="noopener">Leave a recommendation on Facebook →</a>
+  ${reviews.length
+    ? `<div class="reviews-grid reviews-grid--page">${cards}\n  </div>`
+    : '<p class="reviews-empty">No reviews published yet — check back soon.</p>'}
+  <div class="reviews-cta">
+    <a href="https://wa.me/8801988536843" data-setting-href="contact.whatsapp" target="_blank" rel="noopener">Had a great experience? Tell us on WhatsApp →</a>
+  </div>
+</div>
+</main>
+
+<!-- Lightbox for review photos (src attached on open — see product page) -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" aria-label="Close">&times;</span>
+  <img id="lightbox-img" alt="" decoding="async" />
+</div>
+
+${FOOTER}
+
+${SCRIPTS}
+<script>
+  function openLightbox(src) {
+    var img = document.getElementById('lightbox-img');
+    if (img && src) img.setAttribute('src', src);
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
+
+  // Masonry packing (progressive enhancement over the CSS column flow): drop
+  // each card into the currently shortest column so a photo card never leaves
+  // a void beside it. Column count mirrors the CSS "columns: 3 300px" rule.
+  (function () {
+    var grid = document.querySelector('.reviews-grid--page');
+    if (!grid) return;
+    var cards = [].slice.call(grid.querySelectorAll('.review-card'));
+    if (cards.length < 2) return;
+    function layout() {
+      var n = Math.max(1, Math.min(3, Math.floor((grid.clientWidth + 18) / 318)));
+      grid.classList.add('is-masonry');
+      grid.textContent = '';
+      var cols = [], h = [];
+      for (var i = 0; i < n; i++) { var c = document.createElement('div'); c.className = 'reviews-col'; grid.appendChild(c); cols.push(c); h.push(0); }
+      cards.forEach(function (card) {
+        var k = h.indexOf(Math.min.apply(null, h));
+        cols[k].appendChild(card); h[k] += card.offsetHeight + 18;
+      });
+    }
+    layout();
+    var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(layout, 150); });
+  })();
+</script>
+</body>
+</html>
+`;
+}
+
 // ─── Sitemap ─────────────────────────────────────────────────
-function writeSitemap(all, groups = [], posts = []) {
+function writeSitemap(all, groups = [], posts = [], reviews = []) {
   const core = [
     { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0' },
     { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9' },
@@ -1111,7 +1271,8 @@ function writeSitemap(all, groups = [], posts = []) {
       lastmod: (p.updatedAt || p.publishedAt) ? String(p.updatedAt || p.publishedAt).slice(0, 10) : null,
     })),
   ] : [];
-  const urls = [...core, ...brandUrls, ...blogUrls, ...products].map(u =>
+  const reviewUrls = reviews.length ? [{ loc: `${SITE}/reviews/`, freq: 'weekly', pri: '0.6' }] : [];
+  const urls = [...core, ...brandUrls, ...blogUrls, ...reviewUrls, ...products].map(u =>
     `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
@@ -1157,10 +1318,17 @@ function generateFromData(allProducts, productDetails, opts = {}) {
     fs.writeFileSync(path.join(dir, 'index.html'), renderBlogPost(post));
   }
 
-  writeSitemap(allProducts, groups, posts);
+  // Reviews: always write /reviews/ (empty-state if none). Only the Supabase
+  // build passes reviews; the local products.js path renders the empty state.
+  const reviews = opts.reviews || [];
+  const reviewsRoot = path.join(ROOT, 'reviews');
+  fs.mkdirSync(reviewsRoot, { recursive: true });
+  fs.writeFileSync(path.join(reviewsRoot, 'index.html'), renderReviewsPage(reviews));
 
-  console.log(`✓ generated ${written} product pages + ${groups.length} brand pages + ${posts.length} blog posts + sitemap.xml`);
-  return { ok: true, written, brands: groups.length, posts: posts.length };
+  writeSitemap(allProducts, groups, posts, reviews);
+
+  console.log(`✓ generated ${written} product pages + ${groups.length} brand pages + ${posts.length} blog posts + reviews page (${reviews.length}) + sitemap.xml`);
+  return { ok: true, written, brands: groups.length, posts: posts.length, reviews: reviews.length };
 }
 
 // ─── Main (local products.js source) ─────────────────────────

@@ -27,10 +27,11 @@
   const show = (id, on) => { $(id).style.display = on ? '' : 'none'; };
 
   // Shared switcher for the top-level admin sections
-  // (products / site content / brands / blog). Shows the chosen view and
-  // reveals the nav buttons for the OTHER sections. Used by admin-settings.js,
-  // admin-brands.js and admin-blog.js so the views never overlap.
-  const SECTIONS = ['settings', 'brands', 'blog'];
+  // (products / site content / brands / blog / reviews). Shows the chosen view
+  // and reveals the nav buttons for the OTHER sections. Used by
+  // admin-settings.js, admin-brands.js, admin-blog.js and admin-reviews.js so
+  // the views never overlap.
+  const SECTIONS = ['settings', 'brands', 'blog', 'reviews'];
   window.setAdminView = function (view) {
     show('list-view', view === 'products');
     show('form-view', false);

@@ -71,6 +71,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://nawmeessences.com/brands/bujairami/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://nawmeessences.com/brands/bvlgari/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -211,44 +216,79 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/blog/what-is-a-perfume-decant-meaning-sizes-buying-guide/</loc>
-    <lastmod>2026-08-07</lastmod>
+    <loc>https://nawmeessences.com/blog/top-middle-base-notes-in-perfume-explained-real-examples/</loc>
+    <lastmod>2026-08-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/rasasi-fattan/</loc>
-    <lastmod>2026-08-30</lastmod>
+    <loc>https://nawmeessences.com/blog/what-is-a-perfume-decant-meaning-sizes-buying-guide/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/reviews/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/hugo-boss-bottled-tonic/</loc>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/gulf-orchid-naseem/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <loc>https://nawmeessences.com/product/bujairami-hectic/</loc>
+    <lastmod>2026-09-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/rayhaan-azul/</loc>
-    <lastmod>2026-08-25</lastmod>
+    <loc>https://nawmeessences.com/product/junaid-perfumes-sanaya/</loc>
+    <lastmod>2026-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/terre-d-herm-s-eau-givree/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <loc>https://nawmeessences.com/product/lattafa-art-of-universe/</loc>
+    <lastmod>2026-09-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/lalique-encre-indigo/</loc>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/kenzo-homme-edp/</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/hugo-boss-bottled-tonic/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <loc>https://nawmeessences.com/product/afnan-9pm-rebel/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/terre-d-herm-s-eau-givree/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/essential-parfums-bois-imp-rial/</loc>
+    <lastmod>2026-09-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/jpg-le-male-in-blue/</loc>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -259,50 +299,38 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/jpg-le-male-in-blue/</loc>
-    <lastmod>2026-08-30</lastmod>
+    <loc>https://nawmeessences.com/product/rasasi-fattan/</loc>
+    <lastmod>2026-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://nawmeessences.com/product/lattafa-art-of-universe/</loc>
-    <lastmod>2026-08-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.com/product/lalique-encre-indigo/</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.com/product/junaid-perfumes-sanaya/</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.com/product/xerjoff/</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.com/product/afnan-9pm-rebel/</loc>
-    <lastmod>2026-08-31</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nawmeessences.com/product/essential-parfums-bois-imp-rial/</loc>
-    <lastmod>2026-08-30</lastmod>
+    <loc>https://nawmeessences.com/product/xerjoff-renaissance/</loc>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lalique-encre-noire-a-l-extreme/</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/rayhaan-azul/</loc>
     <lastmod>2026-08-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/gulf-orchid-naseem/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nawmeessences.com/product/giorgio-armani-code-parfum/</loc>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -326,115 +354,115 @@
   </url>
   <url>
     <loc>https://nawmeessences.com/product/davidoff-cool-water/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/riiffs-fareed/</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/nautica-voyage/</loc>
-    <lastmod>2026-08-30</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lattafa-angham/</loc>
-    <lastmod>2026-07-12</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lattafa-khamrah-qahwa/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armaf-cdni-edp/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/davidoff-indigo/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lattafa-maahir-legacy/</loc>
-    <lastmod>2026-08-30</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-shuhrah-elixir/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-black/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-elixir/</loc>
-    <lastmod>2026-07-13</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-ice/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/afnan-modest-une/</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/afnan-9pm/</loc>
-    <lastmod>2026-08-31</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lattafa-teriaq-intense/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lattafa-dynasty/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-09-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-kobra/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-malibu/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -446,43 +474,43 @@
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armaf-cdni-milestone/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/bentley-silverlake/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armaf-cdni-iconic/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-aether/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-liquid-brun/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/lalique-encre-noire-sport/</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/rasasi-hawas-lava-gold/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -494,295 +522,295 @@
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-vulcan-feu/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-vulcan-sable/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-atlantis/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/afnan-supremacy-not-only-intense/</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/afnan-turathi-brown/</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-magnetiq/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-platine-blanc/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/french-avenue-vulcan-black-friday/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/al-haramain-amber-oud-gold/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/hugo-boss-bottled-infinite/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-male/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/mercedes-club-black/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/missoni-wave/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/al-haramain-amber-oud-aqua-dubai/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/al-haramain-amber-oud-dubai-night/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/al-haramain-amber-oud-999/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-beau/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-male-le-parfum/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/afnan-supremacy-collectors/</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/al-haramain-amber-oud-future/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/hugo-boss-bottled-bold-citrus/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/mancera-instant-crush/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/missoni-parfum-homme/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-beau-paradise-garden/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/azzaro-most-wanted-edp-intense/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/mancera-french-riviera/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/prada-luna-rossa-ocean-edp/</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armaf-cdni-extrait/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/azzaro-most-wanted-parfum/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/hugo-boss-bottled-absolu/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/hugo-boss-bottled-elixir/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/bvlgari-man-in-black-edp/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armani-stronger-absolutely/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armani-stronger-intensely/</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-male-elixir/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/ysl-y-edp/</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/bogart-silver-scent-pure/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/dunhill-icon/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/dg-light-blue-intense/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-le-male-navy/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/jpg-ultra-male-old/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armani-adg-profondo-2020/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/armani-adg-absolu/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/dior-homme-sport-2017/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/dior-homme-intense/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/gucci-guilty-elixir/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/amouage-enclave/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/ysl-tuxedo-sample/</loc>
-    <lastmod>2026-07-08</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://nawmeessences.com/product/arabiyat-prestige-bois-blanc/</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

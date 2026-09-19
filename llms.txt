@@ -17,6 +17,7 @@ NawmeEssences is a personal fragrance decant business based in Dhaka, Bangladesh
 - [Shop All Fragrances](https://nawmeessences.com/shop.html): Full catalogue of 90+ regular decants with brand/size/tag filters
 - [Exclusive Collection](https://nawmeessences.com/exclusive.html): Rare, discontinued and vintage fragrances — full advance required
 - [Policies & Info](https://nawmeessences.com/about.html): Delivery charges, payment policy, pickup locations
+- [Customer Reviews & Recommendations](https://nawmeessences.com/reviews/): Facebook recommendations and customer feedback, each linked to its original source
 - [About Nawmee](https://nawmeessences.com/about-me.html): The story behind the collection
 
 ## Products
