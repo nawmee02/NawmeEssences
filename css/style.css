@@ -636,7 +636,7 @@ input, select { font-family: var(--font-body); }
 .size-pill {
   background: transparent;
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: #a1a1aa;
   border-radius: 6px;
   /* taller vertical padding → ~30px tall so it clears the 24px touch-target
      minimum, while staying a compact content-width inline pill (no stretch) */
@@ -648,8 +648,14 @@ input, select { font-family: var(--font-body); }
   font-family: var(--font-body);
   line-height: 1;
 }
-.size-pill:hover { border-color: var(--gold-dark); color: var(--text); }
-.size-pill.active { border-color: var(--gold-dark); background: rgba(201,164,101,0.1); color: var(--gold); }
+.size-pill:hover { border-color: var(--gold-dark); color: var(--gold-light); }
+.size-pill.active {
+  border-color: #e3c480;
+  background: #d8b96f;
+  color: #171208;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
 .card-price-live { font-size: 15px; font-weight: 600; color: var(--text); margin-top: auto; margin-bottom: 8px; display: block; }
 /* Struck-through pre-sale price, shown before the sale price in card + PDP. */
 .price-was { color: var(--text-muted); font-weight: 400; text-decoration: line-through; margin-right: 5px; font-size: 0.85em; }
@@ -1617,7 +1623,31 @@ input, select { font-family: var(--font-body); }
 .pd-size-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 .pd-price-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .pd-price { font-family: var(--font-head); font-size: 30px; font-weight: 600; color: var(--gold-light); }
-.pd-price-row .add-to-cart-btn { flex: 0 0 auto; width: auto; min-width: 180px; padding: 12px 32px; font-size: 14px; }
+.pd-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; flex: 0 1 390px; width: 100%; }
+.pd-actions .add-to-cart-btn,
+.pd-actions .buy-now-btn { width: 100%; min-width: 0; padding: 12px 18px; font-size: 14px; }
+.pd-actions .add-to-cart-btn {
+  background: linear-gradient(135deg, #11110f 0%, #16140e 62%, #2a2113 100%);
+  color: var(--gold-light);
+  transition: transform var(--transition), border-color var(--transition), background var(--transition), color var(--transition);
+}
+.pd-actions .add-to-cart-btn:hover { background: linear-gradient(135deg, #161512 0%, #1e1a10 62%, #372a16 100%); border-color: var(--gold); color: #f6ecd6; transform: translateY(-1px); }
+.pd-actions .add-to-cart-btn:active { transform: translateY(0); }
+.pd-actions .add-to-cart-btn:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+.buy-now-btn {
+  border: 1px solid #80622f;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #0b0b0a 0%, #14120d 62%, #3c2d16 100%);
+  color: #f6ecd6;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform var(--transition), border-color var(--transition), background var(--transition);
+}
+.buy-now-btn:hover { border-color: var(--gold); background: linear-gradient(135deg, #11110f 0%, #1b1710 62%, #4b371a 100%); transform: translateY(-1px); }
+.buy-now-btn:active { transform: translateY(0); }
+.buy-now-btn:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+.buy-now-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .pd-desc a {
   color: var(--gold);
@@ -1685,9 +1715,12 @@ input, select { font-family: var(--font-body); }
   .pd-name { font-size: 30px; }
   .related-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .pd-price-row { flex-direction: column; align-items: stretch; }
-  .pd-price-row .add-to-cart-btn { width: 100%; }
+  .pd-actions { flex-basis: auto; }
+}
+@media (max-width: 340px) {
+  .pd-actions { grid-template-columns: 1fr; }
 }
 
 /* ============================================================

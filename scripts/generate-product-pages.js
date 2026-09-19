@@ -459,7 +459,10 @@ ${HEADER}
       </div>
       <div class="pd-price-row">
         <span class="pd-price" id="price-${attr(p.id)}">${priceCell(lo, loEff)}</span>
-        <button class="add-to-cart-btn" id="add-btn"${oos ? ' disabled' : ''} onclick="handleAdd()">${oos ? 'Out of Stock' : 'Add to Cart'}</button>
+        <div class="pd-actions">
+          <button class="add-to-cart-btn" id="add-btn" type="button"${oos ? ' disabled' : ''} onclick="handleAdd()">${oos ? 'Out of Stock' : 'Add to Cart'}</button>
+          <button class="buy-now-btn" id="buy-now-btn" type="button"${oos ? ' disabled' : ''} onclick="handleBuyNow()">Buy Now</button>
+        </div>
       </div>
     </div>
 
@@ -486,11 +489,26 @@ ${SCRIPTS}
 <script>
   const PRODUCT = { id: ${JSON.stringify(p.id)}, name: ${JSON.stringify(p.name)}, brand: ${JSON.stringify(p.brand)}, isExclusive: ${isExclusive} };
 
-  function handleAdd() {
+  function selectedVariant() {
     const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
-    if (!pill) return;
+    if (!pill) return null;
     const sizes = [...document.querySelectorAll('#size-' + PRODUCT.id + ' .size-pill')].map(b => ({ ml: Number(b.dataset.ml), price: Number(b.dataset.price) }));
-    addToCart(PRODUCT.id, pill.dataset.ml, pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive, sizes);
+    return { pill, sizes };
+  }
+
+  function handleAdd() {
+    const variant = selectedVariant();
+    if (!variant) return;
+    addToCart(PRODUCT.id, variant.pill.dataset.ml, variant.pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive, variant.sizes);
+  }
+
+  function handleBuyNow() {
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    if (buyNowBtn && buyNowBtn.disabled) return;
+    const variant = selectedVariant();
+    if (!variant) return;
+    addToCart(PRODUCT.id, variant.pill.dataset.ml, variant.pill.dataset.price, PRODUCT.name, PRODUCT.brand, PRODUCT.isExclusive, variant.sizes);
+    window.location.assign('/cart.html');
   }
 
   function openLightbox()  {
@@ -535,9 +553,11 @@ ${SCRIPTS}
       }
 
       const addBtn = document.getElementById('add-btn');
+      const buyNowBtn = document.getElementById('buy-now-btn');
       const stock = document.getElementById('pd-stock');
       if (p.inStock === false) {
         addBtn.disabled = true; addBtn.textContent = 'Out of Stock';
+        if (buyNowBtn) buyNowBtn.disabled = true;
         let badge = document.getElementById('stock-badge');
         if (!badge) {
           badge = document.createElement('div');
@@ -551,6 +571,7 @@ ${SCRIPTS}
       } else {
         addBtn.disabled = false;
         if (addBtn.textContent === 'Out of Stock') addBtn.textContent = 'Add to Cart';
+        if (buyNowBtn) buyNowBtn.disabled = false;
         const badge = document.getElementById('stock-badge');
         if (badge) badge.remove();
         if (stock) { stock.className = 'pd-stock in'; stock.innerHTML = '<span class="pd-stock-dot"></span>In Stock'; }
