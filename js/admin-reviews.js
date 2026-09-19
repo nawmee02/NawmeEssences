@@ -106,6 +106,25 @@
   $('review-cancel').addEventListener('click', showList);
   $('r-slot').addEventListener('change', slotHint);
 
+  // Accept whatever Facebook hands over — the <iframe> embed code, a
+  // plugins/post.php?href=… URL, or a plain link — and reduce it to the clean
+  // post permalink, so the owner never has to URL-decode anything by hand.
+  function normalizeSourceUrl(raw) {
+    let v = String(raw || '').trim();
+    const src = v.match(/src=["']([^"']+)["']/i);          // pasted <iframe …>
+    if (src) v = src[1].replace(/&amp;/g, '&');
+    try {
+      const u = new URL(v);
+      const href = u.searchParams.get('href');              // plugins/post.php?href=<encoded permalink>
+      if (href && /\/plugins\//.test(u.pathname)) v = href;
+    } catch (e) { /* not a URL yet — leave as typed */ }
+    return v;
+  }
+  $('r-url').addEventListener('change', () => {
+    const clean = normalizeSourceUrl($('r-url').value);
+    if (clean !== $('r-url').value) { $('r-url').value = clean; toast('Link cleaned up to the post permalink'); }
+  });
+
   // Tell the owner who currently holds the chosen slot (they lose it on save).
   function slotHint() {
     const n = Number($('r-slot').value);
@@ -148,7 +167,7 @@
     $('review-error').textContent = '';
     const name = $('r-name').value.trim();
     const body = $('r-body').value.trim();
-    const url = $('r-url').value.trim();
+    const url = normalizeSourceUrl($('r-url').value);
     const rating = $('r-rating').value ? Number($('r-rating').value) : null;
     const slot = $('r-slot').value ? Number($('r-slot').value) : null;
     const file = $('r-photo').files[0] || null;
