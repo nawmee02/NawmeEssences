@@ -1649,6 +1649,27 @@ input, select { font-family: var(--font-body); }
 .buy-now-btn:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
 .buy-now-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
+[data-theme="light"] .pd-actions .add-to-cart-btn {
+  background: linear-gradient(135deg, #fffaf0 0%, #f4ead4 62%, #e7d3a8 100%);
+  border-color: #b59a65;
+  color: #6b4d18;
+}
+[data-theme="light"] .pd-actions .add-to-cart-btn:hover {
+  background: linear-gradient(135deg, #fffdf7 0%, #f8eedb 62%, #eedcb8 100%);
+  border-color: #97783f;
+  color: #4d3712;
+}
+[data-theme="light"] .buy-now-btn {
+  border-color: #a27b36;
+  background: linear-gradient(135deg, #e4c486 0%, #c9a465 62%, #b58f4f 100%);
+  color: #2d210f;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.36);
+}
+[data-theme="light"] .buy-now-btn:hover {
+  border-color: #80622f;
+  background: linear-gradient(135deg, #eed3a0 0%, #d9b578 62%, #c9a465 100%);
+}
+
 .pd-desc a {
   color: var(--gold);
   font-weight: 700;
