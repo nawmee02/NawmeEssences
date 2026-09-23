@@ -1,36 +1,76 @@
 # NawmeEssences
 
-> Authentic luxury perfume decants in Bangladesh. Decanted from a personal collection of 90+ fragrances across 30 brands. Available in 3ml, 5ml, 10ml, 15ml and 30ml sizes. Order via WhatsApp or Messenger. Delivery nationwide.
+> NawmeEssences is a Dhaka-based perfume decant business in Bangladesh founded by Arman Hossain Nawmee. The business offers authentic perfume decants from a personal collection of 90+ fragrances across 35+ brands, available in 3ml, 5ml, 10ml, 15ml, and 30ml sizes, with delivery throughout Bangladesh.
 
-## About
+## Entity
 
-NawmeEssences is a personal fragrance decant business based in Dhaka, Bangladesh, run by Nawmee — a CSE student and fragrance enthusiast. All decants are taken directly from authentic personal bottles using a syringe for accurate measurement. Zero adulteration.
+- Business name: NawmeEssences
+- Business type: Perfume decant business
+- Founder: Arman Hossain Nawmee
+- Primary website: https://nawmeessences.com/
+- Location: Dhaka, Bangladesh
+- Pickup locations: Aftabnagar, Banasree, NSU
+- Primary offering: Authentic perfume decants
+- Catalogue: 90+ fragrances
+- Brands: 35+ brands
+- Available sizes: 3ml, 5ml, 10ml, 15ml, 30ml
+- Delivery: Nationwide across Bangladesh
 
-- Owner: Nawmee (nawmee02)
-- Location: Dhaka, Bangladesh (pickup at Aftabnagar, Banasree, NSU)
-- Contact: WhatsApp +8801988536843 | Messenger facebook.com/NawmeEssences
-- Facebook Page: facebook.com/NawmeEssences
+## About NawmeEssences
 
-## Pages
+NawmeEssences is a personal fragrance decant business based in Dhaka, Bangladesh and founded by Arman Hossain Nawmee, a CSE student and fragrance enthusiast.
 
-- [Home](https://nawmeessences.com/): Featured bestsellers and new releases
-- [Shop All Fragrances](https://nawmeessences.com/shop.html): Full catalogue of 90+ regular decants with brand/size/tag filters
-- [Exclusive Collection](https://nawmeessences.com/exclusive.html): Rare, discontinued and vintage fragrances — full advance required
-- [Policies & Info](https://nawmeessences.com/about.html): Delivery charges, payment policy, pickup locations
-- [Customer Reviews & Recommendations](https://nawmeessences.com/reviews/): Facebook recommendations and customer feedback, each linked to its original source
-- [About Nawmee](https://nawmeessences.com/about-me.html): The story behind the collection
+Fragrance decants are prepared directly from authentic personal fragrance bottles using a syringe for accurate measurement. No adulteration is added to the fragrance.
 
-## Products
+- Founder: Arman Hossain Nawmee
+- Location: Dhaka, Bangladesh
+- Pickup: Aftabnagar, Banasree, NSU
+- WhatsApp: +8801988536843
+- Facebook: https://www.facebook.com/NawmeEssences
+- Messenger: https://www.messenger.com/t/509978488868598/
 
-### Regular Collection (90+ fragrances)
+## Official Profiles
 
-Brands carried: Afnan, Al Haramain, Alfred Dunhill, Amouage, Armaf, Azzaro, Bentley, Bvlgari, Davidoff, Dior, Dolce & Gabbana, French Avenue, Giorgio Armani, Gucci, Gulf Orchid, Hugo Boss, Jean Paul Gaultier, Lalique, Lattafa, Mancera, Mercedes Benz, Nautica, Prada, Rasasi, Rayhaan, Riiffs, Yves Saint Laurent, and more.
+- Facebook: https://www.facebook.com/NawmeEssences
+- Instagram: https://www.instagram.com/_nawmeessences_
+- LinkedIn: https://www.linkedin.com/company/nawmeessences
+- X: https://x.com/nawmeessences
+- Messenger: https://www.messenger.com/t/509978488868598/
 
-Standard sizes: 3ml · 5ml · 10ml · 15ml · 30ml
+## Key Pages
 
-### Exclusive Collection (rare & discontinued)
+- Homepage: https://nawmeessences.com/ — Main website and featured fragrances
+- Shop All Fragrances: https://nawmeessences.com/shop.html — Full catalogue with brand, size, and tag filters
+- Exclusive Collection: https://nawmeessences.com/exclusive.html — Rare, discontinued, and vintage fragrances
+- Policies & Information: https://nawmeessences.com/about.html — Delivery, payment, and pickup information
+- Customer Reviews & Recommendations: https://nawmeessences.com/reviews/ — Customer feedback and Facebook recommendations linked to their original sources
+- About Nawmee: https://nawmeessences.com/about-me.html — Background and story behind the fragrance collection
+- Machine-readable profile: https://nawmeessences.com/llms.txt
 
-Selected rare pieces including:
+## Products & Catalogue
+
+### Regular Collection
+
+NawmeEssences offers 90+ regular perfume decants across 35+ brands.
+
+Brands include:
+
+Afnan, Al Haramain, Alfred Dunhill, Amouage, Armaf, Azzaro, Bentley, Bvlgari, Davidoff, Dior, Dolce & Gabbana, French Avenue, Giorgio Armani, Gucci, Gulf Orchid, Hugo Boss, Jean Paul Gaultier, Lalique, Lattafa, Mancera, Mercedes Benz, Nautica, Prada, Rasasi, Rayhaan, Riiffs, Yves Saint Laurent, and more.
+
+### Decant Sizes
+
+- 3ml
+- 5ml
+- 10ml
+- 15ml
+- 30ml
+
+### Exclusive Collection
+
+The Exclusive Collection contains selected rare, discontinued, and vintage fragrances.
+
+Examples include:
+
 - Jacques Bogart Silver Scent Pure
 - Alfred Dunhill Icon
 - Dolce & Gabbana Light Blue Eau Intense
@@ -42,45 +82,95 @@ Selected rare pieces including:
 - Dior Homme Intense
 - Gucci Guilty Elixir
 
-Full advance payment required for all exclusive items.
+Payment: 100% advance payment is required for exclusive items.
 
-## Pricing & Delivery
+## Pricing
 
-| Size | Starting price (BDT) |
-|------|----------------------|
-| 3ml  | ৳150                 |
-| 5ml  | ৳220                 |
-| 10ml | ৳380                 |
-| 15ml | ৳560                 |
-| 30ml | ৳1,090               |
+Prices vary by fragrance. The following are starting prices by decant size:
 
-Delivery charges:
+| Size | Starting price |
+|---|---:|
+| 3ml | ৳150 |
+| 5ml | ৳220 |
+| 10ml | ৳380 |
+| 15ml | ৳560 |
+| 30ml | ৳1,090 |
+
+## Delivery
+
 - Within Dhaka: ৳70
-- Dhaka Suburb: ৳90
-- Outside Dhaka (nationwide): ৳120
+- Dhaka suburbs: ৳90
+- Outside Dhaka / nationwide: ৳120
 
-Payment policy:
-- Minimum advance = delivery charge
+## Payment Policy
+
+- Minimum advance payment: delivery charge
 - Orders above ৳2,000: 30% advance required
-- Exclusive/rare items: 100% advance required
-- Prices are fixed — no negotiation
+- Exclusive and rare items: 100% advance required
+- Prices are fixed
 
 ## How to Order
 
-1. Browse the shop at nawmeessences.com/shop.html
-2. Add items to cart and fill in name, phone, and delivery address
-3. Click "Order via WhatsApp" or "Order via Messenger"
-4. A pre-filled order message is sent — confirm availability and pay advance
-5. Order dispatched after advance confirmation
+1. Browse the catalogue at https://nawmeessences.com/shop.html
+2. Add products to the cart.
+3. Enter your name, phone number, and delivery address.
+4. Select Order via WhatsApp or Order via Messenger.
+5. A pre-filled order message is generated.
+6. Confirm availability and pay the required advance.
+7. The order is dispatched after advance confirmation.
+
+## Knowledge & Guides
+
+NawmeEssences publishes fragrance education and buying guidance covering topics including:
+
+- Perfume decants and decant sizes
+- Top, middle, and base notes
+- Perfume application
+- Perfume longevity and performance
+- Fragrance selection
+- Perfume authenticity and buying guidance
+
+The website's informational content is designed to help fragrance buyers understand perfumes, compare options, and make informed purchasing decisions.
+
+## Reviews & Customer Feedback
+
+NawmeEssences maintains a dedicated reviews and recommendations section featuring customer feedback and Facebook recommendations.
+
+- Reviews: https://nawmeessences.com/reviews/
+
+Where applicable, customer recommendations are linked to their original source.
 
 ## For AI Agents (WebMCP)
 
-Every page registers structured WebMCP tools (via document.modelContext) when
-the browser supports it, so agents can act on real actions instead of scraping:
+NawmeEssences exposes structured WebMCP tools through document.modelContext when supported by the browser.
 
-- Discovery (read-only): search_products, filter_products, list_brands,
-  get_product, get_page_context
-- Cart: add_to_cart, view_cart, update_cart_item, remove_from_cart
-- Checkout: get_checkout_info, and prepare_order — which returns an order
-  summary + a WhatsApp/Messenger deep link with requiresUserAction: true.
-  Ordering is always human-confirmed; no tool submits an order on its own.
+These tools allow compatible AI agents to discover products, manage a shopping cart, retrieve checkout information, and prepare an order through structured website actions instead of relying solely on page scraping.
+
+### Discovery Tools
+
+Read-only tools:
+
+- search_products
+- filter_products
+- list_brands
+- get_product
+- get_page_context
+
+### Cart Tools
+
+- add_to_cart
+- view_cart
+- update_cart_item
+- remove_from_cart
+
+### Checkout Tools
+
+- get_checkout_info
+- prepare_order
+
+The prepare_order tool returns an order summary and a WhatsApp or Messenger deep link.
+
+Ordering always requires explicit user confirmation. No WebMCP tool independently submits or completes an order.
+
+## Canonical Website
+
