@@ -372,7 +372,25 @@ function renderPage(p, all, detailsMap) {
   // variant carries brand + seller refs so verify-schema's Product checks hold.
   const brandRef = { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand };
   const images = [heroLarge(p.id, v), heroMedium(p.id, v)];
-  const priceValidUntil = (() => { const t = new Date(); t.setUTCMonth(t.getUTCMonth() + 2, 0); return t.toISOString().slice(0, 10); })();
+  // Pricing: prices are fixed, so a regular product carries a plain price and
+  // NO priceValidUntil (Google reserves that for time-limited promotions and
+  // would otherwise present the listing as a dated deal). A product on sale
+  // (salePercent > 0) advertises the sale the way Google specifies: `price` is
+  // the current sale price and priceSpecification carries the original as a
+  // StrikethroughPrice. No end date is stored for sales, so none is claimed.
+  const offerPricing = s => {
+    const current = effectivePrice(s.price, sp);
+    const o = { price: current, priceCurrency: 'BDT' };
+    if (sp > 0 && s.price > current) {
+      o.priceSpecification = {
+        '@type': 'UnitPriceSpecification',
+        priceType: 'https://schema.org/StrikethroughPrice',
+        price: s.price,
+        priceCurrency: 'BDT',
+      };
+    }
+    return o;
+  };
   const returnPolicy = schema.merchantReturnPolicy();
   const shipping = schema.shippingDetails();
   const productLd = {
@@ -398,9 +416,7 @@ function renderPage(p, all, detailsMap) {
       offers: {
         '@type': 'Offer',
         url: `${url}?size=${s.ml}`,
-        price: effectivePrice(s.price, sp),
-        priceCurrency: 'BDT',
-        priceValidUntil,
+        ...offerPricing(s),
         availability,
         itemCondition: 'https://schema.org/NewCondition',
         seller: { '@id': schema.ORG_ID },
