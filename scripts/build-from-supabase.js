@@ -490,7 +490,7 @@ function collectHtml(dir, out = []) {
 function versionAssets() {
   const map = buildAssetMap(ROOT);
   const files = [
-    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html']
+    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']
       .map(f => path.join(ROOT, f)),
     ...collectHtml(path.join(ROOT, 'product')),
     ...collectHtml(path.join(ROOT, 'brands')),

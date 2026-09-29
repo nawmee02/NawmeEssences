@@ -129,6 +129,25 @@ function distinctiveNotes(d) {
   return chosen.length > 1 ? `${chosen.slice(0, -1).join(', ')} and ${chosen[chosen.length - 1]}` : chosen[0];
 }
 
+// Meta descriptions: search engines truncate around 155-160 chars, and a few
+// admin-written descriptions (p.metaDescription / post excerpts) run far past
+// that. Clamp at a word boundary, preferring a sentence end when one lands in
+// the back half, so the snippet never ends mid-word.
+function clampMeta(text, max = 155) {
+  let t = String(text || '')
+    .replace(/<[^>]+>/g, ' ')                    // HTML tags
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')     // markdown links → link text
+    .replace(/[*_`]+/g, '')                      // markdown emphasis
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const sentence = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+  if (sentence >= max * 0.6) return cut.slice(0, sentence + 1);
+  const word = cut.lastIndexOf(' ');
+  return (word > 0 ? cut.slice(0, word) : cut).replace(/[,;:\-–—]$/, '') + '…';
+}
+
 // Lean, product-specific description: fragrance type + distinctive notes + size
 // range + starting price (matches "[product] notes/price/Bangladesh/decant" intent).
 function metaDescription(p, d) {
@@ -339,7 +358,7 @@ function renderPage(p, all, detailsMap) {
   const bSlug = brandSlug(p.brand);
   const desc = description(p, d);
   // Per-product overrides win; otherwise fall back to the auto-generated copy.
-  const metaDesc = p.metaDescription || metaDescription(p, d);
+  const metaDesc = clampMeta(p.metaDescription || metaDescription(p, d));
   const title = p.metaTitle || productMetaTitle(p.name);
   const sp = Number(p.salePercent) || 0;
   const lo = minPrice(p.sizes), hi = maxPrice(p.sizes);
@@ -717,7 +736,7 @@ ${others.map(brandTile).join('\n')}
   const title = `${name} Perfume Decants in Bangladesh`;
   // Kept under ~155 chars so Google doesn't truncate it — dropped the count and
   // the pickup list; price stays because it lifts click-through.
-  const metaDesc = `Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`;
+  const metaDesc = clampMeta(`Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`);
   const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop ${sizeList('&amp;')} sizes with fast nationwide delivery.`;
   const socialImage = brand.logo ? brandLogoUrl(brand, 'medium') : `${SITE}/images/og-card.jpg`;
 
@@ -834,7 +853,7 @@ ${BRAND_INLINE}
 function renderBrandsIndex(groups) {
   const url = `${SITE}/brands/`;
   const title = `Perfume Decant Brands in Bangladesh | NawmeEssences`;
-  const metaDesc = `Browse ${groups.length} fragrance brands at NawmeEssences — Rasasi, Lattafa, Armaf, Afnan, Dior, Amouage & more. Authentic perfume decants in 3ml–30ml, delivered across Bangladesh.`;
+  const metaDesc = clampMeta(`Browse ${groups.length} fragrance brands at NawmeEssences — Rasasi, Lattafa, Armaf, Afnan, Dior, Amouage & more. Authentic perfume decants in 3ml–30ml, delivered across Bangladesh.`);
 
   const breadcrumbLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -954,7 +973,7 @@ function blogCard(post) {
 function renderBlogIndex(posts) {
   const url = `${SITE}/blog/`;
   const title = 'The NawmeEssences Journal — Perfume Decant Guides & Tips';
-  const metaDesc = 'Fragrance guides, decant tips, and scent stories from NawmeEssences — authentic perfume decants in Bangladesh.';
+  const metaDesc = clampMeta('Fragrance guides, decant tips, and scent stories from NawmeEssences — authentic perfume decants in Bangladesh.');
   const cards = posts.map(blogCard).join('\n');
   const blogLd = {
     '@context': 'https://schema.org', '@type': 'Blog', name: 'NawmeEssences Journal', url,
@@ -1035,7 +1054,7 @@ function renderBlogPost(post) {
   const url = `${SITE}/blog/${post.id}/`;
   const title = post.metaTitle || `${post.title} — NawmeEssences`;
   const bodyText = String(post.bodyMd || '').replace(/[#*_`>\-\[\]!]/g, ' ').replace(/\s+/g, ' ').trim();
-  const metaDesc = post.metaDescription || post.excerpt || bodyText.slice(0, 155);
+  const metaDesc = clampMeta(post.metaDescription || post.excerpt || bodyText.slice(0, 155));
   const ogImg = coverUrl(post, 'large');
   const bodyHtml = renderMarkdown(post.bodyMd);
 
@@ -1302,32 +1321,99 @@ ${SCRIPTS}
 
 // ─── Sitemap ─────────────────────────────────────────────────
 function writeSitemap(all, groups = [], posts = [], reviews = []) {
+  // lastmod = newest updated_at of the content a page is built from. Collection
+  // pages (home/shop/brands/exclusive) move with the catalogue; brand hubs with
+  // their own products; blog index with its posts; reviews with its entries.
+  // Static policy/about pages have no content timestamp, so they carry none.
+  const day = v => (v ? String(v).slice(0, 10) : null);
+  const newest = items => day(items.map(x => x && x.updatedAt).filter(Boolean).sort().pop());
+  const catalogMod = newest(all);
   const core = [
-    { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0' },
-    { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9' },
-    { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7' },
-    { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8' },
+    { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0', lastmod: catalogMod },
+    { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9', lastmod: catalogMod },
+    { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7', lastmod: catalogMod },
+    { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8', lastmod: catalogMod },
     { loc: `${SITE}/about.html`,    freq: 'monthly', pri: '0.5' },
     { loc: `${SITE}/about-me.html`, freq: 'monthly', pri: '0.4' },
   ];
-  const brandUrls = groups.map(g => ({ loc: `${SITE}/brands/${g.slug}/`, freq: 'weekly', pri: '0.6' }));
+  const brandUrls = groups.map(g => ({ loc: `${SITE}/brands/${g.slug}/`, freq: 'weekly', pri: '0.6', lastmod: newest(g.products || []) }));
   const products = all.map(p => ({
     loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7',
     lastmod: p.updatedAt ? String(p.updatedAt).slice(0, 10) : null,
   }));
   const blogUrls = posts.length ? [
-    { loc: `${SITE}/blog/`, freq: 'weekly', pri: '0.6' },
+    { loc: `${SITE}/blog/`, freq: 'weekly', pri: '0.6', lastmod: newest(posts.map(p => ({ updatedAt: p.updatedAt || p.publishedAt }))) },
     ...posts.map(p => ({
       loc: `${SITE}/blog/${p.id}/`, freq: 'monthly', pri: '0.6',
       lastmod: (p.updatedAt || p.publishedAt) ? String(p.updatedAt || p.publishedAt).slice(0, 10) : null,
     })),
   ] : [];
-  const reviewUrls = reviews.length ? [{ loc: `${SITE}/reviews/`, freq: 'weekly', pri: '0.6' }] : [];
+  const reviewUrls = reviews.length ? [{ loc: `${SITE}/reviews/`, freq: 'weekly', pri: '0.6', lastmod: newest(reviews) }] : [];
   const urls = [...core, ...brandUrls, ...blogUrls, ...reviewUrls, ...products].map(u =>
     `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);
+}
+
+// ─── 404 page ─────────────────────────────────────────────────
+// GitHub Pages serves /404.html for any unknown path, so it must use absolute
+// asset URLs. noindex so a mistyped URL never becomes an indexed page; the
+// search form and the main links keep the visitor (and crawler) on the site.
+function render404Page() {
+  const title = 'Page not found — NawmeEssences';
+  const desc = 'That page does not exist. Search the catalogue or browse all authentic perfume decants from NawmeEssences.';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(desc)}" />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:title" content="${attr(title)}" />
+  <meta property="og:description" content="${attr(desc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
+  <script type="application/ld+json">${orgLd()}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<div class="section" style="padding-top:40px;text-align:center;max-width:720px;">
+  <p class="hero-eyebrow">Error 404</p>
+  <h1 class="brand-h1">Page <span>not found</span></h1>
+  <p class="brand-intro" style="margin:0 auto 24px;">The link may be old, or the product may have moved. Search the catalogue or pick a place to continue.</p>
+  <form class="nav-search" role="search" method="get" action="/shop.html" style="justify-content:center;margin-bottom:28px;">
+    <input type="search" name="q" class="nav-search-input" placeholder="Search fragrances…" aria-label="Search fragrances" autocomplete="off" style="position:static;width:min(420px,80vw);height:auto;max-width:none;opacity:1;padding:10px 12px;border:1px solid var(--border);pointer-events:auto;" />
+    <button type="submit" class="nav-search-btn" aria-label="Search" style="padding:10px 14px;">Search</button>
+  </form>
+  <div class="hero-btns">
+    <a href="/shop.html" class="btn-primary">Shop All Fragrances</a>
+    <a href="/brands/" class="btn-outline">Browse by Brand</a>
+    <a href="/" class="btn-outline">Home</a>
+  </div>
+</div>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+</body>
+</html>
+`;
 }
 
 // ─── Generate from arbitrary data (local products.js OR Supabase) ─
@@ -1375,6 +1461,9 @@ function generateFromData(allProducts, productDetails, opts = {}) {
   const reviewsRoot = path.join(ROOT, 'reviews');
   fs.mkdirSync(reviewsRoot, { recursive: true });
   fs.writeFileSync(path.join(reviewsRoot, 'index.html'), renderReviewsPage(reviews));
+
+  // Branded 404 (GitHub Pages picks up /404.html automatically).
+  fs.writeFileSync(path.join(ROOT, '404.html'), render404Page());
 
   writeSitemap(allProducts, groups, posts, reviews);
 

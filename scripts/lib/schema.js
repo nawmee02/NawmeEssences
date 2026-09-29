@@ -74,6 +74,8 @@ function organizationNode() {
     // Count comes from lib/facts.js (set by the build from the live catalogue) so
     // schema, page copy and llms.txt always quote the same number.
     description: `Authentic luxury perfume decants. ${fragranceLabel()} fragrances in 3ml–30ml sizes. Delivery across Bangladesh.`,
+    telephone: '+8801988536843',
+    hasMap: GOOGLE_BUSINESS_PROFILE_URL,
     sameAs: orgSameAs(),
     founder: { '@id': FOUNDER_ID },
     contactPoint: {
@@ -128,7 +130,12 @@ function founderNode() {
     name: FOUNDER_NAME,
     image: `${SITE}/images/nawmee.jpg`,
     jobTitle: 'Founder',
+    url: `${SITE}/about-me.html`,
     worksFor: { '@id': ORG_ID },
+    // Entity anchors for the founder himself (the brand's socials live on the
+    // Organization node). Add personal profiles here as they exist.
+    sameAs: ['https://github.com/nawmee02'],
+    knowsAbout: ['Perfume decants', 'Designer and niche fragrances', 'Middle Eastern perfumery'],
   };
 }
 
