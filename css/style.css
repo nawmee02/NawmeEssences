@@ -1,3 +1,4 @@
+/* @critical:start */
 /* ===== RESET & BASE ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -374,6 +375,12 @@ input, select { font-family: var(--font-body); }
 .section-link { color: var(--gold); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
 .section-link:hover { text-decoration: underline; }
 .section-subtitle { color: var(--text-muted); font-size: 14px; margin-top: -24px; margin-bottom: 32px; }
+/* Below-the-fold homepage blocks: defer their style/layout until scrolled near
+   (content-visibility). Add .cv-auto to a wrapper that has no semantic class. */
+.cv-auto, .stats-section, .reviews-section, .how-section, .faq-section, .site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
 
 /* ===== BRAND STRIP ===== */
 .brand-strip {
@@ -442,6 +449,10 @@ input, select { font-family: var(--font-body); }
 
 /* ===== PRODUCT CARD ===== */
 .product-card {
+  /* Skip layout/paint for off-screen cards (shop/brand grids hold 100+).
+     `auto` remembers the rendered size once seen; 400px is the first guess. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -454,6 +465,7 @@ input, select { font-family: var(--font-body); }
 .product-card:hover { border-color: var(--gold-dark); transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
 .product-card.out-of-stock { opacity: 0.6; }
 .product-card[hidden] { display: none !important; }   /* filtered-out cards (display:flex would beat the hidden attr) */
+/* @critical:end */
 
 /* ===== BRAND HUB PAGES ===== */
 .brand-h1 { font-family: var(--font-head); font-size: clamp(26px, 4.5vw, 44px); font-weight: 600; margin: 0 0 10px; }
@@ -549,6 +561,7 @@ input, select { font-family: var(--font-body); }
   .brand-monogram-lg { width: 52px; height: 52px; font-size: 23px; }
   .brand-logo-lg { width: 52px; height: 52px; padding: 6px; }
 }
+/* @critical:start */
 .card-link { text-decoration: none; color: inherit; display: block; }
 .card-img {
   position: relative;
@@ -679,6 +692,7 @@ input, select { font-family: var(--font-body); }
 }
 .add-to-cart-btn:hover { background: var(--gold-bg); color: #000; }
 .add-to-cart-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+/* @critical:end */
 
 /* ===== FILTERS (SHOP PAGE) ===== */
 .shop-layout { display: flex; gap: 28px; align-items: flex-start; }
@@ -1494,6 +1508,9 @@ input, select { font-family: var(--font-body); }
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
+  /* @critical:start media=(max-width: 640px) */
+  /* Above-the-fold subset first (extracted into the homepage's inline critical
+     CSS by scripts/lib/critical-css.js); page-specific rules follow. */
   /* Keep the header on one row: smaller logo + tighter spacing */
   .nav-inner { padding: 0 12px; gap: 8px; }
   .logo img { height: 24px; }
@@ -1523,19 +1540,22 @@ input, select { font-family: var(--font-body); }
   #nav-menu.open { display: flex; }
   #nav-menu .nav-link { font-size: 16px; padding: 14px 24px; border-radius: 0; }
   .burger { display: flex; }
-  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding: 72px 16px 56px; }
   .section { padding: 52px 16px; }
-  .cart-item { grid-template-columns: 56px 1fr; }
-  .cart-item-img { width: 56px; height: 56px; }
-  .cart-item-controls { grid-column: 1 / -1; justify-content: space-between; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .card-name { font-size: 12.5px; }
   .card-body { padding: 10px; gap: 4px; }
   .card-footer { padding: 0 10px 10px; }
+  /* @critical:end */
+  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+  .cart-item { grid-template-columns: 56px 1fr; }
+  .cart-item-img { width: 56px; height: 56px; }
+  .cart-item-controls { grid-column: 1 / -1; justify-content: space-between; }
 }
 @media (max-width: 320px) {
+  /* @critical:start media=(max-width: 320px) */
   .product-grid { grid-template-columns: 1fr; }
+  /* @critical:end */
 }
 
 /* ============================================================

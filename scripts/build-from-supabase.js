@@ -25,6 +25,7 @@ const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
+const { extractCriticalCss } = require('./lib/critical-css');
 const { fetchPosts } = require('./lib/blog');
 const { fetchReviews, renderReviewCard, homepageReviews, reviewStats, countLabel } = require('./lib/reviews');
 
@@ -426,6 +427,35 @@ function injectReviews(reviews) {
   console.log(`  injected → index.html (${picks.length} homepage review${picks.length === 1 ? '' : 's'})`);
 }
 
+// Homepage only: inline the above-the-fold CSS (blocks marked @critical in
+// css/style.css) and load the full stylesheet without blocking render, via the
+// same media="print" + onload swap the Google Fonts link already uses. The other
+// pages keep the blocking <link>: their first screens (product hero, shop grid,
+// brand header) are not covered by the shared critical subset, so async CSS
+// there would flash unstyled and shift. Idempotent via SET:critical markers;
+// runs before versionAssets() so the three hrefs get ?v= stamped.
+function injectCriticalCss() {
+  const css = extractCriticalCss(path.join(ROOT, 'css', 'style.css'));
+  const fp = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  const block =
+    '<!--SET:critical:start-->\n' +
+    '  <style>' + css + '</style>\n' +
+    '  <link rel="preload" as="style" href="css/style.css" />\n' +
+    '  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media=\'all\'" />\n' +
+    '  <noscript><link rel="stylesheet" href="css/style.css" /></noscript>\n' +
+    '  <!--SET:critical:end-->';
+  const marked = /<!--SET:critical:start-->[\s\S]*?<!--SET:critical:end-->/;
+  if (marked.test(html)) html = html.replace(marked, () => block);
+  else {
+    const link = /<link rel="stylesheet" href="css\/style\.css(?:\?v=[a-z0-9]+)?" \/>/;
+    if (!link.test(html)) throw new Error('index.html: css/style.css <link> not found for critical CSS injection');
+    html = html.replace(link, () => block);
+  }
+  fs.writeFileSync(fp, html);
+  console.log(`  injected → index.html (critical CSS inline: ${(css.length / 1024).toFixed(1)} KB; style.css async)`);
+}
+
 // Cache-bust local css/js by stamping ?v=<content-hash> onto every reference,
 // across root HTML + all generated pages. Runs LAST so no later step clobbers
 // the query. Content-hash → the URL only changes when the file changes, so a
@@ -528,6 +558,9 @@ async function run() {
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos, reviews });
+
+  console.log('\n🎨 Inlining critical CSS...');
+  injectCriticalCss();
 
   console.log('\n🔖 Cache-busting assets...');
   versionAssets();
