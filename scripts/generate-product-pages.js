@@ -873,7 +873,12 @@ function renderBrandsIndex(groups) {
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="Perfume Decant Brands in Bangladesh" />
   <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
   <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Perfume Decant Brands in Bangladesh" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
@@ -981,7 +986,12 @@ function renderBlogIndex(posts) {
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="${attr(title)}" />
   <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
   <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(title)}" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
   <script type="application/ld+json">${ORG_LD}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
