@@ -1135,22 +1135,40 @@ function renderReviewsPage(reviews) {
 
   const cards = reviews.map(r => renderReviewCard(r)).join('\n');
 
-  // Review nodes only for entries with text (always true here) — rating only
-  // when one exists; itemReviewed resolves to the canonical #organization.
+  // A schema.org Review is emitted ONLY when the entry has a real rating:
+  // Google's Review-snippet validator requires reviewRating.ratingValue and
+  // itemReviewed.name, so an unrated Facebook "recommends" entry marked up as
+  // Review fails validation (Ahrefs: "Google rich results validation error").
+  // Stars are never synthesised for a recommendation (see lib/reviews.js), so
+  // recommendations become plain Comment nodes about the organization —
+  // still machine-readable, but not a rich-result type Google validates.
+  // itemReviewed is inlined with @type/name matching the canonical
+  // #organization node exactly, so verify-schema's @id-conflict check passes.
+  const orgRef = { '@id': schema.ORG_ID };
+  const orgInline = { '@type': ['Organization', 'Store'], '@id': schema.ORG_ID, name: 'NawmeEssences' };
   const pageLd = {
     '@context': 'https://schema.org', '@type': 'WebPage',
     name: 'Customer Reviews & Recommendations', url,
     isPartOf: { '@id': `${SITE}/#website` },
+    about: orgRef,
     mainEntity: {
       '@type': 'ItemList', numberOfItems: reviews.length,
       itemListElement: reviews.map((r, i) => {
-        const node = {
-          '@type': 'Review',
-          author: { '@type': 'Person', name: r.name },
-          reviewBody: r.body,
-          itemReviewed: { '@id': schema.ORG_ID },
-        };
-        if (r.rating) node.reviewRating = { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 };
+        const author = { '@type': 'Person', name: r.name };
+        const node = r.rating
+          ? {
+              '@type': 'Review',
+              author,
+              reviewBody: r.body,
+              itemReviewed: orgInline,
+              reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            }
+          : {
+              '@type': 'Comment',
+              author,
+              text: r.body,
+              about: orgRef,
+            };
         if (r.reviewedAt) node.datePublished = String(r.reviewedAt).slice(0, 10);
         if (r.sourceUrl) node.url = r.sourceUrl;
         return { '@type': 'ListItem', position: i + 1, item: node };
