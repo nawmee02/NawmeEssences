@@ -4,6 +4,7 @@ Disallow: /cart.html
 
 Sitemap: https://nawmeessences.com/sitemap.xml
 
-# Agentic Resource Discovery (ARD) catalog for AI agents/registries.
-# /.well-known/ard.json is a byte-identical alias — keep both files in sync.
-Agentmap: https://nawmeessences.com/.well-known/ai-catalog.json
+# AI agent discovery (ARD) catalog lives at the standard well-known path:
+# /.well-known/ai-catalog.json (alias: /.well-known/ard.json — keep in sync).
+# No "Agentmap:" directive here: Lighthouse's robots.txt audit rejects
+# non-standard directives, and agents find the well-known path by default.
