@@ -566,6 +566,7 @@ async function run() {
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
+  facts.setDeliveryRates(settings.delivery);   // Offer shippingDetails read these
   injectSettings(settings);
   injectStaticOrg();
   injectOriginTrial();

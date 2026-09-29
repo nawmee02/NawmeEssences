@@ -14,7 +14,7 @@
 // ============================================================
 
 const SITE = 'https://nawmeessences.com';
-const { fragranceLabel, PICKUP_POINTS } = require('./facts');
+const { fragranceLabel, PICKUP_POINTS, getDeliveryRates } = require('./facts');
 
 // WebMCP origin-trial token (feature "WebMCP", expires 2026-11-17). Enables
 // document.modelContext on this origin in Chrome 150+ WITHOUT a user flag — so
@@ -76,6 +76,8 @@ function organizationNode() {
     description: `Authentic luxury perfume decants. ${fragranceLabel()} fragrances in 3ml–30ml sizes. Delivery across Bangladesh.`,
     telephone: '+8801988536843',
     hasMap: GOOGLE_BUSINESS_PROFILE_URL,
+    // Merchant-level return policy (Google associates it with every offer).
+    hasMerchantReturnPolicy: merchantReturnPolicy(),
     sameAs: orgSameAs(),
     founder: { '@id': FOUNDER_ID },
     contactPoint: {
@@ -186,8 +188,43 @@ function graphScript(...nodes) {
   return `<script type="application/ld+json">${json}</script>`;
 }
 
+
+// ─── Merchant listing helpers (Google "merchant listing" rich results) ───
+// Return policy mirrors about.html#refund exactly: no returns or exchanges on
+// opened/used decants; verified damage/missing/wrong-item claims (reported
+// within 24 h with an unboxing video) get a replacement or refund at no cost.
+function merchantReturnPolicy() {
+  return {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: 'BD',
+    returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+    itemDefectReturnFees: 'https://schema.org/FreeReturn',
+    itemDefectReturnLabelSource: 'https://schema.org/ReturnLabelCustomerResponsibility',
+    merchantReturnLink: `${SITE}/about.html#refund`,
+  };
+}
+
+// Shipping tiers from the admin delivery rates (lib/facts.js): Dhaka city and
+// the rest of Bangladesh. The suburb tier has no region code Google can match,
+// so it stays in prose on the policy page. Transit times match the FAQ.
+function shippingDetails() {
+  const r = getDeliveryRates();
+  const tier = (rate, region, minT, maxT) => ({
+    '@type': 'OfferShippingDetails',
+    shippingRate: { '@type': 'MonetaryAmount', value: rate, currency: 'BDT' },
+    shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'BD', ...(region ? { addressRegion: [region] } : {}) },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+      transitTime: { '@type': 'QuantitativeValue', minValue: minT, maxValue: maxT, unitCode: 'DAY' },
+    },
+  });
+  return [tier(r.dhaka, 'Dhaka', 1, 2), tier(r.outside, null, 2, 3)];
+}
+
 module.exports = {
   SITE, ORG_ID, SITE_ID, FOUNDER_ID,
+  merchantReturnPolicy, shippingDetails,
   ref, brandId,
   organizationNode, websiteNode, founderNode, founderInline, brandNode, faqPageNode,
   graphScript, originTrialMeta,

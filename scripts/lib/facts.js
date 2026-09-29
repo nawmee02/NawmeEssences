@@ -65,7 +65,20 @@ function applyPickupPhrases(text) {
   return t;
 }
 
+// ── Delivery rates (BDT) ──────────────────────────────────────
+// Set by the build from the admin site_settings.delivery block; consumed by the
+// Offer shippingDetails on every product page so schema never disagrees with
+// the policy page and ticker.
+let delivery = { dhaka: 70, suburb: 90, outside: 120 };
+function setDeliveryRates(d) {
+  if (!d) return { ...delivery };
+  for (const k of ['dhaka', 'suburb', 'outside']) { const n = Number(d[k]); if (Number.isFinite(n) && n >= 0) delivery[k] = n; }
+  return { ...delivery };
+}
+function getDeliveryRates() { return { ...delivery }; }
+
 module.exports = {
   setCatalogFacts, getCatalogFacts, fragranceLabel, brandLabel, applyCountPhrases,
+  setDeliveryRates, getDeliveryRates,
   PICKUP_POINTS, pickupNames, pickupTicker, pickupList, applyPickupPhrases,
 };

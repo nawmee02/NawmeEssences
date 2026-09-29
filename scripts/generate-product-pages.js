@@ -366,27 +366,48 @@ function renderPage(p, all, detailsMap) {
   const loEff = effectivePrice(lo, sp), hiEff = effectivePrice(hi, sp);
   const availability = p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 
+  // Google merchant listings require Offer (not AggregateOffer) and want size
+  // variants as a ProductGroup with one Product + Offer per variant, each with
+  // its own URL (?size= preselects the pill — see the page script). Every
+  // variant carries brand + seller refs so verify-schema's Product checks hold.
+  const brandRef = { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand };
+  const images = [heroLarge(p.id, v), heroMedium(p.id, v)];
+  const priceValidUntil = (() => { const t = new Date(); t.setUTCMonth(t.getUTCMonth() + 2, 0); return t.toISOString().slice(0, 10); })();
+  const returnPolicy = schema.merchantReturnPolicy();
+  const shipping = schema.shippingDetails();
   const productLd = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
+    '@type': 'ProductGroup',
+    '@id': `${url}#group`,
     name: p.name,
-    // Reference the Brand entity whose full node lives on the brand hub page.
-    brand: { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand },
-    image: [heroLarge(p.id, v), heroMedium(p.id, v)],
+    brand: brandRef,
+    image: images,
     description: metaDesc,
-    sku: p.id,
+    productGroupID: p.id,
+    variesBy: ['https://schema.org/size'],
     category: d ? d.family : 'Fragrance',
+    url,
     mainEntityOfPage: url,
-    offers: {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'BDT',
-      lowPrice: loEff,
-      highPrice: hiEff,
-      offerCount: p.sizes.length,
-      availability,
-      url,
-      seller: { '@id': schema.ORG_ID },
-    },
+    hasVariant: p.sizes.map(s => ({
+      '@type': 'Product',
+      name: `${p.name} — ${s.ml}ml decant`,
+      sku: `${p.id}-${s.ml}ml`,
+      size: `${s.ml} ml`,
+      brand: brandRef,
+      image: images,
+      offers: {
+        '@type': 'Offer',
+        url: `${url}?size=${s.ml}`,
+        price: effectivePrice(s.price, sp),
+        priceCurrency: 'BDT',
+        priceValidUntil,
+        availability,
+        itemCondition: 'https://schema.org/NewCondition',
+        seller: { '@id': schema.ORG_ID },
+        shippingDetails: shipping,
+        hasMerchantReturnPolicy: returnPolicy,
+      },
+    })),
   };
   const props = fragranceProperties(d);
   if (props) productLd.additionalProperty = props;
@@ -510,6 +531,16 @@ ${FOOTER}
 ${SCRIPTS}
 <script>
   const PRODUCT = { id: ${JSON.stringify(p.id)}, name: ${JSON.stringify(p.name)}, brand: ${JSON.stringify(p.brand)}, isExclusive: ${isExclusive} };
+
+  // Variant deep links (?size=5) from the ProductGroup offers preselect the
+  // pill. Runs on DOMContentLoaded because selectSize() lives in a deferred
+  // script that has not executed yet when this inline block is parsed.
+  document.addEventListener('DOMContentLoaded', function () {
+    var ml = new URLSearchParams(location.search).get('size');
+    if (!ml || typeof selectSize !== 'function') return;
+    var pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill[data-ml="' + String(Number(ml)) + '"]');
+    if (pill && !pill.classList.contains('active')) selectSize(PRODUCT.id, pill);
+  });
 
   function selectedVariant() {
     const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
