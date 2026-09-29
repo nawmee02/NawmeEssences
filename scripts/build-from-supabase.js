@@ -26,6 +26,7 @@ const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
 const { extractCriticalCss } = require('./lib/critical-css');
+const facts = require('./lib/facts');
 const { fetchPosts } = require('./lib/blog');
 const { fetchReviews, renderReviewCard, homepageReviews, reviewStats, countLabel } = require('./lib/reviews');
 
@@ -427,6 +428,23 @@ function injectReviews(reviews) {
   console.log(`  injected → index.html (${picks.length} homepage review${picks.length === 1 ? '' : 's'})`);
 }
 
+// Rewrite every "NN+ fragrances" / "NN+ brands" phrase in the static root
+// pages and llms.txt to the labels derived from the live catalogue (see
+// lib/facts.js). Meta descriptions, OG text, trust bar, hero copy and the
+// AI-facing llms.txt therefore always agree with the shop. Idempotent.
+function injectCatalogFacts() {
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt'];
+  let n = 0;
+  for (const file of files) {
+    const fp = path.join(ROOT, file);
+    if (!fs.existsSync(fp)) continue;
+    const before = fs.readFileSync(fp, 'utf8');
+    const after = facts.applyCountPhrases(before);
+    if (after !== before) { fs.writeFileSync(fp, after); n++; }
+  }
+  console.log(`  catalogue facts → ${facts.fragranceLabel()} fragrances / ${facts.brandLabel()} brands (${n} file(s) updated)`);
+}
+
 // Homepage only: inline the above-the-fold CSS (blocks marked @critical in
 // css/style.css) and load the full stylesheet without blocking render, via the
 // same media="print" + onload swap the Google Fonts link already uses. The other
@@ -529,6 +547,12 @@ async function run() {
   console.log('📥 Fetching catalog from Supabase...');
   const { allProducts, productDetails, brandLogos } = await fetchCatalog();
   console.log(`   ${allProducts.length} products`);
+  // Single source of truth for every "NN+ fragrances / NN+ brands" phrase
+  // (schema description, page copy, llms.txt). Must run before any page is
+  // generated or injected.
+  const brandSet = new Set(allProducts.map(p => (p.brand || '').trim()).filter(Boolean));
+  const f = facts.setCatalogFacts({ fragrances: allProducts.length, brands: brandSet.size });
+  console.log(`   facts → ${facts.fragranceLabel()} fragrances (${f.fragrances}), ${facts.brandLabel()} brands (${f.brands})`);
 
   console.log('\n🖼️  Optimizing images...');
   const { imageSet, errors } = await optimizeImages(allProducts);
@@ -555,6 +579,9 @@ async function run() {
   const reviews = await fetchReviews(sb);
   console.log(`   ${reviews.length} published reviews`);
   injectReviews(reviews);
+
+  console.log('\n🔢 Syncing catalogue facts...');
+  injectCatalogFacts();
 
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos, reviews });

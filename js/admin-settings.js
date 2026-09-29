@@ -37,7 +37,7 @@
   // DEFAULTS.trustBar in scripts/lib/settings.js.
   const DEFAULT_TRUST = [
     '100% Authentic',
-    '90+ Fragrances',
+    '100+ Fragrances',
     'Sizes: 3ml · 5ml · 10ml · 15ml',
     'Pickup: Aftabnagar · Banasree · NSU',
     'Dhaka ৳70 · Suburb ৳90 · Outside ৳120',

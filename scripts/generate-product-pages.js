@@ -311,7 +311,9 @@ const SCRIPTS = `<script src="/js/cart.js" defer></script>
 // Shared, canonical Organization JSON-LD — identical #organization node on every
 // page (from scripts/lib/schema.js), so the graph never drifts. Its founder ref
 // resolves to the Person node declared on the homepage / about-me.
-const ORG_LD = JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() });
+// Lazy: the build sets catalogue facts (lib/facts.js) AFTER this module is
+// required, and organizationNode() reads them for its description.
+const orgLd = () => JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() });
 
 // Fragrance notes/accords/family → consistent PropertyValue list (semantic
 // enrichment; values are clean comma-joined strings, never one ambiguous blob).
@@ -409,7 +411,7 @@ function renderPage(p, all, detailsMap) {
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImage(p.id, v))}" />
   <!-- Structured data -->
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -769,7 +771,7 @@ ${others.map(brandTile).join('\n')}
   <meta name="twitter:title" content="${attr(name + ' Perfume Decants in Bangladesh')}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(socialImage)}" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -879,7 +881,7 @@ function renderBrandsIndex(groups) {
   <meta name="twitter:title" content="Perfume Decant Brands in Bangladesh" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -992,7 +994,7 @@ function renderBlogIndex(posts) {
   <meta name="twitter:title" content="${attr(title)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -1079,7 +1081,7 @@ function renderBlogPost(post) {
   <meta name="twitter:title" content="${attr(post.title)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImg)}" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -1216,7 +1218,7 @@ function renderReviewsPage(reviews) {
   <meta name="twitter:title" content="${attr(title)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(pageLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />

@@ -14,6 +14,7 @@
 // ============================================================
 
 const SITE = 'https://nawmeessences.com';
+const { fragranceLabel } = require('./facts');
 
 // WebMCP origin-trial token (feature "WebMCP", expires 2026-11-17). Enables
 // document.modelContext on this origin in Chrome 150+ WITHOUT a user flag — so
@@ -70,7 +71,9 @@ function organizationNode() {
     url: `${SITE}/`,
     logo: `${SITE}/images/logo.png`,
     image: `${SITE}/images/og-card.jpg`,
-    description: 'Authentic luxury perfume decants. 90+ fragrances in 3ml–30ml sizes. Delivery across Bangladesh.',
+    // Count comes from lib/facts.js (set by the build from the live catalogue) so
+    // schema, page copy and llms.txt always quote the same number.
+    description: `Authentic luxury perfume decants. ${fragranceLabel()} fragrances in 3ml–30ml sizes. Delivery across Bangladesh.`,
     sameAs: orgSameAs(),
     founder: { '@id': FOUNDER_ID },
     contactPoint: {

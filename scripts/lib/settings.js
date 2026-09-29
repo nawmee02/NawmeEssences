@@ -37,18 +37,18 @@ const DEFAULTS = {
   hero: {
     eyebrow: 'Your Signature Scent · Starts Here ·',
     title: 'Authentic Perfume Decants in Bangladesh',
-    subtitle: 'Choose from 90+ premium fragrances in sizes from 3ml to 30ml, all decanted from authentic original bottles.',
+    subtitle: 'Choose from 100+ premium fragrances in sizes from 3ml to 30ml, all decanted from authentic original bottles.',
   },
   stats: [
     { target: 2000, suffix: '+', label: 'Orders Delivered' },
-    { target: 90, suffix: '+', label: 'Fragrances' },
-    { target: 30, suffix: '+', label: 'Brands' },
+    { target: 100, suffix: '+', label: 'Fragrances' },
+    { target: 35, suffix: '+', label: 'Brands' },
     { target: 100, suffix: '%', label: 'Authentic' },
   ],
   sound: true,
   trustBar: [
     '100% Authentic',
-    '90+ Fragrances',
+    '100+ Fragrances',
     'Sizes: 3ml · 5ml · 10ml · 15ml',
     'Pickup: Aftabnagar · Banasree · NSU',
     'Dhaka ৳70 · Suburb ৳90 · Outside ৳120',
