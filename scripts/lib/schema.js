@@ -14,7 +14,7 @@
 // ============================================================
 
 const SITE = 'https://nawmeessences.com';
-const { fragranceLabel } = require('./facts');
+const { fragranceLabel, PICKUP_POINTS } = require('./facts');
 
 // WebMCP origin-trial token (feature "WebMCP", expires 2026-11-17). Enables
 // document.modelContext on this origin in Chrome 150+ WITHOUT a user flag — so
@@ -94,14 +94,10 @@ function organizationNode() {
       addressRegion: 'Dhaka',
       addressCountry: 'BD',
     },
-    department: [
-      { '@type': 'Store', name: 'NawmeEssences Pickup — Aftabnagar',
-        address: { '@type': 'PostalAddress', addressLocality: 'Aftabnagar, Dhaka', addressCountry: 'BD' } },
-      { '@type': 'Store', name: 'NawmeEssences Pickup — Banasree',
-        address: { '@type': 'PostalAddress', addressLocality: 'Banasree, Dhaka', addressCountry: 'BD' } },
-      { '@type': 'Store', name: 'NawmeEssences Pickup — NSU (Bashundhara R/A)',
-        address: { '@type': 'PostalAddress', addressLocality: 'Bashundhara R/A, Dhaka', addressCountry: 'BD' } },
-    ],
+    department: PICKUP_POINTS.map(p => ({
+      '@type': 'Store', name: `NawmeEssences Pickup — ${p.name}`,
+      address: { '@type': 'PostalAddress', addressLocality: p.locality, addressCountry: 'BD' },
+    })),
   };
 }
 

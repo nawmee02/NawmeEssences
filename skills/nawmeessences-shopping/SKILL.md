@@ -45,7 +45,7 @@ Do not describe prices as negotiable or offer discounts; only the product page's
 ## Delivery and payment
 
 - Delivery charge: ৳70 inside Dhaka, ৳90 Dhaka suburb, ৳120 anywhere else in Bangladesh.
-- Pickup points in Dhaka: Aftabnagar, Banasree, NSU (Bashundhara R/A).
+- Pickup points in Dhaka: Aftabnagar and Banasree.
 - Minimum advance payment = the delivery charge.
 - Orders above ৳2,000 require a 30% advance.
 - Exclusive-collection items require 100% advance.

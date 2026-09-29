@@ -16,6 +16,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
+const { pickupTicker } = require('./lib/facts');
 
 const SITE = 'https://nawmeessences.com';
 const DEFAULT_OG = `${SITE}/images/logo.png`;
@@ -254,11 +255,11 @@ const HEADER = `<div class="announcement-bar">
   <div class="ticker-track" data-setting-list="announcements">
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>✅ 100% Authentic Decants</span>
-    <span>📍 Pickup: Aftabnagar · Banasree · NSU</span>
+    <span>📍 ${pickupTicker()}</span>
     <span>💳 Min. advance = delivery charge</span>
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>✅ 100% Authentic Decants</span>
-    <span>📍 Pickup: Aftabnagar · Banasree · NSU</span>
+    <span>📍 ${pickupTicker()}</span>
     <span>💳 Min. advance = delivery charge</span>
   </div>
 </div>

@@ -433,13 +433,13 @@ function injectReviews(reviews) {
 // lib/facts.js). Meta descriptions, OG text, trust bar, hero copy and the
 // AI-facing llms.txt therefore always agree with the shop. Idempotent.
 function injectCatalogFacts() {
-  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt'];
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt', 'skills/nawmeessences-shopping/SKILL.md'];
   let n = 0;
   for (const file of files) {
     const fp = path.join(ROOT, file);
     if (!fs.existsSync(fp)) continue;
     const before = fs.readFileSync(fp, 'utf8');
-    const after = facts.applyCountPhrases(before);
+    const after = facts.applyPickupPhrases(facts.applyCountPhrases(before));
     if (after !== before) { fs.writeFileSync(fp, after); n++; }
   }
   console.log(`  catalogue facts → ${facts.fragranceLabel()} fragrances / ${facts.brandLabel()} brands (${n} file(s) updated)`);
