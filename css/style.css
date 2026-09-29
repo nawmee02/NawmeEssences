@@ -318,10 +318,16 @@ input, select { font-family: var(--font-body); }
   margin-bottom: 8px;
 }
 .hero h1 {
-  font-family: var(--font-head);
-  font-size: clamp(36px, 6vw, 72px);
+  /* Homepage LCP element. System serif on purpose: keeps the web font
+     (--font-head via Google Fonts) off the critical path so LCP == first
+     paint. Every other heading on the site still uses --font-head. Size and
+     tracking are trimmed slightly because Georgia sets wider than Cormorant. */
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: clamp(34px, 5.6vw, 68px);   /* keep the h1 larger than the subtitle so it stays the LCP element */
   font-weight: 700;
   line-height: 1.12;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
   margin-bottom: 22px;
 }
 .hero h1 em { color: var(--gold); font-style: normal; }
