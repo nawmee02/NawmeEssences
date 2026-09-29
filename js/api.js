@@ -33,6 +33,11 @@ const ProductAPI = (() => {
   }
 
   // ─── List shape (shop / index): only what cards render ───────
+  // A sale is live only while sale_until (migration 014) is empty or not yet
+  // past, measured in Bangladesh time (UTC+6) — same rule as the build.
+  function todayBD() { return new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10); }
+  function liveSale(pct, until) { pct = Number(pct) || 0; return pct > 0 && (!until || String(until).slice(0, 10) >= todayBD()) ? pct : 0; }
+
   function _normList(row) {
     const v = ver(row.updated_at);
     return {
@@ -41,7 +46,8 @@ const ProductAPI = (() => {
       brand:         row.brands?.name ?? '',
       collection:    row.collection,
       updatedAt:     row.updated_at,
-      salePercent:   row.sale_percent || 0,
+      salePercent:   liveSale(row.sale_percent, row.sale_until),
+      saleUntil:     row.sale_until || null,
       sizes:         (row.fragrance_sizes || [])
                        .map(s => ({ ml: s.ml, price: s.price }))
                        .sort((a, b) => a.ml - b.ml),
@@ -64,11 +70,16 @@ const ProductAPI = (() => {
     const baseParams = `status=eq.published&order=sort_order`;
     let data;
     try {
-      const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}, sale_percent`);
+      const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}, sale_percent, sale_until`);
       data = await query(`select=${select}&${baseParams}`);
     } catch {
-      const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}`);
-      data = await query(`select=${select}&${baseParams}`);
+      try {
+        const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}, sale_percent`);
+        data = await query(`select=${select}&${baseParams}`);
+      } catch {
+        const select = encodeURIComponent(`${LIST_BASE}, ${LIST_REL}`);
+        data = await query(`select=${select}&${baseParams}`);
+      }
     }
     _cache = data.map(_normList);
     return _cache;
@@ -80,7 +91,8 @@ const ProductAPI = (() => {
     const rel = 'brands ( name ), fragrance_sizes ( ml, price ), fragrance_tags ( tag ), fragrance_details ( top_notes, heart_notes, base_notes, accords, family, description )';
     const base = 'id, name, collection, in_stock, updated_at';
     const q = cols => sb.from('fragrances').select(`${cols}, ${rel}`).eq('id', id).maybeSingle();
-    let { data, error } = await q(`${base}, sale_percent`);
+    let { data, error } = await q(`${base}, sale_percent, sale_until`);
+    if (error) ({ data, error } = await q(`${base}, sale_percent`));
     if (error) ({ data, error } = await q(base));
     if (error) throw error;
     if (!data) return null;   // drafted / deleted id → caller keeps the baked page
@@ -93,7 +105,8 @@ const ProductAPI = (() => {
       brand:        data.brands?.name ?? '',
       collection:   data.collection,
       inStock:      data.in_stock,
-      salePercent:  data.sale_percent || 0,
+      salePercent:  liveSale(data.sale_percent, data.sale_until),
+      saleUntil:    data.sale_until || null,
       sizes:        (data.fragrance_sizes || [])
                       .map(s => ({ ml: s.ml, price: s.price }))
                       .sort((a, b) => a.ml - b.ml),

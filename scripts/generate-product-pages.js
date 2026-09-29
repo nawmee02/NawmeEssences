@@ -382,6 +382,8 @@ function renderPage(p, all, detailsMap) {
     const current = effectivePrice(s.price, sp);
     const o = { price: current, priceCurrency: 'BDT' };
     if (sp > 0 && s.price > current) {
+      // Admin-set end date (fragrances.sale_until) -> Google's priceValidUntil.
+      if (p.saleUntil) o.priceValidUntil = p.saleUntil;
       o.priceSpecification = {
         '@type': 'UnitPriceSpecification',
         priceType: 'https://schema.org/StrikethroughPrice',

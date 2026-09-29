@@ -60,11 +60,23 @@ async function fetchCatalog() {
   const fetchFrags = cols =>
     sb.from('fragrances').select(`${cols}, ${rel}`).eq('status', 'published').order('sort_order');
 
-  let { data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description`);
+  // sale_until arrives with migration 014; sale/meta with 009. Degrade one
+  // step at a time so the build never breaks on deploy-before-migrate.
+  let { data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description, sale_until`);
+  if (error) {
+    console.warn('  ⚠️  sale_until column not found — run migration 014. Sales have no end date.');
+    ({ data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description`));
+  }
   if (error) {
     console.warn('  ⚠️  sale/meta columns not found — run migration 009. Building without them.');
     ({ data: frags, error } = await fetchFrags(base));
   }
+  // A sale whose sale_until is in the past (Bangladesh time) is over: treat it
+  // as 0% everywhere in this build so cards, pages and schema revert together.
+  const todayBD = new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10);
+  const liveSale = f => { const pct = Number(f.sale_percent) || 0; const until = f.sale_until ? String(f.sale_until).slice(0, 10) : null; return pct > 0 && (!until || until >= todayBD) ? pct : 0; };
+  const expired = (frags || []).filter(f => (Number(f.sale_percent) || 0) > 0 && liveSale(f) === 0).length;
+  if (expired) console.log(`   ${expired} sale(s) past their sale_until — prices reverted for this build`);
   if (error) throw new Error('fragrances: ' + error.message);
 
   // Details fetched with * so a missing `description` column (migration 003
@@ -80,8 +92,9 @@ async function fetchCatalog() {
     inStock:       f.in_stock,
     is_bestseller: f.is_bestseller,
     updatedAt:     f.updated_at,
-    sale_percent:  f.sale_percent || 0,
-    salePercent:   f.sale_percent || 0,
+    sale_percent:  liveSale(f),
+    salePercent:   liveSale(f),
+    saleUntil:     f.sale_until ? String(f.sale_until).slice(0, 10) : null,
     metaTitle:     f.meta_title || '',
     metaDescription: f.meta_description || '',
     sizes:         (f.fragrance_sizes || []).map(s => ({ ml: s.ml, price: s.price })).sort((a, b) => a.ml - b.ml),
