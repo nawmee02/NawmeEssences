@@ -1,0 +1,42 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "NawmeEssences",
+    "identifier": "https://nawmeessences.com",
+    "documentationUrl": "https://nawmeessences.com/llms.txt",
+    "logoUrl": "https://nawmeessences.com/images/logo.png"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:nawmeessences.com:skills:shopping",
+      "displayName": "Shop NawmeEssences perfume decants",
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://nawmeessences.com/skills/nawmeessences-shopping/SKILL.md",
+      "description": "Agent skill for finding authentic perfume decants (3ml–30ml) from NawmeEssences in Bangladesh, checking prices, delivery and payment rules, and preparing a WhatsApp/Messenger order that the customer confirms.",
+      "tags": [
+        "perfume",
+        "fragrance",
+        "decants",
+        "bangladesh",
+        "ecommerce",
+        "shopping"
+      ],
+      "capabilities": [
+        "search_products",
+        "filter_products",
+        "list_brands",
+        "get_product",
+        "get_checkout_info",
+        "prepare_order"
+      ],
+      "representativeQueries": [
+        "buy a 5ml decant of Armaf Club de Nuit Intense in Dhaka",
+        "what perfume decants does NawmeEssences sell",
+        "delivery charge for perfume decants outside Dhaka",
+        "how do I order a fragrance sample from NawmeEssences"
+      ],
+      "version": "1.0.0",
+      "updatedAt": "2026-09-29T05:55:14Z"
+    }
+  ]
+}

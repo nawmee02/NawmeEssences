@@ -3,3 +3,7 @@ Allow: /
 Disallow: /cart.html
 
 Sitemap: https://nawmeessences.com/sitemap.xml
+
+# Agentic Resource Discovery (ARD) catalog for AI agents/registries.
+# /.well-known/ard.json is a byte-identical alias — keep both files in sync.
+Agentmap: https://nawmeessences.com/.well-known/ai-catalog.json
