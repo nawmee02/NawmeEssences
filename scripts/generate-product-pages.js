@@ -16,6 +16,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
+const { pickupTicker } = require('./lib/facts');
 
 const SITE = 'https://nawmeessences.com';
 const DEFAULT_OG = `${SITE}/images/logo.png`;
@@ -129,6 +130,25 @@ function distinctiveNotes(d) {
   return chosen.length > 1 ? `${chosen.slice(0, -1).join(', ')} and ${chosen[chosen.length - 1]}` : chosen[0];
 }
 
+// Meta descriptions: search engines truncate around 155-160 chars, and a few
+// admin-written descriptions (p.metaDescription / post excerpts) run far past
+// that. Clamp at a word boundary, preferring a sentence end when one lands in
+// the back half, so the snippet never ends mid-word.
+function clampMeta(text, max = 155) {
+  let t = String(text || '')
+    .replace(/<[^>]+>/g, ' ')                    // HTML tags
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')     // markdown links → link text
+    .replace(/[*_`]+/g, '')                      // markdown emphasis
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const sentence = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+  if (sentence >= max * 0.6) return cut.slice(0, sentence + 1);
+  const word = cut.lastIndexOf(' ');
+  return (word > 0 ? cut.slice(0, word) : cut).replace(/[,;:\-–—]$/, '') + '…';
+}
+
 // Lean, product-specific description: fragrance type + distinctive notes + size
 // range + starting price (matches "[product] notes/price/Bangladesh/decant" intent).
 function metaDescription(p, d) {
@@ -235,11 +255,11 @@ const HEADER = `<div class="announcement-bar">
   <div class="ticker-track" data-setting-list="announcements">
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>✅ 100% Authentic Decants</span>
-    <span>📍 Pickup: Aftabnagar · Banasree · NSU</span>
+    <span>📍 ${pickupTicker()}</span>
     <span>💳 Min. advance = delivery charge</span>
     <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
     <span>✅ 100% Authentic Decants</span>
-    <span>📍 Pickup: Aftabnagar · Banasree · NSU</span>
+    <span>📍 ${pickupTicker()}</span>
     <span>💳 Min. advance = delivery charge</span>
   </div>
 </div>
@@ -311,7 +331,9 @@ const SCRIPTS = `<script src="/js/cart.js" defer></script>
 // Shared, canonical Organization JSON-LD — identical #organization node on every
 // page (from scripts/lib/schema.js), so the graph never drifts. Its founder ref
 // resolves to the Person node declared on the homepage / about-me.
-const ORG_LD = JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() });
+// Lazy: the build sets catalogue facts (lib/facts.js) AFTER this module is
+// required, and organizationNode() reads them for its description.
+const orgLd = () => JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() });
 
 // Fragrance notes/accords/family → consistent PropertyValue list (semantic
 // enrichment; values are clean comma-joined strings, never one ambiguous blob).
@@ -337,34 +359,73 @@ function renderPage(p, all, detailsMap) {
   const bSlug = brandSlug(p.brand);
   const desc = description(p, d);
   // Per-product overrides win; otherwise fall back to the auto-generated copy.
-  const metaDesc = p.metaDescription || metaDescription(p, d);
+  const metaDesc = clampMeta(p.metaDescription || metaDescription(p, d));
   const title = p.metaTitle || productMetaTitle(p.name);
   const sp = Number(p.salePercent) || 0;
   const lo = minPrice(p.sizes), hi = maxPrice(p.sizes);
   const loEff = effectivePrice(lo, sp), hiEff = effectivePrice(hi, sp);
   const availability = p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
 
+  // Google merchant listings require Offer (not AggregateOffer) and want size
+  // variants as a ProductGroup with one Product + Offer per variant, each with
+  // its own URL (?size= preselects the pill — see the page script). Every
+  // variant carries brand + seller refs so verify-schema's Product checks hold.
+  const brandRef = { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand };
+  const images = [heroLarge(p.id, v), heroMedium(p.id, v)];
+  // Pricing: prices are fixed, so a regular product carries a plain price and
+  // NO priceValidUntil (Google reserves that for time-limited promotions and
+  // would otherwise present the listing as a dated deal). A product on sale
+  // (salePercent > 0) advertises the sale the way Google specifies: `price` is
+  // the current sale price and priceSpecification carries the original as a
+  // StrikethroughPrice. No end date is stored for sales, so none is claimed.
+  const offerPricing = s => {
+    const current = effectivePrice(s.price, sp);
+    const o = { price: current, priceCurrency: 'BDT' };
+    if (sp > 0 && s.price > current) {
+      // Admin-set end date (fragrances.sale_until) -> Google's priceValidUntil.
+      if (p.saleUntil) o.priceValidUntil = p.saleUntil;
+      o.priceSpecification = {
+        '@type': 'UnitPriceSpecification',
+        priceType: 'https://schema.org/StrikethroughPrice',
+        price: s.price,
+        priceCurrency: 'BDT',
+      };
+    }
+    return o;
+  };
+  const returnPolicy = schema.merchantReturnPolicy();
+  const shipping = schema.shippingDetails();
   const productLd = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
+    '@type': 'ProductGroup',
+    '@id': `${url}#group`,
     name: p.name,
-    // Reference the Brand entity whose full node lives on the brand hub page.
-    brand: { '@type': 'Brand', '@id': schema.brandId(bSlug), name: p.brand },
-    image: [heroLarge(p.id, v), heroMedium(p.id, v)],
+    brand: brandRef,
+    image: images,
     description: metaDesc,
-    sku: p.id,
+    productGroupID: p.id,
+    variesBy: ['https://schema.org/size'],
     category: d ? d.family : 'Fragrance',
+    url,
     mainEntityOfPage: url,
-    offers: {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'BDT',
-      lowPrice: loEff,
-      highPrice: hiEff,
-      offerCount: p.sizes.length,
-      availability,
-      url,
-      seller: { '@id': schema.ORG_ID },
-    },
+    hasVariant: p.sizes.map(s => ({
+      '@type': 'Product',
+      name: `${p.name} — ${s.ml}ml decant`,
+      sku: `${p.id}-${s.ml}ml`,
+      size: `${s.ml} ml`,
+      brand: brandRef,
+      image: images,
+      offers: {
+        '@type': 'Offer',
+        url: `${url}?size=${s.ml}`,
+        ...offerPricing(s),
+        availability,
+        itemCondition: 'https://schema.org/NewCondition',
+        seller: { '@id': schema.ORG_ID },
+        shippingDetails: shipping,
+        hasMerchantReturnPolicy: returnPolicy,
+      },
+    })),
   };
   const props = fragranceProperties(d);
   if (props) productLd.additionalProperty = props;
@@ -409,7 +470,7 @@ function renderPage(p, all, detailsMap) {
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImage(p.id, v))}" />
   <!-- Structured data -->
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -488,6 +549,16 @@ ${FOOTER}
 ${SCRIPTS}
 <script>
   const PRODUCT = { id: ${JSON.stringify(p.id)}, name: ${JSON.stringify(p.name)}, brand: ${JSON.stringify(p.brand)}, isExclusive: ${isExclusive} };
+
+  // Variant deep links (?size=5) from the ProductGroup offers preselect the
+  // pill. Runs on DOMContentLoaded because selectSize() lives in a deferred
+  // script that has not executed yet when this inline block is parsed.
+  document.addEventListener('DOMContentLoaded', function () {
+    var ml = new URLSearchParams(location.search).get('size');
+    if (!ml || typeof selectSize !== 'function') return;
+    var pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill[data-ml="' + String(Number(ml)) + '"]');
+    if (pill && !pill.classList.contains('active')) selectSize(PRODUCT.id, pill);
+  });
 
   function selectedVariant() {
     const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
@@ -715,7 +786,7 @@ ${others.map(brandTile).join('\n')}
   const title = `${name} Perfume Decants in Bangladesh`;
   // Kept under ~155 chars so Google doesn't truncate it — dropped the count and
   // the pickup list; price stays because it lifts click-through.
-  const metaDesc = `Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`;
+  const metaDesc = clampMeta(`Buy authentic ${name} perfume decants in Bangladesh from ৳${lo} — ${sizeList('&')} sizes with fast nationwide delivery.`);
   const intro = `Buy authentic <strong>${esc(name)}</strong> perfume decants in Bangladesh. Shop ${sizeList('&amp;')} sizes with fast nationwide delivery.`;
   const socialImage = brand.logo ? brandLogoUrl(brand, 'medium') : `${SITE}/images/og-card.jpg`;
 
@@ -769,7 +840,7 @@ ${others.map(brandTile).join('\n')}
   <meta name="twitter:title" content="${attr(name + ' Perfume Decants in Bangladesh')}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(socialImage)}" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(collectionLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -832,7 +903,7 @@ ${BRAND_INLINE}
 function renderBrandsIndex(groups) {
   const url = `${SITE}/brands/`;
   const title = `Perfume Decant Brands in Bangladesh | NawmeEssences`;
-  const metaDesc = `Browse ${groups.length} fragrance brands at NawmeEssences — Rasasi, Lattafa, Armaf, Afnan, Dior, Amouage & more. Authentic perfume decants in 3ml–30ml, delivered across Bangladesh.`;
+  const metaDesc = clampMeta(`Browse ${groups.length} fragrance brands at NawmeEssences — Rasasi, Lattafa, Armaf, Afnan, Dior, Amouage & more. Authentic perfume decants in 3ml–30ml, delivered across Bangladesh.`);
 
   const breadcrumbLd = {
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -873,8 +944,13 @@ function renderBrandsIndex(groups) {
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="Perfume Decant Brands in Bangladesh" />
   <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
   <meta property="og:locale" content="en_US" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Perfume Decant Brands in Bangladesh" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(listLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -947,7 +1023,7 @@ function blogCard(post) {
 function renderBlogIndex(posts) {
   const url = `${SITE}/blog/`;
   const title = 'The NawmeEssences Journal — Perfume Decant Guides & Tips';
-  const metaDesc = 'Fragrance guides, decant tips, and scent stories from NawmeEssences — authentic perfume decants in Bangladesh.';
+  const metaDesc = clampMeta('Fragrance guides, decant tips, and scent stories from NawmeEssences — authentic perfume decants in Bangladesh.');
   const cards = posts.map(blogCard).join('\n');
   const blogLd = {
     '@context': 'https://schema.org', '@type': 'Blog', name: 'NawmeEssences Journal', url,
@@ -981,8 +1057,13 @@ function renderBlogIndex(posts) {
   <meta property="og:url" content="${attr(url)}" />
   <meta property="og:title" content="${attr(title)}" />
   <meta property="og:description" content="${attr(metaDesc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
   <meta property="og:locale" content="en_US" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${attr(title)}" />
+  <meta name="twitter:description" content="${attr(metaDesc)}" />
+  <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(blogLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -1023,7 +1104,7 @@ function renderBlogPost(post) {
   const url = `${SITE}/blog/${post.id}/`;
   const title = post.metaTitle || `${post.title} — NawmeEssences`;
   const bodyText = String(post.bodyMd || '').replace(/[#*_`>\-\[\]!]/g, ' ').replace(/\s+/g, ' ').trim();
-  const metaDesc = post.metaDescription || post.excerpt || bodyText.slice(0, 155);
+  const metaDesc = clampMeta(post.metaDescription || post.excerpt || bodyText.slice(0, 155));
   const ogImg = coverUrl(post, 'large');
   const bodyHtml = renderMarkdown(post.bodyMd);
 
@@ -1069,7 +1150,7 @@ function renderBlogPost(post) {
   <meta name="twitter:title" content="${attr(post.title)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${attr(ogImg)}" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -1135,22 +1216,40 @@ function renderReviewsPage(reviews) {
 
   const cards = reviews.map(r => renderReviewCard(r)).join('\n');
 
-  // Review nodes only for entries with text (always true here) — rating only
-  // when one exists; itemReviewed resolves to the canonical #organization.
+  // A schema.org Review is emitted ONLY when the entry has a real rating:
+  // Google's Review-snippet validator requires reviewRating.ratingValue and
+  // itemReviewed.name, so an unrated Facebook "recommends" entry marked up as
+  // Review fails validation (Ahrefs: "Google rich results validation error").
+  // Stars are never synthesised for a recommendation (see lib/reviews.js), so
+  // recommendations become plain Comment nodes about the organization —
+  // still machine-readable, but not a rich-result type Google validates.
+  // itemReviewed is inlined with @type/name matching the canonical
+  // #organization node exactly, so verify-schema's @id-conflict check passes.
+  const orgRef = { '@id': schema.ORG_ID };
+  const orgInline = { '@type': ['Organization', 'Store'], '@id': schema.ORG_ID, name: 'NawmeEssences' };
   const pageLd = {
     '@context': 'https://schema.org', '@type': 'WebPage',
     name: 'Customer Reviews & Recommendations', url,
     isPartOf: { '@id': `${SITE}/#website` },
+    about: orgRef,
     mainEntity: {
       '@type': 'ItemList', numberOfItems: reviews.length,
       itemListElement: reviews.map((r, i) => {
-        const node = {
-          '@type': 'Review',
-          author: { '@type': 'Person', name: r.name },
-          reviewBody: r.body,
-          itemReviewed: { '@id': schema.ORG_ID },
-        };
-        if (r.rating) node.reviewRating = { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 };
+        const author = { '@type': 'Person', name: r.name };
+        const node = r.rating
+          ? {
+              '@type': 'Review',
+              author,
+              reviewBody: r.body,
+              itemReviewed: orgInline,
+              reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            }
+          : {
+              '@type': 'Comment',
+              author,
+              text: r.body,
+              about: orgRef,
+            };
         if (r.reviewedAt) node.datePublished = String(r.reviewedAt).slice(0, 10);
         if (r.sourceUrl) node.url = r.sourceUrl;
         return { '@type': 'ListItem', position: i + 1, item: node };
@@ -1188,7 +1287,7 @@ function renderReviewsPage(reviews) {
   <meta name="twitter:title" content="${attr(title)}" />
   <meta name="twitter:description" content="${attr(metaDesc)}" />
   <meta name="twitter:image" content="${SITE}/images/og-card.jpg" />
-  <script type="application/ld+json">${ORG_LD}</script>
+  <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(pageLd)}</script>
   <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
@@ -1272,32 +1371,99 @@ ${SCRIPTS}
 
 // ─── Sitemap ─────────────────────────────────────────────────
 function writeSitemap(all, groups = [], posts = [], reviews = []) {
+  // lastmod = newest updated_at of the content a page is built from. Collection
+  // pages (home/shop/brands/exclusive) move with the catalogue; brand hubs with
+  // their own products; blog index with its posts; reviews with its entries.
+  // Static policy/about pages have no content timestamp, so they carry none.
+  const day = v => (v ? String(v).slice(0, 10) : null);
+  const newest = items => day(items.map(x => x && x.updatedAt).filter(Boolean).sort().pop());
+  const catalogMod = newest(all);
   const core = [
-    { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0' },
-    { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9' },
-    { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7' },
-    { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8' },
+    { loc: `${SITE}/`,              freq: 'weekly',  pri: '1.0', lastmod: catalogMod },
+    { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9', lastmod: catalogMod },
+    { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7', lastmod: catalogMod },
+    { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8', lastmod: catalogMod },
     { loc: `${SITE}/about.html`,    freq: 'monthly', pri: '0.5' },
     { loc: `${SITE}/about-me.html`, freq: 'monthly', pri: '0.4' },
   ];
-  const brandUrls = groups.map(g => ({ loc: `${SITE}/brands/${g.slug}/`, freq: 'weekly', pri: '0.6' }));
+  const brandUrls = groups.map(g => ({ loc: `${SITE}/brands/${g.slug}/`, freq: 'weekly', pri: '0.6', lastmod: newest(g.products || []) }));
   const products = all.map(p => ({
     loc: `${SITE}/product/${p.id}/`, freq: 'weekly', pri: '0.7',
     lastmod: p.updatedAt ? String(p.updatedAt).slice(0, 10) : null,
   }));
   const blogUrls = posts.length ? [
-    { loc: `${SITE}/blog/`, freq: 'weekly', pri: '0.6' },
+    { loc: `${SITE}/blog/`, freq: 'weekly', pri: '0.6', lastmod: newest(posts.map(p => ({ updatedAt: p.updatedAt || p.publishedAt }))) },
     ...posts.map(p => ({
       loc: `${SITE}/blog/${p.id}/`, freq: 'monthly', pri: '0.6',
       lastmod: (p.updatedAt || p.publishedAt) ? String(p.updatedAt || p.publishedAt).slice(0, 10) : null,
     })),
   ] : [];
-  const reviewUrls = reviews.length ? [{ loc: `${SITE}/reviews/`, freq: 'weekly', pri: '0.6' }] : [];
+  const reviewUrls = reviews.length ? [{ loc: `${SITE}/reviews/`, freq: 'weekly', pri: '0.6', lastmod: newest(reviews) }] : [];
   const urls = [...core, ...brandUrls, ...blogUrls, ...reviewUrls, ...products].map(u =>
     `  <url>\n    <loc>${u.loc}</loc>\n${u.lastmod ? `    <lastmod>${u.lastmod}</lastmod>\n` : ''}    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pri}</priority>\n  </url>`
   ).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);
+}
+
+// ─── 404 page ─────────────────────────────────────────────────
+// GitHub Pages serves /404.html for any unknown path, so it must use absolute
+// asset URLs. noindex so a mistyped URL never becomes an indexed page; the
+// search form and the main links keep the visitor (and crawler) on the site.
+function render404Page() {
+  const title = 'Page not found — NawmeEssences';
+  const desc = 'That page does not exist. Search the catalogue or browse all authentic perfume decants from NawmeEssences.';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${schema.originTrialMeta()}
+  <title>${esc(title)}</title>
+  <meta name="description" content="${attr(desc)}" />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NawmeEssences" />
+  <meta property="og:title" content="${attr(title)}" />
+  <meta property="og:description" content="${attr(desc)}" />
+  <meta property="og:image" content="${SITE}/images/og-card.jpg" />
+  <script type="application/ld+json">${orgLd()}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+${HEADER}
+
+<main>
+<div class="section" style="padding-top:40px;text-align:center;max-width:720px;">
+  <p class="hero-eyebrow">Error 404</p>
+  <h1 class="brand-h1">Page <span>not found</span></h1>
+  <p class="brand-intro" style="margin:0 auto 24px;">The link may be old, or the product may have moved. Search the catalogue or pick a place to continue.</p>
+  <form class="nav-search" role="search" method="get" action="/shop.html" style="justify-content:center;margin-bottom:28px;">
+    <input type="search" name="q" class="nav-search-input" placeholder="Search fragrances…" aria-label="Search fragrances" autocomplete="off" style="position:static;width:min(420px,80vw);height:auto;max-width:none;opacity:1;padding:10px 12px;border:1px solid var(--border);pointer-events:auto;" />
+    <button type="submit" class="nav-search-btn" aria-label="Search" style="padding:10px 14px;">Search</button>
+  </form>
+  <div class="hero-btns">
+    <a href="/shop.html" class="btn-primary">Shop All Fragrances</a>
+    <a href="/brands/" class="btn-outline">Browse by Brand</a>
+    <a href="/" class="btn-outline">Home</a>
+  </div>
+</div>
+</main>
+
+${FOOTER}
+
+${SCRIPTS}
+</body>
+</html>
+`;
 }
 
 // ─── Generate from arbitrary data (local products.js OR Supabase) ─
@@ -1345,6 +1511,9 @@ function generateFromData(allProducts, productDetails, opts = {}) {
   const reviewsRoot = path.join(ROOT, 'reviews');
   fs.mkdirSync(reviewsRoot, { recursive: true });
   fs.writeFileSync(path.join(reviewsRoot, 'index.html'), renderReviewsPage(reviews));
+
+  // Branded 404 (GitHub Pages picks up /404.html automatically).
+  fs.writeFileSync(path.join(ROOT, '404.html'), render404Page());
 
   writeSitemap(allProducts, groups, posts, reviews);
 

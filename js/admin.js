@@ -120,11 +120,17 @@
     $('brand-list').innerHTML = brands.map(b => `<option value="${b.name}"></option>`).join('');
   }
 
+  // Today's date in Bangladesh (UTC+6) as YYYY-MM-DD — the sale_until comparison
+  // must match what the build and the storefront use.
+  function todayBD() { return new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10); }
+
   async function loadProducts() {
     // Admin sees every status (RLS grants admins full read).
-    const { data, error } = await sb.from('fragrances')
-      .select('id, name, collection, in_stock, is_bestseller, status, sale_percent, updated_at, brands(name), fragrance_sizes(ml,price)')
-      .order('name');
+    // sale_until arrives with migration 014; fall back to the older column set
+    // so the list still loads on a database that has not run it yet.
+    const cols = extra => `id, name, collection, in_stock, is_bestseller, status, sale_percent, ${extra}updated_at, brands(name), fragrance_sizes(ml,price)`;
+    let { data, error } = await sb.from('fragrances').select(cols('sale_until, ')).order('name');
+    if (error) ({ data, error } = await sb.from('fragrances').select(cols('')).order('name'));
     if (error) { toast('Load failed: ' + error.message); return; }
     allProducts = data || [];
     renderList();
@@ -141,7 +147,8 @@
 
     const row = p => {
       const price = p.fragrance_sizes?.length ? '৳' + Math.min(...p.fragrance_sizes.map(s => s.price)) : '—';
-      const saleChip = p.sale_percent > 0 ? ` <span class="tag tag-sale">−${p.sale_percent}%</span>` : '';
+      const saleEnded = p.sale_percent > 0 && p.sale_until && String(p.sale_until).slice(0, 10) < todayBD();
+      const saleChip = p.sale_percent > 0 ? ` <span class="tag tag-sale"${saleEnded ? ' style="opacity:.45" title="Sale ended"' : ''}>−${p.sale_percent}%${saleEnded ? ' ended' : ''}</span>` : '';
       return `<tr>
         <td>${esc(p.name)}<div class="admin-muted">${esc(p.brands?.name || '')} · ${p.id}</div></td>
         <td>${price}${saleChip}</td>
@@ -252,6 +259,7 @@
     $('f-collection').value = data.collection; $('f-status').value = data.status;
     $('f-instock').checked = data.in_stock; $('f-bestseller').checked = data.is_bestseller;
     $('f-sale').value = data.sale_percent || '';
+    $('f-sale-until').value = data.sale_until ? String(data.sale_until).slice(0, 10) : '';
     $('f-meta-title').value = data.meta_title || '';
     $('f-meta-desc').value = data.meta_description || '';
     (data.fragrance_sizes || []).sort((a,b)=>a.ml-b.ml).forEach(s => addSizeRow(s.ml, s.price));
@@ -317,6 +325,7 @@
       collection: $('f-collection').value, status: $('f-status').value,
       inStock: $('f-instock').checked, isBestseller: $('f-bestseller').checked,
       salePercent: Math.max(0, Math.min(95, parseInt($('f-sale').value, 10) || 0)),
+      saleUntil: $('f-sale-until').value || null,   // YYYY-MM-DD or null (no end date)
       metaTitle: $('f-meta-title').value.trim(),
       metaDescription: $('f-meta-desc').value.trim(),
       sizes, tags,
@@ -354,13 +363,22 @@
 
     $('save-btn').disabled = true; $('save-btn').textContent = 'Saving…';
     try {
-      const { data: newUpdatedAt, error } = await sb.rpc('upsert_product', {
+      const args = {
         p_id: f.id, p_name: f.name, p_brand_name: f.brand, p_collection: f.collection,
         p_in_stock: f.inStock, p_is_bestseller: f.isBestseller, p_status: f.status,
         p_sizes: f.sizes, p_tags: f.tags, p_details: f.details,
         p_expected_updated_at: editingUpdatedAt,
         p_sale_percent: f.salePercent, p_meta_title: f.metaTitle, p_meta_description: f.metaDescription,
-      });
+        p_sale_until: f.saleUntil,   // needs migration 014 (upsert_product p_sale_until)
+      };
+      let { data: newUpdatedAt, error } = await sb.rpc('upsert_product', args);
+      // Database without migration 014: the RPC has no p_sale_until yet. Save
+      // still works when no date was entered; with a date, say what is missing.
+      if (error && /p_sale_until|upsert_product/.test(error.message)) {
+        if (f.saleUntil) throw new Error('"Sale valid until" needs database migration 014_sale_until.sql — run it in Supabase → SQL Editor, or clear the date.');
+        delete args.p_sale_until;
+        ({ data: newUpdatedAt, error } = await sb.rpc('upsert_product', args));
+      }
       if (error) {
         if (/stale/.test(error.message)) {
           if (confirm('This product changed since you opened it. Reload the latest version?')) { openForm(allProducts.find(p=>p.id===f.id)); }

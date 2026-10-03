@@ -25,6 +25,8 @@ const { generateFromData } = require('./generate-product-pages');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
+const { extractCriticalCss } = require('./lib/critical-css');
+const facts = require('./lib/facts');
 const { fetchPosts } = require('./lib/blog');
 const { fetchReviews, renderReviewCard, homepageReviews, reviewStats, countLabel } = require('./lib/reviews');
 
@@ -58,11 +60,23 @@ async function fetchCatalog() {
   const fetchFrags = cols =>
     sb.from('fragrances').select(`${cols}, ${rel}`).eq('status', 'published').order('sort_order');
 
-  let { data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description`);
+  // sale_until arrives with migration 014; sale/meta with 009. Degrade one
+  // step at a time so the build never breaks on deploy-before-migrate.
+  let { data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description, sale_until`);
+  if (error) {
+    console.warn('  ⚠️  sale_until column not found — run migration 014. Sales have no end date.');
+    ({ data: frags, error } = await fetchFrags(`${base}, sale_percent, meta_title, meta_description`));
+  }
   if (error) {
     console.warn('  ⚠️  sale/meta columns not found — run migration 009. Building without them.');
     ({ data: frags, error } = await fetchFrags(base));
   }
+  // A sale whose sale_until is in the past (Bangladesh time) is over: treat it
+  // as 0% everywhere in this build so cards, pages and schema revert together.
+  const todayBD = new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10);
+  const liveSale = f => { const pct = Number(f.sale_percent) || 0; const until = f.sale_until ? String(f.sale_until).slice(0, 10) : null; return pct > 0 && (!until || until >= todayBD) ? pct : 0; };
+  const expired = (frags || []).filter(f => (Number(f.sale_percent) || 0) > 0 && liveSale(f) === 0).length;
+  if (expired) console.log(`   ${expired} sale(s) past their sale_until — prices reverted for this build`);
   if (error) throw new Error('fragrances: ' + error.message);
 
   // Details fetched with * so a missing `description` column (migration 003
@@ -78,8 +92,9 @@ async function fetchCatalog() {
     inStock:       f.in_stock,
     is_bestseller: f.is_bestseller,
     updatedAt:     f.updated_at,
-    sale_percent:  f.sale_percent || 0,
-    salePercent:   f.sale_percent || 0,
+    sale_percent:  liveSale(f),
+    salePercent:   liveSale(f),
+    saleUntil:     f.sale_until ? String(f.sale_until).slice(0, 10) : null,
     metaTitle:     f.meta_title || '',
     metaDescription: f.meta_description || '',
     sizes:         (f.fragrance_sizes || []).map(s => ({ ml: s.ml, price: s.price })).sort((a, b) => a.ml - b.ml),
@@ -426,6 +441,52 @@ function injectReviews(reviews) {
   console.log(`  injected → index.html (${picks.length} homepage review${picks.length === 1 ? '' : 's'})`);
 }
 
+// Rewrite every "NN+ fragrances" / "NN+ brands" phrase in the static root
+// pages and llms.txt to the labels derived from the live catalogue (see
+// lib/facts.js). Meta descriptions, OG text, trust bar, hero copy and the
+// AI-facing llms.txt therefore always agree with the shop. Idempotent.
+function injectCatalogFacts() {
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt', 'skills/nawmeessences-shopping/SKILL.md'];
+  let n = 0;
+  for (const file of files) {
+    const fp = path.join(ROOT, file);
+    if (!fs.existsSync(fp)) continue;
+    const before = fs.readFileSync(fp, 'utf8');
+    const after = facts.applyPickupPhrases(facts.applyCountPhrases(before));
+    if (after !== before) { fs.writeFileSync(fp, after); n++; }
+  }
+  console.log(`  catalogue facts → ${facts.fragranceLabel()} fragrances / ${facts.brandLabel()} brands (${n} file(s) updated)`);
+}
+
+// Homepage only: inline the above-the-fold CSS (blocks marked @critical in
+// css/style.css) and load the full stylesheet without blocking render, via the
+// same media="print" + onload swap the Google Fonts link already uses. The other
+// pages keep the blocking <link>: their first screens (product hero, shop grid,
+// brand header) are not covered by the shared critical subset, so async CSS
+// there would flash unstyled and shift. Idempotent via SET:critical markers;
+// runs before versionAssets() so the three hrefs get ?v= stamped.
+function injectCriticalCss() {
+  const css = extractCriticalCss(path.join(ROOT, 'css', 'style.css'));
+  const fp = path.join(ROOT, 'index.html');
+  let html = fs.readFileSync(fp, 'utf8');
+  const block =
+    '<!--SET:critical:start-->\n' +
+    '  <style>' + css + '</style>\n' +
+    '  <link rel="preload" as="style" href="css/style.css" />\n' +
+    '  <link rel="stylesheet" href="css/style.css" media="print" onload="this.media=\'all\'" />\n' +
+    '  <noscript><link rel="stylesheet" href="css/style.css" /></noscript>\n' +
+    '  <!--SET:critical:end-->';
+  const marked = /<!--SET:critical:start-->[\s\S]*?<!--SET:critical:end-->/;
+  if (marked.test(html)) html = html.replace(marked, () => block);
+  else {
+    const link = /<link rel="stylesheet" href="css\/style\.css(?:\?v=[a-z0-9]+)?" \/>/;
+    if (!link.test(html)) throw new Error('index.html: css/style.css <link> not found for critical CSS injection');
+    html = html.replace(link, () => block);
+  }
+  fs.writeFileSync(fp, html);
+  console.log(`  injected → index.html (critical CSS inline: ${(css.length / 1024).toFixed(1)} KB; style.css async)`);
+}
+
 // Cache-bust local css/js by stamping ?v=<content-hash> onto every reference,
 // across root HTML + all generated pages. Runs LAST so no later step clobbers
 // the query. Content-hash → the URL only changes when the file changes, so a
@@ -442,7 +503,7 @@ function collectHtml(dir, out = []) {
 function versionAssets() {
   const map = buildAssetMap(ROOT);
   const files = [
-    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html']
+    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']
       .map(f => path.join(ROOT, f)),
     ...collectHtml(path.join(ROOT, 'product')),
     ...collectHtml(path.join(ROOT, 'brands')),
@@ -499,6 +560,12 @@ async function run() {
   console.log('📥 Fetching catalog from Supabase...');
   const { allProducts, productDetails, brandLogos } = await fetchCatalog();
   console.log(`   ${allProducts.length} products`);
+  // Single source of truth for every "NN+ fragrances / NN+ brands" phrase
+  // (schema description, page copy, llms.txt). Must run before any page is
+  // generated or injected.
+  const brandSet = new Set(allProducts.map(p => (p.brand || '').trim()).filter(Boolean));
+  const f = facts.setCatalogFacts({ fragrances: allProducts.length, brands: brandSet.size });
+  console.log(`   facts → ${facts.fragranceLabel()} fragrances (${f.fragrances}), ${facts.brandLabel()} brands (${f.brands})`);
 
   console.log('\n🖼️  Optimizing images...');
   const { imageSet, errors } = await optimizeImages(allProducts);
@@ -512,6 +579,7 @@ async function run() {
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
+  facts.setDeliveryRates(settings.delivery);   // Offer shippingDetails read these
   injectSettings(settings);
   injectStaticOrg();
   injectOriginTrial();
@@ -526,8 +594,14 @@ async function run() {
   console.log(`   ${reviews.length} published reviews`);
   injectReviews(reviews);
 
+  console.log('\n🔢 Syncing catalogue facts...');
+  injectCatalogFacts();
+
   console.log('\n📄 Generating pages...');
   const gen = generateFromData(allProducts, productDetails, { hasImage: id => imageSet.has(id), posts, brandLogos, reviews });
+
+  console.log('\n🎨 Inlining critical CSS...');
+  injectCriticalCss();
 
   console.log('\n🔖 Cache-busting assets...');
   versionAssets();

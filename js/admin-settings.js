@@ -18,7 +18,7 @@
       { title: 'Choose Your Fragrance', text: 'Select your favorite fragrance and preferred size (3ml–30ml).' },
       { title: 'Place Your Order', text: 'Add items to your cart and complete checkout with your contact and delivery details.' },
       { title: 'Confirm with Advance', text: 'Pay the required advance via bKash, Nagad, or Bank Transfer.' },
-      { title: 'Receive or Collect', text: 'Enjoy nationwide delivery or collect your order from Aftabnagar, Banasree, or NSU.' },
+      { title: 'Receive or Collect', text: 'Enjoy nationwide delivery or collect your order from Aftabnagar or Banasree.' },
     ],
     faq: [
       { q: 'What is a perfume decant?', a: 'A perfume decant is a smaller quantity of fragrance transferred from an authentic original bottle into a travel-sized atomizer.' },
@@ -28,7 +28,7 @@
       { q: 'How are decants measured?', a: "We use sterile syringes to ensure accurate volume and maintain the fragrance's quality." },
       { q: 'How long does delivery take?', a: 'Orders are typically delivered within 1–2 business days in Dhaka and 2–3 business days outside Dhaka.' },
       { q: 'Can I return or exchange my order?', a: 'Opened or used decants cannot be returned. If you receive a damaged, missing, or incorrect item, contact us within 24 hours with a continuous unboxing video.' },
-      { q: 'Where can I collect my order?', a: 'Self-pickup is available from Aftabnagar, Banasree, and NSU by prior arrangement.' },
+      { q: 'Where can I collect my order?', a: 'Self-pickup is available from Aftabnagar and Banasree by prior arrangement.' },
       { q: 'How can I contact you?', a: 'The fastest way is through WhatsApp. You can also reach us via Messenger or Facebook.' },
     ],
   };
@@ -37,9 +37,9 @@
   // DEFAULTS.trustBar in scripts/lib/settings.js.
   const DEFAULT_TRUST = [
     '100% Authentic',
-    '90+ Fragrances',
+    '100+ Fragrances',
     'Sizes: 3ml · 5ml · 10ml · 15ml',
-    'Pickup: Aftabnagar · Banasree · NSU',
+    'Pickup: Aftabnagar · Banasree',
     'Dhaka ৳70 · Suburb ৳90 · Outside ৳120',
     'WhatsApp Orders',
     'Prices Fixed & Fair',
