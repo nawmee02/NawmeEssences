@@ -83,8 +83,31 @@
     $('p-slug-hint').textContent = clash ? '⚠ a post with this slug already exists' : (s ? `→ /blog/${s}/` : '');
     $('p-slug-hint').style.color = clash ? 'var(--red)' : '';
   }
+
+  function renderMarkdownPreview(md) {
+    const headings = [];
+    const usedIds = new Set();
+    const renderer = new marked.Renderer();
+    renderer.heading = (text, level) => {
+      const base = String(text).replace(/<[^>]*>/g, '').replace(/&[a-z0-9#]+;/gi, '').toLowerCase().trim()
+        .replace(/[^a-z0-9\s-]/g, '').replace(/[\s-]+/g, '-') || 'section';
+      let id = base;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${base}-${suffix++}`;
+      usedIds.add(id);
+      headings.push({ id, level, label: String(text).replace(/<[^>]*>/g, '') });
+      return `<h${level} id="${id}">${text}</h${level}>\n`;
+    };
+    const html = marked.parse(String(md || ''), { renderer });
+    const sections = headings.filter(h => h.level >= 2);
+    const toc = sections.length ? `<nav class="post-toc" aria-label="Table of contents"><strong>In this guide</strong><ol>${sections.map(h =>
+      `<li class="post-toc-level-${h.level}"><a href="#${h.id}">${h.label}</a></li>`
+    ).join('')}</ol></nav>` : '';
+    return html.replace(/<p>\[\[toc\]\]<\/p>/i, toc);
+  }
+
   function renderPreview() {
-    if (typeof marked !== 'undefined') $('p-preview').innerHTML = marked.parse($('p-body').value || '');
+    if (typeof marked !== 'undefined') $('p-preview').innerHTML = renderMarkdownPreview($('p-body').value || '');
   }
 
   async function openForm(id) {

@@ -7,10 +7,41 @@ const { marked } = require('marked');
 
 marked.setOptions({ gfm: true, breaks: false });
 
-// Render a post's Markdown body to HTML. Content is authored only by admins
-// (RLS-protected), so it is trusted; sanitization is noted as future hardening.
+const headingSlug = text => String(text)
+  .replace(/<[^>]*>/g, '')
+  .replace(/&[a-z0-9#]+;/gi, '')
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9\s-]/g, '')
+  .replace(/[\s-]+/g, '-') || 'section';
+
+const escapeAttr = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+function renderToc(headings) {
+  const sections = headings.filter(h => h.level >= 2);
+  if (!sections.length) return '';
+  return `<nav class="post-toc" aria-label="Table of contents"><strong>In this guide</strong><ol>${sections.map(h =>
+    `<li class="post-toc-level-${h.level}"><a href="#${escapeAttr(h.id)}">${escapeAttr(h.label)}</a></li>`
+  ).join('')}</ol></nav>`;
+}
+
+// Render a post's Markdown body. Headings receive stable IDs so
+// author-written anchor links work, and [[toc]] expands to a generated TOC.
 function renderMarkdown(md) {
-  return marked.parse(String(md || ''));
+  const headings = [];
+  const usedIds = new Set();
+  const renderer = new marked.Renderer();
+  renderer.heading = (text, level) => {
+    const base = headingSlug(text);
+    let id = base;
+    let suffix = 2;
+    while (usedIds.has(id)) id = `${base}-${suffix++}`;
+    usedIds.add(id);
+    headings.push({ id, level, label: String(text).replace(/<[^>]*>/g, '') });
+    return `<h${level} id="${escapeAttr(id)}">${text}</h${level}>\n`;
+  };
+  const html = marked.parse(String(md || ''), { renderer });
+  return html.replace(/<p>\[\[toc\]\]<\/p>/i, renderToc(headings));
 }
 
 // Fetch published posts, newest first. Resilient: if the blog_posts table
