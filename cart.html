@@ -389,10 +389,10 @@
     const msg = buildWhatsAppMessage(zone, name, phone, address);
     const url = `https://wa.me/${waNumber()}?text=${encodeURIComponent(msg)}`;
 
-    // Open the WhatsApp tab synchronously inside the click gesture so the popup
-    // blocker allows it. We navigate it to the real URL only after the DB write,
-    // keeping THIS page alive so the in-flight insert isn't cancelled by the redirect.
-    const waWindow = window.open('about:blank', '_blank');
+    // Open the final WhatsApp URL synchronously inside the click gesture so the
+    // popup blocker allows it. The order save continues in this page, so it does
+    // not need an intermediate about:blank tab.
+    const waWindow = window.open(url, '_blank');
 
     // Persist last order on client so user has confirmation after redirect (instant)
     try { saveLastOrderToSession({ buyer_name: name, buyer_phone: phone, buyer_address: address, delivery_zone: zone, delivery_charge: delivery, subtotal, total: subtotal + delivery, channel: 'whatsapp', items: getCart() }); } catch(e){}
@@ -421,8 +421,7 @@
       console.error('[order] save threw:', e);
     }
 
-    if (waWindow && !waWindow.closed) waWindow.location.href = url;
-    else window.location.href = url; // popup blocked → navigate current tab (write already done)
+    if (!waWindow || waWindow.closed) window.location.href = url; // popup blocked → current tab
   }
 
   function checkoutMessenger() {
