@@ -1262,6 +1262,15 @@ input, select { font-family: var(--font-body); }
 }
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+.messenger-modal[hidden] { display: none; }
+.messenger-modal { position: fixed; inset: 0; z-index: 2500; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.78); }
+.messenger-modal-card { position: relative; width: min(100%, 430px); padding: 30px 26px 24px; border: 1px solid var(--gold-dark); border-radius: var(--radius); background: var(--card-bg); box-shadow: 0 18px 60px rgba(0,0,0,.45); text-align: center; }
+.messenger-modal-close { position: absolute; top: 8px; right: 12px; border: 0; background: transparent; color: var(--text-muted); font-size: 28px; line-height: 1; cursor: pointer; }
+.messenger-modal-card h2 { margin: 0 0 8px; font-family: var(--font-head); font-size: 28px; color: var(--text); }
+.messenger-modal-lead { margin: 0 auto 10px; max-width: 330px; color: var(--text-muted); line-height: 1.55; }
+.messenger-modal-close:hover { color: var(--gold); }
+@media (max-width: 420px) { .messenger-modal-card { padding: 28px 18px 20px; } }
+
 /* ===== DIVIDER ===== */
 .divider { border: none; height: 1px; background: var(--divider-line); margin: 0; }
 

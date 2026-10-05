@@ -142,6 +142,13 @@
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">✅ Message copied! Open Messenger and paste — or <button onclick="copyMessengerText()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">copy again</button>. &nbsp;<a href="https://m.me/509978488868598" target="_blank" style="color:var(--gold);">Open Messenger →</a></p>
     <pre id="messenger-text" style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:var(--text);line-height:1.7;"></pre>
   </div>
+  <div id="messenger-modal" class="messenger-modal" hidden role="dialog" aria-modal="true" aria-labelledby="messenger-modal-title">
+    <div class="messenger-modal-card">
+      <button class="messenger-modal-close" type="button" aria-label="Close Messenger instructions" onclick="closeMessengerModal()">&times;</button>
+      <h2 id="messenger-modal-title">Order Copied!</h2>
+      <p class="messenger-modal-lead">Paste in Messenger. Opening in 3 sec</p>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -457,12 +464,14 @@
     // Auto-copy then open Messenger
     navigator.clipboard.writeText(text)
       .then(() => {
+        showMessengerModal();
         showToast('✅Copied! Paste in Messenger. Opening in 3 sec…');
-        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
+        startMessengerCountdown();
       })
       .catch(() => {
+        showMessengerModal();
         showToast('Open Messenger and copy the message below.');
-        setTimeout(() => window.open('https://m.me/509978488868598', '_blank'), 3000);
+        startMessengerCountdown();
       });
 
     // Save to Supabase silently in background
@@ -479,9 +488,44 @@
     document.getElementById('messenger-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  let messengerTimer = null;
+  let messengerSeconds = 3;
+  function showMessengerModal() {
+    const modal = document.getElementById('messenger-modal');
+    if (!modal) return;
+    modal.hidden = false;
+  }
+  function startMessengerCountdown() {
+    clearInterval(messengerTimer);
+    messengerSeconds = 3;
+    messengerTimer = setInterval(() => {
+      messengerSeconds--;
+      const countdown = document.getElementById('messenger-modal-countdown');
+      if (countdown && messengerSeconds > 0) countdown.textContent = `Opening Messenger in ${messengerSeconds} second${messengerSeconds === 1 ? '' : 's'}…`;
+      if (messengerSeconds <= 0) {
+        clearInterval(messengerTimer);
+        openMessengerNow();
+      }
+    }, 1000);
+  }
+  function openMessengerNow() {
+    clearInterval(messengerTimer);
+    closeMessengerModal();
+    window.open('https://m.me/509978488868598', '_blank');
+  }
+  function closeMessengerModal() {
+    clearInterval(messengerTimer);
+    const modal = document.getElementById('messenger-modal');
+    if (modal) modal.hidden = true;
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMessengerModal(); });
+
   function copyMessengerText() {
     const text = document.getElementById('messenger-text').textContent;
-    navigator.clipboard.writeText(text).then(() => showToast('Message copied! Paste it in Messenger.'));
+    navigator.clipboard.writeText(text).then(() => {
+      showMessengerModal();
+      showToast('Message copied! Paste it in Messenger.');
+    }).catch(() => showMessengerModal());
   }
 
   document.addEventListener('DOMContentLoaded', function() {
