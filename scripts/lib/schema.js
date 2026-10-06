@@ -167,12 +167,14 @@ function brandNode(slug, name, logo) {
 
 // FAQPage from the settings FAQ array [{q,a}]. Semantic/machine-readable
 // enrichment — NOT an assumed Google rich-result feature.
-function faqPageNode(faq) {
+// `id` lets product pages carry their own FAQPage node (`${url}#faq`); the
+// homepage keeps the site-level default.
+function faqPageNode(faq, id = `${SITE}/#faq`) {
   const items = (Array.isArray(faq) ? faq : []).filter(f => f && f.q && f.a);
   if (!items.length) return null;
   return {
     '@type': 'FAQPage',
-    '@id': `${SITE}/#faq`,
+    '@id': id,
     mainEntity: items.map(f => ({
       '@type': 'Question',
       name: f.q,

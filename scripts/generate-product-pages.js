@@ -16,7 +16,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
-const { pickupTicker } = require('./lib/facts');
+const { pickupTicker, pickupList, getDeliveryRates } = require('./lib/facts');
 
 const SITE = 'https://nawmeessences.com';
 const DEFAULT_OG = `${SITE}/images/logo.png`;
@@ -151,16 +151,23 @@ function clampMeta(text, max = 155) {
 
 // Lean, product-specific description: fragrance type + distinctive notes + size
 // range + starting price (matches "[product] notes/price/Bangladesh/decant" intent).
+// Price-first: the sentence search engines and AI answers quote for "decant
+// price in Bangladesh" queries comes before the scent description, so the
+// 155-char clamp can never cut it off. Sale-aware.
 function metaDescription(p, d) {
-  const range = mlRange(p.sizes);
-  const lo = minPrice(p.sizes);
-  const fam = d && d.family ? `${d.family.toLowerCase()} ` : '';
+  const sp = Number(p.salePercent) || 0;
+  const sizes = [...(p.sizes || [])].sort((a, b) => a.ml - b.ml);
+  const lo = sizes[0], hi = sizes[sizes.length - 1];
+  const price = lo
+    ? (hi && hi.ml !== lo.ml
+        ? `from ৳${effectivePrice(lo.price, sp)} (${lo.ml}ml) to ৳${effectivePrice(hi.price, sp)} (${hi.ml}ml)`
+        : `৳${effectivePrice(lo.price, sp)} (${lo.ml}ml)`)
+    : '';
+  const lead = price ? `${p.name} decant price in Bangladesh: ${price}.` : `${p.name} decant in Bangladesh.`;
+  const fam = d && d.family ? `${d.family} ` : '';
   const notes = d ? distinctiveNotes(d) : '';
-  if (!fam && !notes) {
-    return `Buy ${p.name} decant in Bangladesh — 100% authentic. Available in ${range} from ৳${lo}.`;
-  }
-  const notePart = notes ? ` with ${notes}` : '';
-  return `Buy ${p.name} decant in Bangladesh — ${fam}fragrance${notePart}. Available in ${range} from ৳${lo}.`;
+  if (!fam && !notes) return `${lead} 100% authentic, syringe-measured from the original bottle.`;
+  return `${lead} ${fam}fragrance${notes ? ` with ${notes}` : ''}. Authentic decant, delivered nationwide.`;
 }
 
 function description(p, d) {
@@ -195,7 +202,32 @@ function sizePills(p) {
 // attributes. Nothing is invented: Family / Character / Best for come from
 // fragrance_details; For / Launched are parsed from the description and are
 // simply omitted when the text does not state them.
-function snapshotFacts(d, desc) {
+// Concentration vocabulary (matches the CHECK constraint in migration 016) and
+// the human label shown on the page / in the FAQ.
+const CONCENTRATION_LABEL = {
+  'EDP': 'Eau de Parfum (EDP)', 'EDT': 'Eau de Toilette (EDT)', 'EDC': 'Eau de Cologne (EDC)',
+  'Parfum': 'Parfum', 'Extrait': 'Extrait de Parfum', 'Elixir': 'Elixir',
+  'Parfum Intense': 'Parfum Intense', 'Attar/Oil': 'Attar / perfume oil',
+};
+function concentrationOf(d, name, text) {
+  const col = d && String(d.concentration || '').trim();
+  if (col && CONCENTRATION_LABEL[col]) return col;
+  const probe = s => {
+    s = String(s || '');
+    if (/\bparfum intense\b/i.test(s)) return 'Parfum Intense';
+    if (/\bextrait\b/i.test(s)) return 'Extrait';
+    if (/\belixir\b/i.test(s)) return 'Elixir';
+    if (/\b(EDP|eau de parfum)\b/i.test(s)) return 'EDP';
+    if (/\b(EDT|eau de toilette)\b/i.test(s)) return 'EDT';
+    if (/\b(EDC|eau de cologne)\b/i.test(s)) return 'EDC';
+    if (/\b(attar|perfume oil|concentrated oil)\b/i.test(s)) return 'Attar/Oil';
+    if (/\bparfum\b/i.test(s)) return 'Parfum';
+    return '';
+  };
+  return probe(name) || probe(text);
+}
+
+function snapshotFacts(d, desc, name = '') {
   const text = String(desc || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   const facts = [];
   if (d && d.family) facts.push({ key: 'family', label: 'Family', value: d.family });
@@ -215,7 +247,95 @@ function snapshotFacts(d, desc) {
   let year = d && d.launchYear && d.launchYear >= 1900 && d.launchYear <= 2100 ? String(d.launchYear) : '';
   if (!year) { const y = text.match(/\b(?:launched|released|introduced|debuted)(?: in)? ((?:19|20)\d{2})\b/i); if (y) year = y[1]; }
   if (year) facts.push({ key: 'launched', label: 'Launched', value: year });
+  // Concentration: admin column (migration 016) first, else parsed from the
+  // product name, then the description. Normalised to the admin vocabulary.
+  const conc = concentrationOf(d, name, text);
+  if (conc) facts.push({ key: 'concentration', label: 'Concentration', value: CONCENTRATION_LABEL[conc] || conc });
   return facts;
+}
+
+// Plain-text per-size price line ("3ml ৳170 · 5ml ৳250 …") under the buy box:
+// the same numbers as the Offers in the schema, in a sentence AI answers can
+// quote. Shows the original price struck through while a sale is on.
+function priceLine(p) {
+  const sp = Number(p.salePercent) || 0;
+  const parts = [...(p.sizes || [])].sort((a, b) => a.ml - b.ml).map(s => {
+    const eff = effectivePrice(s.price, sp);
+    return eff < s.price
+      ? `${s.ml}ml <strong>৳${eff}</strong> <s>৳${s.price}</s>`
+      : `${s.ml}ml <strong>৳${eff}</strong>`;
+  });
+  return parts.length ? `<p class="pd-price-line" id="pd-price-line">Decant prices: ${parts.join(' · ')}</p>` : '';
+}
+function priceSentence(p) {
+  const sp = Number(p.salePercent) || 0;
+  return [...(p.sizes || [])].sort((a, b) => a.ml - b.ml).map(s => `${s.ml}ml ৳${effectivePrice(s.price, sp)}`).join(', ');
+}
+
+// ─── Product FAQ ─────────────────────────────────────────────
+// Standard questions answered strictly from the product's own data (a question
+// is skipped when its data is missing), merged with the admin's own entries
+// (fragrance_details.faq): an admin question whose text matches a standard one
+// replaces it; an admin answer of "-" hides it; everything else is appended.
+const normQ = q => String(q || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+function productFaq(p, d, snapshot) {
+  const fact = k => { const f = (snapshot || []).find(x => x.key === k); return f ? f.value : ''; };
+  // Notes come from admin text: trim stray trailing punctuation so sentences
+  // built from them never end with "..".
+  const join = a => (Array.isArray(a) ? a.map(x => String(x).trim().replace(/[.;,]+$/, '')).filter(Boolean).join(', ') : '');
+  const article = w => (/^[aeiou]/i.test(w) ? 'an' : 'a');
+  const out = [];
+  const family = d && d.family ? d.family : '';
+  const top = d ? join(d.top) : '', heart = d ? join(d.heart) : '', base = d ? join(d.base) : '';
+  if (family || top) {
+    let a = family ? `${p.name} is ${article(family)} ${family.toLowerCase()} fragrance by ${p.brand}.` : `${p.name} is by ${p.brand}.`;
+    if (top) a += ` It opens with ${top}`;
+    if (heart) a += `${top ? ',' : ' It'} moves into ${heart}`;
+    if (base) a += `${top || heart ? ', and' : ' It'} settles on ${base}`;
+    if (top || heart || base) a += '.';
+    out.push({ q: `What does ${p.name} smell like?`, a });
+  }
+  const occ = fact('bestFor');
+  if (occ) out.push({ q: `When is ${p.name} best to wear?`, a: `Best suited to ${occ.toLowerCase()} wear.` });
+  const gender = fact('for');
+  if (gender) out.push({ q: `Who is ${p.name} for?`, a: gender === 'Unisex' ? `${p.name} is unisex — worn by both men and women.` : `${p.name} is marketed for ${gender.toLowerCase()}.` });
+  const conc = fact('concentration');
+  if (conc) out.push({ q: `What concentration is ${p.name}?`, a: `This decant is ${conc}, taken from the original ${conc.replace(/\s*\(.*\)$/, '')} bottle.` });
+  const prices = priceSentence(p);
+  if (prices) out.push({ q: `How much does a ${p.name} decant cost in Bangladesh?`, a: `NawmeEssences decant prices: ${prices}. Prices are fixed; delivery is charged separately.` });
+  if (p.sizes && p.sizes.length) {
+    const smallest = Math.min(...p.sizes.map(s => s.ml));
+    out.push({ q: 'Which decant size should I start with?', a: `Start with the ${smallest}ml decant (roughly ${Math.round(smallest * 12)}–${Math.round(smallest * 15)} sprays) to test it across several wears. Move up to 5ml or 10ml once you know you like it.` });
+  }
+  out.push({ q: `Is this an original ${p.name} decant?`, a: `Yes. Every NawmeEssences decant is drawn from an authentic original bottle with a syringe into a clean glass atomiser — never diluted, mixed or altered.` });
+  const r = getDeliveryRates();
+  out.push({ q: 'What is the delivery charge in Bangladesh?', a: `৳${r.dhaka} inside Dhaka (1–2 days), ৳${r.suburb} in the Dhaka suburbs, ৳${r.outside} anywhere else in Bangladesh (2–3 days). Pickup is available at ${pickupList('and')}. The advance to confirm an order is the delivery charge.` });
+  // Admin entries: replace / hide / append.
+  const admin = (d && Array.isArray(d.faq) ? d.faq : []).filter(x => x && x.q && x.a);
+  const byNorm = new Map(out.map(x => [normQ(x.q), x]));
+  for (const x of admin) {
+    const key = normQ(x.q), hide = String(x.a).trim() === '-';
+    if (byNorm.has(key)) {
+      const i = out.indexOf(byNorm.get(key));
+      if (hide) out.splice(i, 1); else out[i] = { q: x.q, a: x.a };
+      byNorm.delete(key);
+    } else if (!hide) out.push({ q: x.q, a: x.a });
+  }
+  return out;
+}
+
+function faqBlock(items) {
+  if (!items || !items.length) return '';
+  return `
+      <section class="pd-faq" aria-labelledby="faq-h">
+        <h2 id="faq-h">Questions &amp; Answers</h2>
+        <div class="faq-list">
+${items.map(f => `          <details class="faq-item">
+            <summary class="faq-q">${esc(f.q)}</summary>
+            <div class="faq-a"><p>${esc(f.a)}</p></div>
+          </details>`).join('\n')}
+        </div>
+      </section>`;
 }
 
 function snapshotBlock(facts) {
@@ -390,7 +510,7 @@ function fragranceProperties(d, snapshot = []) {
   if (acc) out.push({ '@type': 'PropertyValue', name: 'Accords', value: acc });
   // Mirror the visible Fragrance Snapshot rows that are not already covered
   // above, so the markup and the page always state the same facts.
-  const extra = { bestFor: 'Best for', for: 'Gender', launched: 'Launch year' };
+  const extra = { bestFor: 'Best for', for: 'Gender', launched: 'Launch year', concentration: 'Concentration' };
   for (const f of snapshot) if (extra[f.key]) out.push({ '@type': 'PropertyValue', name: extra[f.key], value: f.value });
   return out.length ? out : undefined;
 }
@@ -472,9 +592,11 @@ function renderPage(p, all, detailsMap) {
       },
     })),
   };
-  const snapshot = snapshotFacts(d, desc);
+  const snapshot = snapshotFacts(d, desc, p.name);
   const props = fragranceProperties(d, snapshot);
   if (props) productLd.additionalProperty = props;
+  const faqItems = productFaq(p, d, snapshot);
+  const faqLd = faqItems.length ? { '@context': 'https://schema.org', ...schema.faqPageNode(faqItems, `${url}#faq`) } : null;
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -518,7 +640,7 @@ function renderPage(p, all, detailsMap) {
   <!-- Structured data -->
   <script type="application/ld+json">${orgLd()}</script>
   <script type="application/ld+json">${JSON.stringify(productLd)}</script>
-  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
+  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>${faqLd ? `\n  <script type="application/ld+json">${JSON.stringify(faqLd)}</script>` : ''}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
@@ -573,9 +695,11 @@ ${HEADER}
       </div>
     </div>
 
+    ${priceLine(p)}
     <div class="pd-desc">${renderProductDescription(desc)}</div>
     ${snapshotBlock(snapshot)}
     ${notesBlock(d)}
+    ${faqBlock(faqItems)}
   </div>
 </div>
 

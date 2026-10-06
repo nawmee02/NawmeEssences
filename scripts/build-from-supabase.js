@@ -115,6 +115,10 @@ async function fetchCatalog() {
       // parsing the description when these are null (pre-migration databases).
       gender:      d.gender || '',
       launchYear:  d.launch_year ? Number(d.launch_year) : null,
+      // migration 016 — concentration, admin FAQ list, provenance note
+      concentration: d.concentration || '',
+      faq:         Array.isArray(d.faq) ? d.faq.filter(x => x && x.q && x.a) : [],
+      sourceNote:  d.source_note || '',
     };
   }
 

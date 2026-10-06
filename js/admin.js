@@ -211,6 +211,7 @@
   $('cancel-btn-2').addEventListener('click', showList);
   $('list-search').addEventListener('input', renderList);
   $('add-size').addEventListener('click', () => addSizeRow());
+  $('add-faq').addEventListener('click', () => addFaqRow());
   $('f-name').addEventListener('input', () => {
     if (!editing) { $('f-id').value = slugify($('f-name').value); updateIdHint(); }
   });
@@ -221,6 +222,24 @@
     const clash = !editing && allProducts.some(p => p.id === id);
     $('id-hint').textContent = clash ? '⚠ a product with this ID already exists' : (id ? `→ /product/${id}/` : '');
     $('id-hint').style.color = clash ? 'var(--red)' : '';
+  }
+
+  // Product FAQ rows (fragrance_details.faq, migration 016): question + answer.
+  function addFaqRow(q = '', a = '') {
+    const div = document.createElement('div');
+    div.className = 'faq-row';
+    div.innerHTML = `<input type="text" class="fq-q" placeholder="Question" />
+      <textarea class="fq-a" rows="2" placeholder="Answer (or - to hide a standard question)"></textarea>
+      <button type="button" class="btn-outline btn-sm fq-del" aria-label="Remove question">✕</button>`;
+    div.querySelector('.fq-q').value = q;
+    div.querySelector('.fq-a').value = a;
+    div.querySelector('.fq-del').addEventListener('click', () => div.remove());
+    $('faq-rows').appendChild(div);
+  }
+  function getFaq() {
+    return [...document.querySelectorAll('#faq-rows .faq-row')]
+      .map(r => ({ q: r.querySelector('.fq-q').value.trim(), a: r.querySelector('.fq-a').value.trim() }))
+      .filter(x => x.q && x.a);
   }
 
   function addSizeRow(ml = '', price = '') {
@@ -242,8 +261,9 @@
 
     // reset
     $('sizes-rows').innerHTML = '';
+    $('faq-rows').innerHTML = '';
     document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-concentration','f-source-note','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -280,6 +300,9 @@
       $('f-family').value = d.family || '';
       $('f-gender').value = d.gender || '';                 // migration 015
       $('f-launch-year').value = d.launch_year || '';
+      $('f-concentration').value = d.concentration || '';     // migration 016
+      $('f-source-note').value = d.source_note || '';
+      (Array.isArray(d.faq) ? d.faq : []).forEach(x => x && addFaqRow(x.q || '', x.a || ''));
       $('f-description').value = d.description || '';
     }
     const thumb = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${data.id}/thumb.webp?v=${Date.now()}`;
@@ -339,6 +362,10 @@
         // database simply ignores unknown jsonb keys.
         gender: $('f-gender').value || '',
         launch_year: $('f-launch-year').value ? parseInt($('f-launch-year').value, 10) : '',
+        // migration 016
+        concentration: $('f-concentration').value || '',
+        faq: getFaq(),
+        source_note: $('f-source-note').value.trim(),
       },
     };
   }
