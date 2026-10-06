@@ -1588,9 +1588,15 @@ input, select { font-family: var(--font-body); }
   padding: 24px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 44px;
+  gap: 40px 44px;
   align-items: start;
 }
+/* Left column: image + description. Right column: title, buy box, facts card.
+   Below 860px both wrappers become display:contents so the four blocks can be
+   re-ordered as grid items (image → head → facts → description). */
+.pd-col-left, .pd-col-right { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.pd-col-left { grid-column: 1; grid-row: 1; }    /* right column is first in source (h1 first) */
+.pd-col-right { grid-column: 2; grid-row: 1; }
 
 .pd-image {
   position: relative;
@@ -1628,17 +1634,7 @@ input, select { font-family: var(--font-body); }
   font-size: 38px;
   line-height: 1.1;
   font-weight: 600;
-  margin: 0 0 16px;
-}
-.pd-occasions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
-.occasion-chip {
-  font-size: 11.5px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  border: 1px solid var(--gold-dark);
-  border-radius: 999px;
-  padding: 5px 12px;
+  margin: 0 0 20px;
 }
 
 .pd-buy {
@@ -1646,7 +1642,7 @@ input, select { font-family: var(--font-body); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 .pd-stock { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
 .pd-stock-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -1716,38 +1712,45 @@ input, select { font-family: var(--font-body); }
   color: var(--gold-dark);
 }
 
-.pd-desc { color: var(--text-muted); line-height: 1.7; margin: 0 0 28px; }
+/* Description ("About {name}") under the image */
+.pd-desc { margin: 0; }
+.pd-desc-body { color: var(--text-muted); line-height: 1.7; }
+.pd-desc-toggle { margin-top: 10px; padding: 0; background: none; border: 0; color: var(--gold); font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.pd-desc-toggle:hover { text-decoration: underline; }
 
-.pd-notes h2, .pd-snapshot h2, .pd-related h2 {
+/* One heading style for every product block */
+.pd-desc h2, .pd-snapshot h2, .pd-notes h2, .pd-faq h2, .pd-related h2 {
   font-family: var(--font-head);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
 }
-.notes-pyramid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-.notes-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: baseline; }
-/* Scoped to .pd-notes — .notes-label/.notes-text/.accords-row also exist in the
-   shop-card details panel with their own sizing, and these used to clobber it */
-.pd-notes .notes-label, .pd-snapshot .notes-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
-.pd-notes .notes-text, .pd-snapshot .notes-text { color: var(--text); line-height: 1.5; }
-/* Fragrance Snapshot: labelled facts (family, character, best for, gender,
-   launch year) as a definition list, between the description and the notes. */
-.pd-snapshot { margin: 0 0 28px; }
-/* Per-size price sentence under the buy box + product Q&A below the notes */
-.pd-price-line { color: var(--text-muted); font-size: 14px; line-height: 1.7; margin: -14px 0 24px; }
-.pd-price-line strong { color: var(--text); font-weight: 600; }
-.pd-price-line s { opacity: 0.6; margin-left: 2px; }
-.pd-faq { margin: 8px 0 28px; }
-.pd-faq h2 { font-family: var(--font-head); font-size: 24px; font-weight: 600; margin: 0 0 16px; }
-.pd-faq .faq-item { margin-bottom: 8px; }
+
+/* Facts card: Fragrance Snapshot + Fragrance Notes, one label column, 14px
+   values. Scoped to .pd-facts because .notes-label/.notes-text also exist in
+   the shop-card details panel at 12px and used to leak in here. */
+.pd-facts { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+.pd-facts > section + section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.pd-snapshot { margin: 0; }
 .snapshot-list { display: flex; flex-direction: column; gap: 10px; margin: 0; }
-.snapshot-list .notes-row { grid-template-columns: 96px 1fr; }
 .snapshot-list dd { margin: 0; }
-.pd-notes .accords-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.family-line { color: var(--text-muted); font-size: 14px; margin: 0; }
+.notes-pyramid { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.pd-facts .notes-row { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: baseline; }
+.pd-facts .notes-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin: 0; }
+.pd-facts .notes-text { font-size: 14px; color: var(--text); line-height: 1.55; }
+
+/* Product Q&A: full width below the grid, one bordered list with dividers
+   instead of a card per question. */
+.pd-faq { max-width: 1120px; margin: 8px auto 0; padding: 0 24px; }
+.faq-list--compact { max-width: none; gap: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.faq-list--compact .faq-item { border: 0; border-radius: 0; box-shadow: none; margin: 0; background: none; }
+.faq-list--compact .faq-item + .faq-item { border-top: 1px solid var(--border); }
+.faq-list--compact .faq-item[open] .faq-q { color: var(--gold); }
+.faq-list--compact .faq-q { padding: 14px 18px; font-size: 15px; }
+.faq-list--compact .faq-a { padding: 0 18px 14px; }
 
 /* Related products */
-.pd-related { max-width: 1120px; margin: 8px auto 20px; padding: 24px; }
+.pd-related { max-width: 1120px; margin: 28px auto 20px; padding: 24px; }
 .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .related-card {
   background: var(--card-bg);
@@ -1781,6 +1784,14 @@ input, select { font-family: var(--font-body); }
 
 @media (max-width: 860px) {
   .product-detail { grid-template-columns: 1fr; gap: 24px; }
+  .pd-col-left, .pd-col-right { display: contents; }
+  .pd-media { order: 1; }
+  .pd-head { order: 2; }
+  .pd-facts { order: 3; }
+  .pd-desc { order: 4; }
+  /* Clamp the long description until "Read more" is tapped (button shown by the page script only when something is hidden). */
+  .pd-desc-body:not(.is-open) { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .pd-faq { padding: 0 16px; }
   .pd-name { font-size: 30px; }
   .related-grid { grid-template-columns: repeat(2, 1fr); }
 }

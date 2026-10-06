@@ -53,6 +53,25 @@
     return [...set].slice(0, 4);
   }
 
+  // Price-dependent answers. Kept as plain named functions (no closures over
+  // module state except effectivePrice) because the product page inlines their
+  // source via Function.toString() to re-render these answers from live prices.
+  function priceList(sizes, sp) {
+    return (sizes || []).filter(function (s) { return s && s.ml && s.price; })
+      .sort(function (a, b) { return a.ml - b.ml; })
+      .map(function (s) { return s.ml + 'ml ৳' + effectivePrice(s.price, sp); }).join(', ');
+  }
+  function costAnswer(sizes, sp) {
+    var list = priceList(sizes, sp);
+    return list ? 'NawmeEssences decant prices: ' + list + '. Prices are fixed; delivery is charged separately.' : '';
+  }
+  function sizeAnswer(sizes) {
+    var mls = (sizes || []).filter(function (s) { return s && s.ml && s.price; }).map(function (s) { return s.ml; });
+    if (!mls.length) return '';
+    var smallest = Math.min.apply(null, mls);
+    return 'Start with the ' + smallest + 'ml decant (roughly ' + Math.round(smallest * 12) + '–' + Math.round(smallest * 15) + ' sprays) to test it across several wears. Move up to 5ml or 10ml once you know you like it.';
+  }
+
   const normQ = q => String(q || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const clean = a => (Array.isArray(a) ? a.map(x => String(x).trim().replace(/[.;,]+$/, '')).filter(Boolean) : []);
   const join = a => clean(a).join(', ');
@@ -83,10 +102,8 @@
     const conc = concentrationLabel(p.concentration);
     if (conc) out.push({ key: 'concentration', q: `What concentration is ${p.name}?`, a: `This decant is ${conc}, taken from the original ${conc.replace(/\s*\(.*\)$/, '')} bottle.` });
     if (sizes.length) {
-      const prices = sizes.map(s => `${s.ml}ml ৳${effectivePrice(s.price, sp)}`).join(', ');
-      out.push({ key: 'cost', q: `How much does a ${p.name} decant cost in Bangladesh?`, a: `NawmeEssences decant prices: ${prices}. Prices are fixed; delivery is charged separately.` });
-      const smallest = sizes[0].ml;
-      out.push({ key: 'size', q: 'Which decant size should I start with?', a: `Start with the ${smallest}ml decant (roughly ${Math.round(smallest * 12)}–${Math.round(smallest * 15)} sprays) to test it across several wears. Move up to 5ml or 10ml once you know you like it.` });
+      out.push({ key: 'cost', q: `How much does a ${p.name} decant cost in Bangladesh?`, a: costAnswer(sizes, sp) });
+      out.push({ key: 'size', q: 'Which decant size should I start with?', a: sizeAnswer(sizes) });
     }
     out.push({ key: 'original', q: `Is this an original ${p.name} decant?`, a: `Yes. Every NawmeEssences decant is drawn from an authentic original bottle with a syringe into a clean glass atomiser — never diluted, mixed or altered.` });
     const r = Object.assign({ dhaka: 70, suburb: 90, outside: 120 }, opts.delivery || {});
@@ -111,5 +128,5 @@
     return out;
   }
 
-  return { CONCENTRATION_LABEL, concentrationLabel, GENDER_LABEL, OCCASION_RULES, occasionsFor, effectivePrice, normQ, standardFaq, mergeFaq };
+  return { CONCENTRATION_LABEL, concentrationLabel, GENDER_LABEL, OCCASION_RULES, priceList, costAnswer, sizeAnswer, occasionsFor, effectivePrice, normQ, standardFaq, mergeFaq };
 });
