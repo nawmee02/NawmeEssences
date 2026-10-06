@@ -682,6 +682,21 @@ ${relatedProducts(p, all, detailsMap)}
 
 ${FOOTER}
 
+<!-- Mobile sticky buy bar (≤860px). Mirrors the in-flow .pd-buy box and calls
+     the SAME handlers. Contains no .size-pill on purpose: js/commerce-adapter.js
+     reads the first .size-pill.active on the page. Last body child before the
+     scripts (last in tab order); #lightbox.open hides it via a sibling selector. -->
+<div class="pd-bar" id="pd-bar" role="region" aria-label="Quick buy">
+  <div class="pd-bar-info">
+    <span class="pd-bar-size" id="pd-bar-size">${lo ? `${lo.ml}ml` : ''}</span>
+    <span class="pd-bar-price" id="pd-bar-price">${priceCell(lo, loEff)}</span>
+  </div>
+  <div class="pd-actions">
+    <button class="add-to-cart-btn" id="pd-bar-add" type="button"${oos ? ' disabled' : ''} onclick="handleAdd()">${oos ? 'Out of Stock' : 'Add to Cart'}</button>
+    <button class="buy-now-btn" id="pd-bar-buy" type="button"${oos ? ' disabled' : ''} onclick="handleBuyNow()">Buy Now</button>
+  </div>
+</div>
+
 ${SCRIPTS}
 <script>
   const PRODUCT = { id: ${JSON.stringify(p.id)}, name: ${JSON.stringify(p.name)}, brand: ${JSON.stringify(p.brand)}, isExclusive: ${isExclusive} };
@@ -754,6 +769,33 @@ ${SCRIPTS}
   }
   function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // Mobile sticky buy bar (#pd-bar): a mirror of .pd-buy, shown only once the
+  // buy box has scrolled up past the sticky header. One MutationObserver on
+  // .pd-buy catches every price/size/stock change (pill tap, ?size= preselect,
+  // live hydration via applySaleToCard → selectSize, stock flip) with no edits
+  // to js/main.js. Lightbox hiding is pure CSS (#lightbox.open ~ .pd-bar).
+  (function () {
+    var bar = document.getElementById('pd-bar'), buy = document.querySelector('.pd-buy');
+    if (!bar || !buy || !('IntersectionObserver' in window) || !('MutationObserver' in window)) return;
+    var priceEl = document.getElementById('price-' + PRODUCT.id), addBtn = document.getElementById('add-btn');
+    var barPrice = document.getElementById('pd-bar-price'), barSize = document.getElementById('pd-bar-size');
+    var barAdd = document.getElementById('pd-bar-add'), barBuy = document.getElementById('pd-bar-buy');
+    function sync() {
+      var pill = buy.querySelector('.size-pill.active'), oos = !addBtn || addBtn.disabled;
+      barSize.textContent = pill ? pill.textContent : '';
+      barPrice.innerHTML = priceEl ? priceEl.innerHTML : '';
+      barAdd.disabled = barBuy.disabled = oos || !pill;
+      barAdd.textContent = oos ? 'Out of Stock' : 'Add to Cart';
+    }
+    new MutationObserver(sync).observe(buy, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'disabled'] });
+    new IntersectionObserver(function (entries) {
+      var e = entries[0], on = !e.isIntersecting && e.boundingClientRect.top < 0;   // above the viewport, not below it
+      bar.classList.toggle('is-visible', on);
+      document.body.classList.toggle('has-pd-bar', on);
+    }, { threshold: 0, rootMargin: '-56px 0px 0px 0px' }).observe(buy);
+    sync();
+  })();
 
   // Live hydrate stock + price from Supabase (in case it changed since build)
   window.addEventListener('load', async function () {
