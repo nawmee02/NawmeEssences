@@ -215,6 +215,8 @@ function concentrationOf(d, name, text) {
   if (col) return col;   // free text since migration 017; expanded by ProductFaq.concentrationLabel
   const probe = s => {
     s = String(s || '');
+    if (/\b(EDP|eau de parfum) intense\b/i.test(s)) return 'EDP Intense';
+    if (/\b(EDT|eau de toilette) intense\b/i.test(s)) return 'EDT Intense';
     if (/\bparfum intense\b/i.test(s)) return 'Parfum Intense';
     if (/\bextrait\b/i.test(s)) return 'Extrait';
     if (/\belixir\b/i.test(s)) return 'Elixir';
@@ -225,7 +227,11 @@ function concentrationOf(d, name, text) {
     if (/\bparfum\b/i.test(s)) return 'Parfum';
     return '';
   };
-  return probe(name) || probe(text);
+  // Only the product's own name and the description's opening sentence are
+  // trusted: later sentences often name *other* products ("compared to Le Male
+  // Le Parfum"), which used to leak their concentration onto this page.
+  const firstSentence = String(text || '').replace(/<[^>]+>/g, ' ').split(/(?<=\.)\s+/)[0] || '';
+  return probe(name) || probe(firstSentence);
 }
 
 function snapshotFacts(d, desc, name = '') {
