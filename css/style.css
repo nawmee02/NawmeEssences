@@ -1823,6 +1823,10 @@ input, select { font-family: var(--font-body); }
 .admin-build.bad { color: #e5786b; border-color: #5c2822; }
 .admin-build.run { color: var(--gold-light); border-color: var(--gold-dark); }
 .admin-build a { color: inherit; }
+/* Admin runs light-themed (data-theme="light" on <html>); the deploy pill needs readable light-ink greens/reds. */
+[data-theme="light"] .admin-build.ok { color: #1d7a35; border-color: #9fd3ab; background: #eef8f0; }
+[data-theme="light"] .admin-build.bad { color: #b93325; border-color: #e8b1a9; background: #fbeeec; }
+[data-theme="light"] .admin-login-card input, [data-theme="light"] .admin-form input, [data-theme="light"] .admin-form select, [data-theme="light"] .admin-form textarea, [data-theme="light"] .admin-search { background: var(--input-bg); }
 
 /* Main / toolbar */
 .admin-main { max-width: 1000px; margin: 0 auto; padding: 24px; }
