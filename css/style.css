@@ -1848,6 +1848,14 @@ input, select { font-family: var(--font-body); }
 .admin-fieldset legend { color: var(--gold); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; padding: 0 6px; }
 .size-row { display: flex; gap: 10px; align-items: center; }
 .size-row input { width: 120px; }
+/* Admin: generated standard FAQ preview (read-only, with Customise / Hide) */
+.faq-standard { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.faq-std { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--card-bg); }
+.faq-std.is-overridden { opacity: 0.55; }
+.faq-std-q { font-weight: 600; margin-bottom: 4px; }
+.faq-std-q .tag { margin-left: 8px; font-size: 10px; }
+.faq-std-a { color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 8px; }
+.faq-std-actions { display: flex; gap: 8px; }
 /* Admin product FAQ editor rows (question / answer / remove) */
 .faq-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; align-items: start; margin-bottom: 10px; }
 .faq-row textarea { resize: vertical; min-height: 44px; }

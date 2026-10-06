@@ -162,7 +162,10 @@
 
         <fieldset class="admin-fieldset">
           <legend>Product FAQ</legend>
-          <small class="admin-muted">The page already answers the standard questions (smell, when to wear, who for, concentration, prices, which size, authenticity, delivery) from the data above. Add extra questions here. To replace a standard answer, use the same question text; to hide one, give it the answer <code>-</code>.</small>
+          <small class="admin-muted">Standard questions are generated from the data above and refresh automatically when prices or notes change. <strong>Customise</strong> copies one into the editable list below (same question = your answer replaces the generated one); <strong>Hide</strong> removes it from the page.</small>
+          <div id="faq-standard" class="faq-standard"></div>
+          <button type="button" id="faq-refresh" class="btn-outline btn-sm">↻ Refresh preview from form</button>
+          <p class="admin-muted" style="margin:14px 0 6px;"><strong>Your questions &amp; overrides</strong></p>
           <div id="faq-rows"></div>
           <button type="button" id="add-faq" class="btn-outline btn-sm">+ Add question</button>
         </fieldset>
@@ -460,6 +463,7 @@
 <script src="/js/supabase-config.js" defer></script>
 <script src="/js/supabase.js" defer></script>
 <script src="/js/admin-image.js" defer></script>
+<script src="/js/product-faq.js" defer></script>
 <script src="/js/admin.js" defer></script>
 <script src="/js/admin-settings.js" defer></script>
 <script src="/js/admin-brands.js" defer></script>

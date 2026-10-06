@@ -212,6 +212,7 @@
   $('list-search').addEventListener('input', renderList);
   $('add-size').addEventListener('click', () => addSizeRow());
   $('add-faq').addEventListener('click', () => addFaqRow());
+  $('faq-refresh').addEventListener('click', () => renderStandardFaq());
   $('f-name').addEventListener('input', () => {
     if (!editing) { $('f-id').value = slugify($('f-name').value); updateIdHint(); }
   });
@@ -240,6 +241,44 @@
     return [...document.querySelectorAll('#faq-rows .faq-row')]
       .map(r => ({ q: r.querySelector('.fq-q').value.trim(), a: r.querySelector('.fq-a').value.trim() }))
       .filter(x => x.q && x.a);
+  }
+
+  // Standard FAQ preview: exactly what the product page will generate from the
+  // form's current data (js/product-faq.js is shared with the build). Delivery
+  // rates come from site_settings so the delivery answer matches the site.
+  let deliveryRates = null;
+  async function loadDeliveryRates() {
+    if (deliveryRates) return deliveryRates;
+    try {
+      const { data } = await sb.from('site_settings').select('data').eq('id', 1).maybeSingle();
+      const d = data && data.data && data.data.delivery;
+      deliveryRates = { dhaka: Number(d && d.dhaka) || 70, suburb: Number(d && d.suburb) || 90, outside: Number(d && d.outside) || 120,
+        pickup: Array.isArray(d && d.pickupPoints) && d.pickupPoints.length ? d.pickupPoints : ['Aftabnagar', 'Banasree'] };
+    } catch (e) { deliveryRates = { dhaka: 70, suburb: 90, outside: 120, pickup: ['Aftabnagar', 'Banasree'] }; }
+    return deliveryRates;
+  }
+  async function renderStandardFaq() {
+    const box = $('faq-standard'); if (!box || typeof ProductFaq === 'undefined') return;
+    const f = collectForm(); const r = await loadDeliveryRates();
+    const pickupText = r.pickup.length > 1 ? r.pickup.slice(0, -1).join(', ') + ' and ' + r.pickup[r.pickup.length - 1] : r.pickup[0];
+    const standard = ProductFaq.standardFaq({
+      name: f.name || '(product name)', brand: f.brand || '(brand)', sizes: f.sizes, salePercent: f.salePercent,
+      family: f.details.family, top: f.details.top, heart: f.details.heart, base: f.details.base,
+      accords: f.details.accords, occasions: f.details.occasions, gender: f.details.gender, concentration: f.details.concentration,
+    }, { delivery: r, pickupText });
+    const overridden = new Set(getFaq().map(x => ProductFaq.normQ(x.q)));
+    box.innerHTML = standard.map((x, i) => {
+      const state = overridden.has(ProductFaq.normQ(x.q)) ? ' <span class="tag">overridden below</span>' : '';
+      return `<div class="faq-std${state ? ' is-overridden' : ''}">
+        <div class="faq-std-q">${esc(x.q)}${state}</div>
+        <div class="faq-std-a">${esc(x.a)}</div>
+        <div class="faq-std-actions">
+          <button type="button" class="btn-outline btn-sm" data-faq-customise="${i}">Customise</button>
+          <button type="button" class="btn-outline btn-sm" data-faq-hide="${i}">Hide</button>
+        </div></div>`;
+    }).join('');
+    box.querySelectorAll('[data-faq-customise]').forEach(b => b.addEventListener('click', () => { const x = standard[+b.dataset.faqCustomise]; addFaqRow(x.q, x.a); renderStandardFaq(); }));
+    box.querySelectorAll('[data-faq-hide]').forEach(b => b.addEventListener('click', () => { const x = standard[+b.dataset.faqHide]; addFaqRow(x.q, '-'); renderStandardFaq(); }));
   }
 
   function addSizeRow(ml = '', price = '') {
@@ -305,7 +344,8 @@
       $('f-description').value = d.description || '';
     }
     const thumb = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${data.id}/thumb.webp?v=${Date.now()}`;
-    $('current-image').innerHTML = `<img src="${thumb}" alt="" onerror="this.style.display='none'"><span class="admin-muted">current image (upload to replace)</span>`;
+    renderStandardFaq();
+    $('current-image').innerHTML = `<img src="${thumb}" alt="" onerror="this.style.display='none'"><span class="admin-muted">current image (upload toreplace)</span>`;
   }
 
   function showList() { show('form-view', false); show('list-view', true); }
