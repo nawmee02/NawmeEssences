@@ -902,9 +902,11 @@ input, select { font-family: var(--font-body); }
 .exclusive-banner .icon { font-size: 28px; flex-shrink: 0; }
 .exclusive-banner h3 { font-family: var(--font-head); font-size: 18px; color: var(--gold); margin-bottom: 6px; }
 .exclusive-banner p { font-size: 13.5px; color: var(--text-muted); }
-/* Banner keeps its dark-luxury gradient in light mode — pin readable colors */
-[data-theme="light"] .exclusive-banner h3 { color: #c9a465; }
-[data-theme="light"] .exclusive-banner p { color: #9a9488; }
+/* Light theme: a warning notice should not be the darkest block on an ivory
+   page, so it becomes a warm cream notice with a gold edge and dark text. */
+[data-theme="light"] .exclusive-banner { background: linear-gradient(115deg, #fbf4e4 0%, #f6ecd6 100%); border-color: #d9bd86; box-shadow: var(--shadow-1); }
+[data-theme="light"] .exclusive-banner h3 { color: #6b4d18; }
+[data-theme="light"] .exclusive-banner p { color: #5a5245; }
 
 .shop-exclusive-banner {
   background: linear-gradient(115deg, #070707 0%, #1b140a 52%, #0a0800 100%);

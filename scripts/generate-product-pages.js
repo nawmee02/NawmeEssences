@@ -602,7 +602,7 @@ function renderPage(p, all, detailsMap) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1060,7 +1060,7 @@ ${others.map(brandTile).join('\n')}
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1170,7 +1170,7 @@ function renderBrandsIndex(groups) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1283,7 +1283,7 @@ function renderBlogIndex(posts) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1370,7 +1370,7 @@ function renderBlogPost(post) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1507,7 +1507,7 @@ function renderReviewsPage(reviews) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
@@ -1646,7 +1646,7 @@ function render404Page() {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
-  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme==='light')document.documentElement.dataset.theme='light'}catch(e){}</script>
+  <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
