@@ -189,6 +189,43 @@ function sizePills(p) {
   ).join('');
 }
 
+// ─── Fragrance Snapshot ──────────────────────────────────────
+// Facts the page already carries, lifted out of prose into labelled
+// name/value rows so search engines and AI answers can read them as product
+// attributes. Nothing is invented: Family / Character / Best for come from
+// fragrance_details; For / Launched are parsed from the description and are
+// simply omitted when the text does not state them.
+function snapshotFacts(d, desc) {
+  const text = String(desc || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const facts = [];
+  if (d && d.family) facts.push({ key: 'family', label: 'Family', value: d.family });
+  const accords = d && Array.isArray(d.accords) ? d.accords.filter(Boolean).slice(0, 5) : [];
+  if (accords.length) facts.push({ key: 'character', label: 'Character', value: accords.map(a => String(a).toLowerCase()).join(', ') });
+  const occ = d ? occasionsOf(d) : [];
+  if (occ.length) facts.push({ key: 'bestFor', label: 'Best for', value: occ.join(', ') });
+  const g = text.match(/\b(unisex|for (?:both )?men and women|for women and men|for men|for women)\b/i);
+  if (g) {
+    const s = g[1].toLowerCase();
+    facts.push({ key: 'for', label: 'For', value: /unisex|women and men|men and women/.test(s) ? 'Unisex' : /women/.test(s) ? 'Women' : 'Men' });
+  }
+  const y = text.match(/\b(?:launched|released|introduced|debuted)(?: in)? ((?:19|20)\d{2})\b/i);
+  if (y) facts.push({ key: 'launched', label: 'Launched', value: y[1] });
+  return facts;
+}
+
+function snapshotBlock(facts) {
+  if (!facts || !facts.length) return '';
+  const rows = facts.map(f =>
+    `<div class="notes-row"><dt class="notes-label">${esc(f.label)}</dt><dd class="notes-text">${esc(f.value)}</dd></div>`).join('\n          ');
+  return `
+      <section class="pd-snapshot" aria-labelledby="snapshot-h">
+        <h2 id="snapshot-h">Fragrance Snapshot</h2>
+        <dl class="snapshot-list">
+          ${rows}
+        </dl>
+      </section>`;
+}
+
 function notesBlock(d) {
   if (!d) return '';
   const row = (lbl, arr) => `<div class="notes-row"><span class="notes-label">${lbl}</span><span class="notes-text">${esc(arr.join(', '))}</span></div>`;
@@ -337,7 +374,7 @@ const orgLd = () => JSON.stringify({ '@context': 'https://schema.org', ...schema
 
 // Fragrance notes/accords/family → consistent PropertyValue list (semantic
 // enrichment; values are clean comma-joined strings, never one ambiguous blob).
-function fragranceProperties(d) {
+function fragranceProperties(d, snapshot = []) {
   if (!d) return undefined;
   const join = a => (Array.isArray(a) ? a.filter(Boolean).join(', ') : '');
   const out = [];
@@ -347,6 +384,10 @@ function fragranceProperties(d) {
   if (heart) out.push({ '@type': 'PropertyValue', name: 'Heart notes', value: heart });
   if (base) out.push({ '@type': 'PropertyValue', name: 'Base notes', value: base });
   if (acc) out.push({ '@type': 'PropertyValue', name: 'Accords', value: acc });
+  // Mirror the visible Fragrance Snapshot rows that are not already covered
+  // above, so the markup and the page always state the same facts.
+  const extra = { bestFor: 'Best for', for: 'Gender', launched: 'Launch year' };
+  for (const f of snapshot) if (extra[f.key]) out.push({ '@type': 'PropertyValue', name: extra[f.key], value: f.value });
   return out.length ? out : undefined;
 }
 
@@ -427,7 +468,8 @@ function renderPage(p, all, detailsMap) {
       },
     })),
   };
-  const props = fragranceProperties(d);
+  const snapshot = snapshotFacts(d, desc);
+  const props = fragranceProperties(d, snapshot);
   if (props) productLd.additionalProperty = props;
   const breadcrumbLd = {
     '@context': 'https://schema.org',
@@ -528,6 +570,7 @@ ${HEADER}
     </div>
 
     <div class="pd-desc">${renderProductDescription(desc)}</div>
+    ${snapshotBlock(snapshot)}
     ${notesBlock(d)}
   </div>
 </div>

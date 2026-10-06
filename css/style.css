@@ -1718,7 +1718,7 @@ input, select { font-family: var(--font-body); }
 
 .pd-desc { color: var(--text-muted); line-height: 1.7; margin: 0 0 28px; }
 
-.pd-notes h2, .pd-related h2 {
+.pd-notes h2, .pd-snapshot h2, .pd-related h2 {
   font-family: var(--font-head);
   font-size: 24px;
   font-weight: 600;
@@ -1728,8 +1728,14 @@ input, select { font-family: var(--font-body); }
 .notes-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: baseline; }
 /* Scoped to .pd-notes — .notes-label/.notes-text/.accords-row also exist in the
    shop-card details panel with their own sizing, and these used to clobber it */
-.pd-notes .notes-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
-.pd-notes .notes-text { color: var(--text); line-height: 1.5; }
+.pd-notes .notes-label, .pd-snapshot .notes-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.pd-notes .notes-text, .pd-snapshot .notes-text { color: var(--text); line-height: 1.5; }
+/* Fragrance Snapshot: labelled facts (family, character, best for, gender,
+   launch year) as a definition list, between the description and the notes. */
+.pd-snapshot { margin: 0 0 28px; }
+.snapshot-list { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+.snapshot-list .notes-row { grid-template-columns: 96px 1fr; }
+.snapshot-list dd { margin: 0; }
 .pd-notes .accords-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .family-line { color: var(--text-muted); font-size: 14px; margin: 0; }
 
