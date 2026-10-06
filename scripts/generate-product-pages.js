@@ -203,13 +203,18 @@ function snapshotFacts(d, desc) {
   if (accords.length) facts.push({ key: 'character', label: 'Character', value: accords.map(a => String(a).toLowerCase()).join(', ') });
   const occ = d ? occasionsOf(d) : [];
   if (occ.length) facts.push({ key: 'bestFor', label: 'Best for', value: occ.join(', ') });
-  const g = text.match(/\b(unisex|for (?:both )?men and women|for women and men|for men|for women)\b/i);
-  if (g) {
-    const s = g[1].toLowerCase();
-    facts.push({ key: 'for', label: 'For', value: /unisex|women and men|men and women/.test(s) ? 'Unisex' : /women/.test(s) ? 'Women' : 'Men' });
+  // Gender / launch year: the admin-set columns (migration 015) win; when they
+  // are empty, fall back to the phrase in the description, as before.
+  const GENDER_LABEL = { men: 'Men', women: 'Women', unisex: 'Unisex' };
+  let gender = d && GENDER_LABEL[String(d.gender || '').toLowerCase()];
+  if (!gender) {
+    const g = text.match(/\b(unisex|for (?:both )?men and women|for women and men|for men|for women)\b/i);
+    if (g) { const s = g[1].toLowerCase(); gender = /unisex|women and men|men and women/.test(s) ? 'Unisex' : /women/.test(s) ? 'Women' : 'Men'; }
   }
-  const y = text.match(/\b(?:launched|released|introduced|debuted)(?: in)? ((?:19|20)\d{2})\b/i);
-  if (y) facts.push({ key: 'launched', label: 'Launched', value: y[1] });
+  if (gender) facts.push({ key: 'for', label: 'For', value: gender });
+  let year = d && d.launchYear && d.launchYear >= 1900 && d.launchYear <= 2100 ? String(d.launchYear) : '';
+  if (!year) { const y = text.match(/\b(?:launched|released|introduced|debuted)(?: in)? ((?:19|20)\d{2})\b/i); if (y) year = y[1]; }
+  if (year) facts.push({ key: 'launched', label: 'Launched', value: year });
   return facts;
 }
 

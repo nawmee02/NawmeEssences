@@ -243,7 +243,7 @@
     // reset
     $('sizes-rows').innerHTML = '';
     document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -278,6 +278,8 @@
       $('f-accords').value = (d.accords||[]).join(', ');
       setOccasions(d.occasions || []);
       $('f-family').value = d.family || '';
+      $('f-gender').value = d.gender || '';                 // migration 015
+      $('f-launch-year').value = d.launch_year || '';
       $('f-description').value = d.description || '';
     }
     const thumb = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${data.id}/thumb.webp?v=${Date.now()}`;
@@ -333,6 +335,10 @@
         top: csv($('f-top').value), heart: csv($('f-heart').value), base: csv($('f-base').value),
         accords: csv($('f-accords').value), occasions: getOccasions(),
         family: $('f-family').value.trim(), description: $('f-description').value.trim(),
+        // migration 015 — upsert_product reads these from p_details; an older
+        // database simply ignores unknown jsonb keys.
+        gender: $('f-gender').value || '',
+        launch_year: $('f-launch-year').value ? parseInt($('f-launch-year').value, 10) : '',
       },
     };
   }

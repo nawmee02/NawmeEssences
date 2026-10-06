@@ -94,6 +94,13 @@
             </select>
           </label>
           <label>Olfactive family<input type="text" id="f-family" placeholder="e.g. Woody" /></label>
+          <label>For<select id="f-gender">
+              <option value="">— not stated —</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="unisex">Unisex</option>
+            </select><small class="admin-muted">Shown in the Fragrance Snapshot and product schema. Blank = read from the description.</small></label>
+          <label>Launch year<input type="number" id="f-launch-year" min="1900" max="2100" placeholder="e.g. 2023" /><small class="admin-muted">Blank = read "Launched in …" from the description.</small></label>
           <label>Sale % off<input type="number" id="f-sale" min="0" max="95" placeholder="0" /><small class="admin-muted">0 = no sale. Applies to every size.</small></label>
           <label>Sale valid until<input type="date" id="f-sale-until" /><small class="admin-muted">Optional. The sale ends after this date (Bangladesh time) and prices revert automatically; Google is told the offer end date.</small></label>
         </div>

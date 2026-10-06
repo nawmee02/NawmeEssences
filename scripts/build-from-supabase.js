@@ -111,6 +111,10 @@ async function fetchCatalog() {
       family:      d.family || '',
       description: d.description || '',
       occasions:   d.occasions || [],
+      // migration 015 — admin-set attributes; the generator falls back to
+      // parsing the description when these are null (pre-migration databases).
+      gender:      d.gender || '',
+      launchYear:  d.launch_year ? Number(d.launch_year) : null,
     };
   }
 
