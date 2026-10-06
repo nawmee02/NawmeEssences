@@ -101,17 +101,21 @@
               <option value="unisex">Unisex</option>
             </select><small class="admin-muted">Shown in the Fragrance Snapshot and product schema. Blank = read from the description.</small></label>
           <label>Launch year<input type="number" id="f-launch-year" min="1900" max="2100" placeholder="e.g. 2023" /><small class="admin-muted">Blank = read "Launched in …" from the description.</small></label>
-          <label>Concentration<select id="f-concentration">
-              <option value="">— not stated —</option>
-              <option value="EDP">Eau de Parfum (EDP)</option>
-              <option value="EDT">Eau de Toilette (EDT)</option>
-              <option value="EDC">Eau de Cologne (EDC)</option>
-              <option value="Parfum">Parfum</option>
-              <option value="Parfum Intense">Parfum Intense</option>
+          <label>Concentration<input type="text" id="f-concentration" list="concentration-options" maxlength="60" placeholder="e.g. EDP, EDP Intense, Extrait" autocomplete="off" />
+            <datalist id="concentration-options">
+              <option value="EDP">Eau de Parfum</option>
+              <option value="EDP Intense"></option>
+              <option value="EDT">Eau de Toilette</option>
+              <option value="EDT Intense"></option>
+              <option value="EDC">Eau de Cologne</option>
+              <option value="Parfum"></option>
+              <option value="Parfum Intense"></option>
               <option value="Extrait">Extrait de Parfum</option>
-              <option value="Elixir">Elixir</option>
+              <option value="Elixir"></option>
+              <option value="Absolu"></option>
+              <option value="Eau Fraîche"></option>
               <option value="Attar/Oil">Attar / perfume oil</option>
-            </select><small class="admin-muted">Blank = read EDP/EDT from the name or description.</small></label>
+            </datalist><small class="admin-muted">Pick a suggestion or type the exact label from the bottle. EDP/EDT/EDC are expanded on the site (EDP Intense → Eau de Parfum Intense). Blank = read EDP/EDT from the name or description.</small></label>
           <label>Sale % off<input type="number" id="f-sale" min="0" max="95" placeholder="0" /><small class="admin-muted">0 = no sale. Applies to every size.</small></label>
           <label>Sale valid until<input type="date" id="f-sale-until" /><small class="admin-muted">Optional. The sale ends after this date (Bangladesh time) and prices revert automatically; Google is told the offer end date.</small></label>
         </div>

@@ -402,7 +402,7 @@
         gender: $('f-gender').value || '',
         launch_year: $('f-launch-year').value ? parseInt($('f-launch-year').value, 10) : '',
         // migration 016
-        concentration: $('f-concentration').value || '',
+        concentration: $('f-concentration').value.trim().replace(/\s+/g, ' ').slice(0, 60),
         faq: getFaq(),
       },
     };

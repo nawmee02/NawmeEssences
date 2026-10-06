@@ -212,7 +212,7 @@ const CONCENTRATION_LABEL = {
 };
 function concentrationOf(d, name, text) {
   const col = d && String(d.concentration || '').trim();
-  if (col && CONCENTRATION_LABEL[col]) return col;
+  if (col) return col;   // free text since migration 017; expanded by ProductFaq.concentrationLabel
   const probe = s => {
     s = String(s || '');
     if (/\bparfum intense\b/i.test(s)) return 'Parfum Intense';
@@ -251,7 +251,7 @@ function snapshotFacts(d, desc, name = '') {
   // Concentration: admin column (migration 016) first, else parsed from the
   // product name, then the description. Normalised to the admin vocabulary.
   const conc = concentrationOf(d, name, text);
-  if (conc) facts.push({ key: 'concentration', label: 'Concentration', value: CONCENTRATION_LABEL[conc] || conc });
+  if (conc) facts.push({ key: 'concentration', label: 'Concentration', value: ProductFaq.concentrationLabel(conc) });
   return facts;
 }
 
@@ -275,12 +275,11 @@ function priceLine(p) {
 function productFaq(p, d, snapshot) {
   const fact = k => { const f = (snapshot || []).find(x => x.key === k); return f ? f.value : ''; };
   const genderCode = { Men: 'men', Women: 'women', Unisex: 'unisex' }[fact('for')] || '';
-  const concCode = Object.keys(ProductFaq.CONCENTRATION_LABEL).find(k => ProductFaq.CONCENTRATION_LABEL[k] === fact('concentration')) || '';
   const standard = ProductFaq.standardFaq({
     name: p.name, brand: p.brand, sizes: p.sizes, salePercent: p.salePercent,
     family: d ? d.family : '', top: d ? d.top : [], heart: d ? d.heart : [], base: d ? d.base : [],
     accords: d ? d.accords : [], occasions: d ? occasionsOf(d) : [],
-    gender: genderCode, concentration: concCode,
+    gender: genderCode, concentration: d ? concentrationOf(d, p.name, d.description) : '',
   }, { delivery: getDeliveryRates(), pickupText: pickupList('and') });
   return ProductFaq.mergeFaq(standard, d && Array.isArray(d.faq) ? d.faq : []);
 }

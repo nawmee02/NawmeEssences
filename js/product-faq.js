@@ -22,6 +22,18 @@
   };
   const GENDER_LABEL = { men: 'Men', women: 'Women', unisex: 'Unisex' };
 
+  // Any concentration text is allowed (migration 017). Known codes get their
+  // full label; otherwise EDP/EDT/EDC inside the text are expanded and the
+  // original kept in brackets, e.g. "EDP Intense" → "Eau de Parfum Intense (EDP Intense)".
+  function concentrationLabel(raw) {
+    const s = String(raw || '').trim().replace(/\s+/g, ' ');
+    if (!s) return '';
+    const known = Object.keys(CONCENTRATION_LABEL).find(k => k.toLowerCase() === s.toLowerCase());
+    if (known) return CONCENTRATION_LABEL[known];
+    const expanded = s.replace(/\bEDP\b/gi, 'Eau de Parfum').replace(/\bEDT\b/gi, 'Eau de Toilette').replace(/\bEDC\b/gi, 'Eau de Cologne');
+    return expanded.toLowerCase() === s.toLowerCase() ? s : `${expanded} (${s})`;
+  }
+
   // Same rule as lib/render-card.js and js/api.js.
   function effectivePrice(price, sp) { return sp > 0 ? Math.round(price * (100 - sp) / 100) : price; }
 
@@ -68,7 +80,7 @@
     if (occ.length) out.push({ key: 'wear', q: `When is ${p.name} best to wear?`, a: `Best suited to ${occ.join(', ').toLowerCase()} wear.` });
     const gender = GENDER_LABEL[String(p.gender || '').toLowerCase()];
     if (gender) out.push({ key: 'who', q: `Who is ${p.name} for?`, a: gender === 'Unisex' ? `${p.name} is unisex — worn by both men and women.` : `${p.name} is marketed for ${gender.toLowerCase()}.` });
-    const conc = CONCENTRATION_LABEL[p.concentration];
+    const conc = concentrationLabel(p.concentration);
     if (conc) out.push({ key: 'concentration', q: `What concentration is ${p.name}?`, a: `This decant is ${conc}, taken from the original ${conc.replace(/\s*\(.*\)$/, '')} bottle.` });
     if (sizes.length) {
       const prices = sizes.map(s => `${s.ml}ml ৳${effectivePrice(s.price, sp)}`).join(', ');
@@ -99,5 +111,5 @@
     return out;
   }
 
-  return { CONCENTRATION_LABEL, GENDER_LABEL, OCCASION_RULES, occasionsFor, effectivePrice, normQ, standardFaq, mergeFaq };
+  return { CONCENTRATION_LABEL, concentrationLabel, GENDER_LABEL, OCCASION_RULES, occasionsFor, effectivePrice, normQ, standardFaq, mergeFaq };
 });
