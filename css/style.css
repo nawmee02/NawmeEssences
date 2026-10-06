@@ -158,7 +158,9 @@ input, select { font-family: var(--font-body); }
   padding: 7px 0;
 }
 .ticker-track {
-  display: inline-block;
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
   animation: ticker 28s linear infinite;
 }
 .ticker-track span { padding: 0 48px; }
@@ -2121,8 +2123,10 @@ input, select { font-family: var(--font-body); }
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .ticker-track, .brand-track, .trust-track { animation-play-state: paused; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  .ticker-track { animation: ticker 28s linear infinite !important; animation-play-state: running !important; }
+  .brand-track { animation: ticker 24s linear infinite !important; animation-play-state: running !important; }
+  .trust-track { animation: ticker var(--trust-ticker-duration) linear infinite !important; animation-play-state: running !important; }
   .product-card:hover, .brand-tile:hover, .how-step:hover, .related-card:hover, .blog-card:hover,
   .btn-primary:hover, .checkout-btn:hover, .buy-now-btn:hover, .pd-actions .add-to-cart-btn:hover,
   .product-card:hover .card-img img { transform: none; }
