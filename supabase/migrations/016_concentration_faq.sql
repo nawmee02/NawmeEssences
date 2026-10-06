@@ -1,9 +1,8 @@
 -- ============================================================
---  NawmeEssences — concentration, per-product FAQ, source note.
+--  NawmeEssences — concentration + per-product FAQ.
 --  Completes the product-page facts set (after 015 gender/launch
---  year): the concentration (EDP/EDT/…), an admin-editable FAQ
---  list rendered below the notes with FAQPage schema, and a free
---  text provenance note ("concentration from Fragrantica, 2026-10").
+--  year): the concentration (EDP/EDT/…) and an admin-editable FAQ
+--  list rendered below the notes with FAQPage schema.
 --
 --  No backfill here: concentration values are looked up and
 --  reviewed first, then applied with a separate UPDATE.
@@ -17,7 +16,6 @@
 -- ─────────────────────────────────────────
 ALTER TABLE fragrance_details ADD COLUMN IF NOT EXISTS concentration text;
 ALTER TABLE fragrance_details ADD COLUMN IF NOT EXISTS faq jsonb NOT NULL DEFAULT '[]';
-ALTER TABLE fragrance_details ADD COLUMN IF NOT EXISTS source_note text;
 DO $$ BEGIN
   ALTER TABLE fragrance_details ADD CONSTRAINT fragrance_details_concentration_chk
     CHECK (concentration IS NULL OR concentration IN
@@ -25,7 +23,7 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ─────────────────────────────────────────
---  2. upsert_product: persist the three fields from p_details.
+--  2. upsert_product: persist the two fields from p_details.
 --     Signature unchanged (p_details is jsonb) — CREATE OR REPLACE only.
 -- ─────────────────────────────────────────
 CREATE OR REPLACE FUNCTION upsert_product(
@@ -100,10 +98,10 @@ BEGIN
     FROM jsonb_array_elements(COALESCE(p_details->'faq', '[]'::jsonb)) e
    WHERE jsonb_typeof(e) = 'object' AND trim(COALESCE(e->>'q','')) <> '' AND trim(COALESCE(e->>'a','')) <> '';
 
-  -- Upsert details (occasions + gender + launch_year + concentration + faq + source_note)
+  -- Upsert details (occasions + gender + launch_year + concentration + faq)
   INSERT INTO fragrance_details (fragrance_id, top_notes, heart_notes, base_notes,
                                  accords, family, description, occasions, gender, launch_year,
-                                 concentration, faq, source_note)
+                                 concentration, faq)
   VALUES (p_id,
     COALESCE(p_details->'top','[]'::jsonb), COALESCE(p_details->'heart','[]'::jsonb),
     COALESCE(p_details->'base','[]'::jsonb), COALESCE(p_details->'accords','[]'::jsonb),
@@ -112,13 +110,12 @@ BEGIN
     NULLIF(p_details->>'gender',''),
     NULLIF(p_details->>'launch_year','')::int,
     NULLIF(p_details->>'concentration',''),
-    v_faq,
-    NULLIF(p_details->>'source_note',''))
+    v_faq)
   ON CONFLICT (fragrance_id) DO UPDATE SET
     top_notes = EXCLUDED.top_notes, heart_notes = EXCLUDED.heart_notes, base_notes = EXCLUDED.base_notes,
     accords = EXCLUDED.accords, family = EXCLUDED.family, description = EXCLUDED.description,
     occasions = EXCLUDED.occasions, gender = EXCLUDED.gender, launch_year = EXCLUDED.launch_year,
-    concentration = EXCLUDED.concentration, faq = EXCLUDED.faq, source_note = EXCLUDED.source_note;
+    concentration = EXCLUDED.concentration, faq = EXCLUDED.faq;
 
   SELECT updated_at INTO v_result FROM fragrances WHERE id = p_id;
   RETURN v_result;

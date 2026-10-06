@@ -263,7 +263,7 @@
     $('sizes-rows').innerHTML = '';
     $('faq-rows').innerHTML = '';
     document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-concentration','f-source-note','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-concentration','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -301,7 +301,6 @@
       $('f-gender').value = d.gender || '';                 // migration 015
       $('f-launch-year').value = d.launch_year || '';
       $('f-concentration').value = d.concentration || '';     // migration 016
-      $('f-source-note').value = d.source_note || '';
       (Array.isArray(d.faq) ? d.faq : []).forEach(x => x && addFaqRow(x.q || '', x.a || ''));
       $('f-description').value = d.description || '';
     }
@@ -365,7 +364,6 @@
         // migration 016
         concentration: $('f-concentration').value || '',
         faq: getFaq(),
-        source_note: $('f-source-note').value.trim(),
       },
     };
   }
