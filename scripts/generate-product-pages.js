@@ -199,7 +199,7 @@ function snapshotFacts(d, desc) {
   const text = String(desc || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   const facts = [];
   if (d && d.family) facts.push({ key: 'family', label: 'Family', value: d.family });
-  const accords = d && Array.isArray(d.accords) ? d.accords.filter(Boolean).slice(0, 5) : [];
+  const accords = d && Array.isArray(d.accords) ? d.accords.filter(Boolean) : [];   // full list — the accord pills were removed from the notes block
   if (accords.length) facts.push({ key: 'character', label: 'Character', value: accords.map(a => String(a).toLowerCase()).join(', ') });
   const occ = d ? occasionsOf(d) : [];
   if (occ.length) facts.push({ key: 'bestFor', label: 'Best for', value: occ.join(', ') });
@@ -234,7 +234,8 @@ function snapshotBlock(facts) {
 function notesBlock(d) {
   if (!d) return '';
   const row = (lbl, arr) => `<div class="notes-row"><span class="notes-label">${lbl}</span><span class="notes-text">${esc(arr.join(', '))}</span></div>`;
-  const pills = d.accords.map(a => `<span class="accord-pill">${esc(a)}</span>`).join('');
+  // Accords and olfactive family now live in the Fragrance Snapshot above
+  // (Character / Family rows), so this block is the notes pyramid only.
   return `
       <section class="pd-notes">
         <h2>Fragrance Notes</h2>
@@ -243,8 +244,6 @@ function notesBlock(d) {
           ${row('Heart', d.heart)}
           ${row('Base', d.base)}
         </div>
-        <div class="accords-row">${pills}</div>
-        <p class="family-line">Olfactive family: <strong>${esc(d.family)}</strong></p>
       </section>`;
 }
 
