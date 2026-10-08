@@ -60,7 +60,9 @@ async function fetchPosts(sb) {
     }
     return (data || []).map(p => ({
       id:              p.id,
-      title:           p.title,
+      // A title typed as "Post | NawmeEssences" in admin would otherwise show the
+      // suffix in the H1, breadcrumb and cards; the <title> adds its own suffix.
+      title:           String(p.title || '').replace(/\s*\|\s*NawmeEssences\s*$/i, '').trim(),
       excerpt:         p.excerpt || '',
       bodyMd:          p.body_md || '',
       cover:           !!p.cover,
