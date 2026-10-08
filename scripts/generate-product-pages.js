@@ -393,6 +393,7 @@ ${announcementSpans()}
       <a href="/shop.html" class="nav-link">Shop</a>
       <a href="/brands/" class="nav-link">Brands</a>
       <a href="/exclusive.html" class="nav-link exclusive-link">✦ Exclusive</a>
+      <a href="/recommend.html" class="nav-link">Find a Scent</a>
       <a href="/about.html" class="nav-link">Policies</a>
     </div>
     <div class="nav-actions">
@@ -419,6 +420,7 @@ const FOOTER = `<footer class="site-footer">
       <a href="/brands/">Brands</a>
       <a href="/blog/">Blog</a>
       <a href="/exclusive.html">Exclusive Collection</a>
+      <a href="/recommend.html">Find a Scent</a>
       <a href="/cart.html">My Cart</a>
     </div>
     <div class="footer-col">
@@ -1615,6 +1617,7 @@ function writeSitemap(all, groups = [], posts = [], reviews = []) {
     { loc: `${SITE}/shop.html`,     freq: 'weekly',  pri: '0.9', lastmod: catalogMod },
     { loc: `${SITE}/brands/`,       freq: 'weekly',  pri: '0.7', lastmod: catalogMod },
     { loc: `${SITE}/exclusive.html`,freq: 'weekly',  pri: '0.8', lastmod: catalogMod },
+    { loc: `${SITE}/recommend.html`,freq: 'weekly',  pri: '0.6', lastmod: catalogMod },
     { loc: `${SITE}/about.html`,    freq: 'monthly', pri: '0.5' },
     { loc: `${SITE}/about-me.html`, freq: 'monthly', pri: '0.4' },
   ];

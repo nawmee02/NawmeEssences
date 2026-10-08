@@ -23,6 +23,7 @@ const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion, brandSlug } = requi
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData, occasionsOf, concentrationOf, genderOf } = require('./generate-product-pages');
 const { buildRecs, writeRecs } = require('./lib/recs');
+const { buildFinder, writeFinder } = require('./lib/finder');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
@@ -119,6 +120,12 @@ async function fetchCatalog() {
       // migration 016 — concentration + admin FAQ list
       concentration: d.concentration || '',
       faq:         Array.isArray(d.faq) ? d.faq.filter(x => x && x.q && x.a) : [],
+      // Finder-only, all optional (migration 018 adds inspired_by; longevity /
+      // projection are planned). Absent columns arrive as undefined from the
+      // `*` select, so a pre-migration database simply yields [] / null here.
+      inspiredBy:  Array.isArray(d.inspired_by) ? d.inspired_by.filter(x => typeof x === 'string' && x.trim()) : [],
+      longevity:   d.longevity ?? null,
+      projection:  d.projection ?? null,
     };
   }
 
@@ -423,7 +430,7 @@ function injectSettings(settings) {
   // SET:announcement markers), so the baked ticker matches the live settings
   // and js/settings.js has nothing to replace on load — no flash of defaults.
   let baked = 0;
-  for (const file of ['shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']) {
+  for (const file of ['shop.html', 'exclusive.html', 'recommend.html', 'cart.html', 'about.html', 'about-me.html', '404.html']) {
     const f = path.join(ROOT, file);
     if (!fs.existsSync(f)) continue;
     let h = fs.readFileSync(f, 'utf8');
@@ -469,7 +476,7 @@ function injectReviews(reviews) {
 // lib/facts.js). Meta descriptions, OG text, trust bar, hero copy and the
 // AI-facing llms.txt therefore always agree with the shop. Idempotent.
 function injectCatalogFacts() {
-  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt', 'skills/nawmeessences-shopping/SKILL.md'];
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'recommend.html', 'cart.html', 'about.html', 'about-me.html', 'llms.txt', 'skills/nawmeessences-shopping/SKILL.md'];
   let n = 0;
   for (const file of files) {
     const fp = path.join(ROOT, file);
@@ -526,7 +533,7 @@ function collectHtml(dir, out = []) {
 function versionAssets() {
   const map = buildAssetMap(ROOT);
   const files = [
-    ...['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']
+    ...['index.html', 'shop.html', 'exclusive.html', 'recommend.html', 'cart.html', 'about.html', 'about-me.html', '404.html']
       .map(f => path.join(ROOT, f)),
     ...collectHtml(path.join(ROOT, 'product')),
     ...collectHtml(path.join(ROOT, 'brands')),
@@ -548,7 +555,8 @@ function versionAssets() {
 // generator's head template.
 function injectOriginTrial() {
   const meta = schema.originTrialMeta();
-  const files = ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html'];
+  const files = ['index.html', 'shop.html', 'exclusive.html', 'recommend.html', 'cart.html', 'about.html', 'about-me.html']
+    .filter(file => fs.existsSync(path.join(ROOT, file)));
   for (const file of files) {
     const fp = path.join(ROOT, file);
     let html = fs.readFileSync(fp, 'utf8');
@@ -565,8 +573,9 @@ function injectOriginTrial() {
 function injectStaticOrg() {
   const orgScript = `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', ...schema.organizationNode() })}</script>`;
   let n = 0;
-  for (const file of ['shop.html', 'exclusive.html', 'about.html', 'about-me.html']) {
+  for (const file of ['shop.html', 'exclusive.html', 'recommend.html', 'about.html', 'about-me.html']) {
     const fp = path.join(ROOT, file);
+    if (!fs.existsSync(fp)) continue;
     let html = fs.readFileSync(fp, 'utf8');
     const re = /(<!--SET:orgld:start-->)[\s\S]*?(<!--SET:orgld:end-->)/;
     if (!re.test(html)) { console.warn(`  ⚠ SET:orgld not found in ${file}`); continue; }
@@ -602,8 +611,14 @@ async function run() {
 
   // Recommendation feature file for js/recs.js (client-side "Recommended for
   // you"). Deterministic + size-guarded; versioned by versionAssets() below.
-  const recs = writeRecs(ROOT, buildRecs(allProducts, productDetails, { occasionsOf, concentrationOf, genderOf, imageVersion }));
+  const recsData = buildRecs(allProducts, productDetails, { occasionsOf, concentrationOf, genderOf, imageVersion });
+  const recs = writeRecs(ROOT, recsData);
   console.log(`🧭 recs — data/recs.json: ${recs.items} items, ${(recs.raw / 1024).toFixed(1)} KB raw / ${(recs.gz / 1024).toFixed(1)} KB gzip`);
+  // Finder feature file for js/finder.js (recommend.html): the same items and
+  // vocab indices as recs.json plus description keywords / inspired_by refs.
+  // Deterministic + size-guarded (20 KB gzip); versioned by versionAssets().
+  const finder = writeFinder(ROOT, buildFinder(recsData, productDetails, { log: m => console.log(`   ${m}`) }));
+  console.log(`🧭 finder — data/finder.json: ${finder.items} items, ${(finder.raw / 1024).toFixed(1)} KB raw / ${(finder.gz / 1024).toFixed(1)} KB gzip`);
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
