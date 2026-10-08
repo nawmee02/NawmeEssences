@@ -28,14 +28,19 @@ function buildAssetMap(ROOT) {
       if (h) map['js/' + f] = h;
     }
   }
+  // Recommendation data (built by scripts/lib/recs.js); referenced via the
+  // data-recs attribute on the js/recs.js script tag.
+  const recs = hashFile(path.join(ROOT, 'data', 'recs.json'));
+  if (recs) map['data/recs.json'] = recs;
   return map;
 }
 
-// Rewrite local css/style.css and js/*.js references (href/src, with or without
-// a leading slash) to carry ?v=<hash>. External URLs (https://…) never match.
+// Rewrite local css/style.css, js/*.js and data/recs.json references (href/src/
+// data-recs, with or without a leading slash) to carry ?v=<hash>. External URLs
+// (https://…) never match.
 function versionHtml(html, map) {
   return html.replace(
-    /(href|src)="(\/?)((?:css\/style\.css)|(?:js\/[A-Za-z0-9_-]+\.js))(?:\?v=[a-z0-9]+)?"/g,
+    /(href|src|data-recs)="(\/?)((?:css\/style\.css)|(?:data\/recs\.json)|(?:js\/[A-Za-z0-9_-]+\.js))(?:\?v=[a-z0-9]+)?"/g,
     (m, attr, slash, asset) => {
       const v = map[asset];
       return v ? `${attr}="${slash}${asset}?v=${v}"` : m;

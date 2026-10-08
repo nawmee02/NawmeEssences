@@ -230,6 +230,19 @@ function concentrationOf(d, name, text) {
   return probe(name) || probe(firstSentence);
 }
 
+// 'Men' | 'Women' | 'Unisex' | '' — the admin column (migration 015) wins; when
+// it is empty, the phrase in the description decides, as before. Shared with
+// the recommendation data builder (scripts/lib/recs.js) so both agree.
+const GENDER_LABEL = { men: 'Men', women: 'Women', unisex: 'Unisex' };
+function genderOf(d, text) {
+  let gender = d && GENDER_LABEL[String(d.gender || '').toLowerCase()];
+  if (!gender) {
+    const g = String(text || '').match(/\b(unisex|for (?:both )?men and women|for women and men|for men|for women)\b/i);
+    if (g) { const s = g[1].toLowerCase(); gender = /unisex|women and men|men and women/.test(s) ? 'Unisex' : /women/.test(s) ? 'Women' : 'Men'; }
+  }
+  return gender || '';
+}
+
 function snapshotFacts(d, desc, name = '') {
   const text = String(desc || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   const facts = [];
@@ -240,12 +253,7 @@ function snapshotFacts(d, desc, name = '') {
   if (occ.length) facts.push({ key: 'bestFor', label: 'Best for', value: occ.join(', ') });
   // Gender / launch year: the admin-set columns (migration 015) win; when they
   // are empty, fall back to the phrase in the description, as before.
-  const GENDER_LABEL = { men: 'Men', women: 'Women', unisex: 'Unisex' };
-  let gender = d && GENDER_LABEL[String(d.gender || '').toLowerCase()];
-  if (!gender) {
-    const g = text.match(/\b(unisex|for (?:both )?men and women|for women and men|for men|for women)\b/i);
-    if (g) { const s = g[1].toLowerCase(); gender = /unisex|women and men|men and women/.test(s) ? 'Unisex' : /women/.test(s) ? 'Women' : 'Men'; }
-  }
+  const gender = genderOf(d, text);
   if (gender) facts.push({ key: 'for', label: 'For', value: gender });
   let year = d && d.launchYear && d.launchYear >= 1900 && d.launchYear <= 2100 ? String(d.launchYear) : '';
   if (!year) { const y = text.match(/\b(?:launched|released|introduced|debuted)(?: in)? ((?:19|20)\d{2})\b/i); if (y) year = y[1]; }
@@ -694,6 +702,11 @@ ${FOOTER}
 </div>
 
 ${SCRIPTS}
+<!-- Recommendation script is loaded AFTER window.load (see the loader at the end
+     of the inline script): a deferred tag here competed with the hero image for
+     bandwidth and cost ~250 ms of LCP. type="text/plain" means the browser never
+     fetches this carrier; it only holds the cache-busted URLs for the loader. -->
+<script type="text/plain" id="recs-loader" src="/js/recs.js" data-recs="/data/recs.json"></script>
 <script>
   const PRODUCT = { id: ${JSON.stringify(p.id)}, name: ${JSON.stringify(p.name)}, brand: ${JSON.stringify(p.brand)}, isExclusive: ${isExclusive} };
 
@@ -735,6 +748,17 @@ ${SCRIPTS}
     sync();
     window.addEventListener('resize', sync);
   })();
+
+  // Load js/recs.js (records the view; quietly personalises "You May Also Like"
+  // for visitors who have browsed a few products) only after the page — hero
+  // image included — has finished loading, so it never competes with the LCP.
+  // The carrier tag above holds the versioned URLs.
+  window.addEventListener('load', function () {
+    var c = document.getElementById('recs-loader'); if (!c) return;
+    var s = document.createElement('script');
+    s.src = c.getAttribute('src'); s.dataset.recs = c.dataset.recs || '';
+    document.body.appendChild(s);
+  });
 
   function selectedVariant() {
     const pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill.active');
@@ -1735,7 +1759,7 @@ function run() {
   return generateFromData(allProducts, productDetails);
 }
 
-module.exports = { run, generateFromData, productMetaTitle };
+module.exports = { run, generateFromData, productMetaTitle, occasionsOf, concentrationOf, genderOf };
 
 if (require.main === module) {
   run();

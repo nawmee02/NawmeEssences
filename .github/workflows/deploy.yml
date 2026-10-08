@@ -30,8 +30,8 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - name: Build product pages from Supabase
-        run: node scripts/build-from-supabase.js
+      - name: Build site from Supabase (same path as local: build + schema check + recs test)
+        run: npm run build
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       - name: Prune non-site files (node_modules symlinks break Pages processing)

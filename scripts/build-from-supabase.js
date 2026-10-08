@@ -21,7 +21,8 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion, brandSlug } = require('./lib/catalog');
 const { renderCard, esc } = require('./lib/render-card');
-const { generateFromData } = require('./generate-product-pages');
+const { generateFromData, occasionsOf, concentrationOf, genderOf } = require('./generate-product-pages');
+const { buildRecs, writeRecs } = require('./lib/recs');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
@@ -598,6 +599,11 @@ async function run() {
   console.log('\n🧩 Injecting static grids...');
   injectGrids(allProducts, productDetails);
   injectBrandStrip(allProducts);
+
+  // Recommendation feature file for js/recs.js (client-side "Recommended for
+  // you"). Deterministic + size-guarded; versioned by versionAssets() below.
+  const recs = writeRecs(ROOT, buildRecs(allProducts, productDetails, { occasionsOf, concentrationOf, genderOf, imageVersion }));
+  console.log(`🧭 recs — data/recs.json: ${recs.items} items, ${(recs.raw / 1024).toFixed(1)} KB raw / ${(recs.gz / 1024).toFixed(1)} KB gzip`);
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);

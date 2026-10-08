@@ -64,8 +64,16 @@ const ProductAPI = (() => {
   const LIST_REL = 'brands ( name ), fragrance_sizes ( ml, price ), fragrance_tags ( tag )';
   const LIST_BASE = 'id, name, collection, in_stock, is_bestseller, updated_at';
 
+  // Concurrent callers (page hydration + the recommendation rail) share one
+  // in-flight request instead of each fetching the list.
+  let _pending = null;
   async function _load() {
     if (_cache) return _cache;
+    if (_pending) return _pending;
+    _pending = _loadUncached().finally(() => { _pending = null; });
+    return _pending;
+  }
+  async function _loadUncached() {
     const query = params => restGet(`fragrances?${params}`);
     const baseParams = `status=eq.published&order=sort_order`;
     let data;

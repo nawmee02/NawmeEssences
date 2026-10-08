@@ -377,6 +377,17 @@
       <!--GRID:bestsellers:end--></div>
 </div>
 
+<!-- RECOMMENDED: hidden until js/recs.js has four picks for a visitor who has
+     browsed ten or more products; everyone else never sees it, fetches nothing
+     extra and gets no layout change (the section is display:none while hidden). -->
+<div class="section cv-auto recs-section" id="recs-section" hidden>
+  <div class="section-header">
+    <h2 class="section-title">Recommended</h2>
+  </div>
+  <div class="product-grid" id="recs-grid"></div>
+</div>
+<hr class="divider" id="recs-divider" hidden />
+
 <hr class="divider" />
 
 <!-- NEW ARRIVAL -->
@@ -778,7 +789,9 @@
 <script src="js/supabase-config.js?v=8879e998" defer></script>
 <script src="js/supabase.js?v=29d8750f" defer></script>
 <script src="js/settings.js?v=6fd582c5" defer></script>
-<script src="js/api.js?v=dd5d9445" defer></script>
+<script src="js/api.js?v=1db1e2ec" defer></script>
+<script src="js/render-card.js?v=bb55f3a3" defer></script>
+<script src="js/recs.js?v=6bcf96b9" defer data-recs="data/recs.json?v=14db5d1d"></script>
 <script src="js/commerce-adapter.js?v=d667b304" defer></script>
 <script src="js/webmcp.js?v=5cb0579d" defer></script>
 <script>

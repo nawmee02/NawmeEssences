@@ -12,6 +12,9 @@ brands/
 blog/
 reviews/
 
+# Generated recommendation data (scripts/lib/recs.js) — same lifecycle as the pages above
+data/
+
 # Node
 node_modules/
 
