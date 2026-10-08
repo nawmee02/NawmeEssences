@@ -417,6 +417,21 @@ function injectSettings(settings) {
 
   fs.writeFileSync(fp, html);
   console.log('  injected → index.html (settings)');
+
+  // The other root pages bake only the announcement ticker (between their
+  // SET:announcement markers), so the baked ticker matches the live settings
+  // and js/settings.js has nothing to replace on load — no flash of defaults.
+  let baked = 0;
+  for (const file of ['shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']) {
+    const f = path.join(ROOT, file);
+    if (!fs.existsSync(f)) continue;
+    let h = fs.readFileSync(f, 'utf8');
+    const re = /(<!--SET:announcement:start-->)[\s\S]*?(<!--SET:announcement:end-->)/;
+    if (!re.test(h)) continue;
+    h = h.replace(re, `$1\n  ${blocks.announcement}\n  $2`);
+    fs.writeFileSync(f, h); baked++;
+  }
+  console.log(`  injected → announcement ticker into ${baked} root pages`);
 }
 
 // ─── Bake the homepage "What Customers Say" section ────────────
@@ -587,6 +602,7 @@ async function run() {
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);
   facts.setDeliveryRates(settings.delivery);   // Offer shippingDetails read these
+  facts.setAnnouncements(settings.announcements);   // generated pages bake the same ticker the browser hydrates
   injectSettings(settings);
   injectStaticOrg();
   injectOriginTrial();

@@ -16,7 +16,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
-const { pickupTicker, pickupList, getDeliveryRates } = require('./lib/facts');
+const { pickupList, getDeliveryRates, announcementSpans } = require('./lib/facts');
 const ProductFaq = require('../js/product-faq');   // shared with the admin dashboard
 
 const SITE = 'https://nawmeessences.com';
@@ -369,16 +369,12 @@ function relatedProducts(p, all, detailsMap) {
 
 // ─── Shared header / footer ──────────────────────────────────
 
-const HEADER = `<div class="announcement-bar">
+// header() is a function, not a constant: the announcement ticker is baked from
+// site_settings (facts.setAnnouncements, set by the build before pages render),
+// so what the browser hydrates is identical to what was served — no flash.
+const header = () => `<div class="announcement-bar">
   <div class="ticker-track" data-setting-list="announcements">
-    <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
-    <span>✅ 100% Authentic Decants</span>
-    <span>📍 ${pickupTicker()}</span>
-    <span>💳 Min. advance = delivery charge</span>
-    <span>🚚 Delivery ৳70 Dhaka · ৳90 Suburb · ৳120 Outside</span>
-    <span>✅ 100% Authentic Decants</span>
-    <span>📍 ${pickupTicker()}</span>
-    <span>💳 Min. advance = delivery charge</span>
+${announcementSpans()}
   </div>
 </div>
 <header class="site-header">
@@ -607,7 +603,7 @@ function renderPage(p, all, detailsMap) {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1065,7 +1061,7 @@ ${others.map(brandTile).join('\n')}
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1175,7 +1171,7 @@ function renderBrandsIndex(groups) {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1288,7 +1284,7 @@ function renderBlogIndex(posts) {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1375,7 +1371,7 @@ function renderBlogPost(post) {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1512,7 +1508,7 @@ function renderReviewsPage(reviews) {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -1651,7 +1647,7 @@ function render404Page() {
 </head>
 <body>
 
-${HEADER}
+${header()}
 
 <main>
 <div class="section" style="padding-top:40px;text-align:center;max-width:720px;">

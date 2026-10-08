@@ -77,8 +77,27 @@ function setDeliveryRates(d) {
 }
 function getDeliveryRates() { return { ...delivery }; }
 
+// ── Announcement ticker ───────────────────────────────────────
+// Set by the build from site_settings.announcements so every generated page
+// bakes the SAME ticker the browser will hydrate (previously each template
+// carried hard-coded defaults that flashed before js/settings.js replaced
+// them). Falls back to the defaults in lib/settings.js when nothing is set.
+let announcements = [];
+function setAnnouncements(list) { announcements = Array.isArray(list) ? list.map(String).filter(Boolean) : []; return [...announcements]; }
+function getAnnouncements() {
+  if (announcements.length) return [...announcements];
+  try { return [...require('./settings').DEFAULTS.announcements]; } catch (e) { return []; }
+}
+const escHtml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+// Doubled for the seamless -50% marquee loop (see .ticker-track).
+function announcementSpans(indent = '    ') {
+  const list = getAnnouncements();
+  return [...list, ...list].map(a => `${indent}<span>${escHtml(a)}</span>`).join('\n');
+}
+
 module.exports = {
   setCatalogFacts, getCatalogFacts, fragranceLabel, brandLabel, applyCountPhrases,
   setDeliveryRates, getDeliveryRates,
+  setAnnouncements, getAnnouncements, announcementSpans,
   PICKUP_POINTS, pickupNames, pickupTicker, pickupList, applyPickupPhrases,
 };

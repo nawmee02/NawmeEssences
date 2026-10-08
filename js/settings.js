@@ -53,6 +53,12 @@
       if (!Array.isArray(list) || !list.length) return;
       const track = el.classList.contains('ticker-track') ? el : el.querySelector('.ticker-track');
       if (track) {
+        // The build bakes this same doubled list into every page; when it
+        // already matches, leave the DOM alone (no re-render, no restart of
+        // the marquee animation).
+        const want = [...list, ...list].join('\u0001');
+        const have = [...track.children].map(x => x.textContent).join('\u0001');
+        if (want === have) return;
         // Doubled for the seamless CSS marquee loop.
         track.textContent = '';
         [...list, ...list].forEach(text => {
