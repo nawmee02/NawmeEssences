@@ -8,7 +8,6 @@
 //  size choices; capped, expiring, no personal data).
 //
 //  Performance contract:
-//    • defines window.NawmeRecs synchronously (shop.js relies on it);
 //    • a visitor with no signals triggers no fetch and no DOM change;
 //    • all rendering happens after `load` + requestIdleCallback;
 //    • a rail is revealed only when its slot is at/below the viewport
@@ -16,7 +15,7 @@
 //    • cards are rendered by the SAME renderer the build uses
 //      (js/render-card.js), so hydration/add-to-cart contracts hold.
 //
-//  The pure parts (prepareData, buildProfile, rank, sortIds) are also
+//  The pure parts (prepareData, buildProfile, rank, browsedCount) are also
 //  exported for Node so scripts/test-recs.js can test them.
 // ============================================================
 (function (root, factory) {
@@ -82,7 +81,11 @@
   function writeSignals(list) { try { localStorage.setItem(KEY, JSON.stringify({ v: 1, e: list.slice(-MAX_EVENTS) })); } catch (e) {} }
   function record(t, id, ml) {
     if (!id || !EVENT_W[t]) return;
-    const list = readSignals(), now = Date.now();
+    let list = readSignals();
+    const now = Date.now();
+    // A size chip can be tapped many times; keep one event per product so chip
+    // toggling never floods the window and evicts real views.
+    if (t === 's') list = list.filter(x => !(x.t === 's' && x.id === id));
     if (t === 'v') {
       const recent = list.find(x => x.t === 'v' && x.id === id && now - x.ts < REVIEW_DEDUPE_MS);
       if (recent) { recent.ts = now; writeSignals(list); return; }
@@ -212,18 +215,6 @@
     const rnd = opts.rnd || Math.random;
     return opts.shuffle === false ? pool.slice(0, limit) : weightedSample(pool, limit, rnd);
   }
-  // Shop sort: id → position. Scored items first (signal items included — they
-  // are relevant), unscored and out-of-stock keep build order after them.
-  function sortIds(model, signals, collection) {
-    const order = new Map();
-    if (!model) return order;
-    const prof = signals && signals.length ? buildProfile(model, signals) : null;
-    let pos = 0;
-    if (prof && prof.weight) for (const r of scoreAll(model, prof, { collection, excludeSignals: false })) if (r.cos > 0) order.set(r.id, pos++);
-    for (const it of model.items) if (!order.has(it.id)) order.set(it.id, pos++);
-    return order;
-  }
-
   // ── browser integration ────────────────────────────────────
   const state = { url: '', model: null, pending: null, imgBase: '' };
   // The product page declares `const PRODUCT` in an inline script: a global
@@ -259,7 +250,11 @@
     if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
   };
   // A rail may appear only when its slot is at/below the viewport bottom.
-  const belowFold = el => { const prev = el.previousElementSibling; return !prev || prev.getBoundingClientRect().bottom >= window.innerHeight; };
+  const belowFold = el => {
+    let prev = el.previousElementSibling;
+    while (prev && prev.hidden) prev = prev.previousElementSibling;
+    return !prev || prev.getBoundingClientRect().bottom >= window.innerHeight;
+  };
   const idsOnPage = () => {
     const ids = [];
     document.querySelectorAll('.product-card[data-id]').forEach(c => ids.push(c.dataset.id));
@@ -268,12 +263,14 @@
     return ids;
   };
 
-  const distinctProducts = signals => new Set(signals.map(e => e.id)).size;
+  // "Browsed" = opened (view) or carted; size-chip taps tilt the profile but
+  // do not count towards the two thresholds.
+  const browsedCount = signals => new Set(signals.filter(e => e.t !== 's').map(e => e.id)).size;
 
   function homeRail() {
     const section = document.getElementById('recs-section'), grid = document.getElementById('recs-grid');
     if (!section || !grid || !window.RenderCard) return;
-    const signals = readSignals(); if (distinctProducts(signals) < HOME_MIN_PRODUCTS) return;
+    const signals = readSignals(); if (browsedCount(signals) < HOME_MIN_PRODUCTS) return;
     prepare().then(model => {
       if (!model) return;
       const picks = rank(model, signals, { collection: 'r', exclude: idsOnPage(), visited: readVisited(), limit: RAIL_SIZE, shown: readShown() });
@@ -295,7 +292,7 @@
     const section = document.querySelector('.pd-related'), grid = section && section.querySelector('.related-grid');
     if (!section || !grid || !pid()) return;
     const others = readSignals().filter(e => e.id !== pid());
-    if (distinctProducts(others) < RELATED_MIN_PRODUCTS) return;
+    if (browsedCount(others) < RELATED_MIN_PRODUCTS) return;
     prepare().then(model => {
       if (!model) return;
       const me = model.byId.get(pid()); if (!me) return;
@@ -308,7 +305,7 @@
       grid.innerHTML = picks.map(r => {
         const it = r.item, brand = model.vocab.b[it.b] || '';
         return '<a class="related-card" href="/product/' + esc(it.id) + '/">' +
-          '<div class="related-img"><img src="' + esc(imgUrl(it, 'thumb')) + '" alt="' + esc(it.nm) + ' ' + esc(brand) + ' decant" loading="lazy" decoding="async" width="450" height="450" onload="this.classList.add(\'loaded\')" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="card-img-placeholder">🫧</div></div>' +
+          '<div class="related-img"><img src="' + esc(imgUrl(it, 'thumb')) + '" srcset="' + esc(imgUrl(it, 'small')) + ' 360w, ' + esc(imgUrl(it, 'thumb')) + ' 450w" sizes="(max-width:900px) 46vw, 220px" alt="' + esc(it.nm) + '" loading="lazy" decoding="async" onload="this.classList.add(\'loaded\')" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="card-img-placeholder">🫧</div></div>' +
           '<div class="related-brand">' + esc(brand) + '</div><div class="related-name">' + esc(it.nm) + '</div>' +
           '<div class="related-price">from ৳' + it.p + '</div></a>';
       }).join('');
@@ -335,5 +332,5 @@
     } catch (e) { /* recommendations are optional */ }
   }
 
-  return { WEIGHTS, EVENT_W, HOME_MIN_PRODUCTS, RELATED_MIN_PRODUCTS, POOL_SIZE, prepareData, buildProfile, rank, sortIds, readSignals, readShown, markShown, readVisited, markVisited, record, prepare, ready, _init };
+  return { WEIGHTS, EVENT_W, HOME_MIN_PRODUCTS, RELATED_MIN_PRODUCTS, POOL_SIZE, prepareData, buildProfile, rank, browsedCount, readSignals, readShown, markShown, readVisited, markVisited, record, prepare, ready, _init };
 });

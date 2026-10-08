@@ -366,7 +366,7 @@ function relatedProducts(p, all, detailsMap) {
           </div>
           <div class="related-brand">${esc(r.brand)}</div>
           <div class="related-name">${esc(r.name)}</div>
-          <div class="related-price">from ৳${minPrice(r.sizes)}</div>
+          <div class="related-price">from ৳${effectivePrice(minPrice(r.sizes), Number(r.salePercent) || 0)}</div>
         </a>`).join('');
   return `
       <section class="pd-related">

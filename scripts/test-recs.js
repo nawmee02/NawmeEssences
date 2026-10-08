@@ -86,6 +86,18 @@ if (scorer && scorer.rank) {
   assert.ok(Math.abs(pb.logP - Math.log(250)) < 1e-9, 'size event uses that size price');
   const pv = scorer.buildProfile(model, [{ t: 'v', id: 'a', ts: now }]);
   assert.ok(Math.abs(pv.logP - Math.log(170)) < 1e-9, 'plain view uses the minimum price');
+  // Thresholds count opened/carted products only; size-chip taps do not "browse".
+  assert.strictEqual(scorer.browsedCount([{ t: 's', id: 'a', ts: now }, { t: 's', id: 'b', ts: now }, { t: 'v', id: 'a', ts: now }, { t: 'c', id: 'c', ts: now }]), 2, 'browsedCount ignores size events');
+  // record(): one size event per product (chip toggling must not evict views), views deduped within 30 min.
+  const store = {}; global.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } };
+  try {
+    for (let i = 0; i < 40; i++) scorer.record('s', 'b', i % 2 ? 3 : 5);
+    scorer.record('v', 'a'); scorer.record('v', 'a');
+    const ev = scorer.readSignals();
+    assert.strictEqual(ev.filter(e => e.t === 's').length, 1, 'one size event per product');
+    assert.strictEqual(ev.filter(e => e.t === 'v').length, 1, 'repeat view within 30 min refreshes, not duplicates');
+    assert.strictEqual(ev.find(e => e.t === 's').ml, 3, 'latest size wins');
+  } finally { delete global.localStorage; }
   console.log('test-recs: scorer checks passed');
 }
 
