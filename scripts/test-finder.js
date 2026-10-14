@@ -447,8 +447,14 @@ if (engine) {
   assert.ok(q.anchor && q.anchor.kind === 'catalog' && q.anchor.id === 'e' && q.anchor.name === 'Dior Sauvage EDP', 'typo "savage" resolves to the catalogue product: ' + JSON.stringify(q.anchor));
   assert.strictEqual(q.cheaper, true);
   assert.ok(P('like Dior Sauvage').anchor.id === 'e' && P('sauvage type').anchor.id === 'e' && P('sauvage cheaper').anchor.id === 'e', 'exact, postfix "type" and bare famous name resolve');
-  q = P('not too sweet');
+  q = P('not sweet');
   assert.ok(q.features['a:Sweet'] < 0, 'negation flips sweet: ' + q.features['a:Sweet']);
+  q = P('not too sweet');
+  assert.ok(q.features['a:Sweet'] > 0 && q.features['a:Sweet'] <= 0.6, '"not too sweet" is a mild wish, not a rejection: ' + q.features['a:Sweet']);
+  assert.ok(F.typoFix('frsh', L, model) === 'fresh' && F.typoFix('ofice', L, model) === 'office', 'typo fallback');
+  assert.ok(P('frsh ofice').features['o:Office'] > 0, 'typos are parsed');
+  assert.ok(P('no vanilla for office').features['o:Office'] > 0 && P('no vanilla for office').features['a:Vanilla'] < 0, '"no X for Y" negates only X');
+  assert.deepStrictEqual(P('different from Dior Sauvage EDP').exclude, ['id:e'], '"different from X" excludes the product');
   assert.ok(P('dont want anything sweet').features['a:Sweet'] < 0, '"dont want X" within 3 tokens');
   q = P('dont want anything sweet, fresh please');
   assert.ok(q.features['a:Sweet'] < 0 && (q.features['a:Fresh'] > 0 || q.features['f:Fresh'] > 0), 'a comma ends the negation window');

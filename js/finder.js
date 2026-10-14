@@ -38,6 +38,9 @@
     askWho: 'Who is it for?',
     askName: 'Which fragrance do you like? Type its name, e.g. Creed Aventus or Dior Sauvage.',
     answer: 'Here are three picks that fit.',
+    answerFor: 'Three picks for {what}:',
+    exclusiveBrandNote: '{brand} is in our Exclusive collection (rare bottles, full advance payment).',
+    askVibeFor: 'Got it — {what}. What kind of scent do you lean towards?',
     more: 'Three more that fit.',
     noMore: "That's everything that fits what you've told me. Remove a constraint above, or start over.",
     anchorCatalog: 'Closest to {name} in our catalogue:',
@@ -116,7 +119,9 @@
   // ── built-in word lists (unioned with the lexicon's; the lexicon may be richer) ──
   const NEG = ['not', 'no', "don't", 'dont', 'without', 'hate', 'avoid', 'never', 'nothing', 'na', 'noy', 'chai na', 'nai', 'except'];
   const SUFFIX_NEG = /(^|\s)(na|noy|nai|noi|nah|nei|chaina|nope)$/;
-  const BOUND_WORDS = ['but', 'kintu', 'tobe', 'however'];   // a contrast word ends a negation / intensifier window like a comma does
+  const BOUND_WORDS = ['but', 'kintu', 'tobe', 'however', 'for', 'jonno', 'jonne', 'with', 'except'];   // "no vanilla FOR office": the window never crosses these
+  const MILD_WORDS = ['too', 'overly', 'so', 'very', 'much', 'beshi', 'onek'];   // "not too sweet" = a little sweet, not "no sweet"
+  const ANTI_TRIGGERS = ['different from', 'unlike', 'not like', 'anything but', 'nothing like', 'opposite of', 'different than'];
   const INT = { very: 1.3, too: 1.3, really: 1.3, super: 1.3, extremely: 1.4, 'a bit': 0.5, slightly: 0.5, little: 0.5, 'a little': 0.5, somewhat: 0.6, beshi: 1.3, onek: 1.3, ektu: 0.5, 'ek tu': 0.5 };
   const GENDER = { women: ['for her', 'her', 'wife', 'girlfriend', 'gf', 'mom', 'mother', 'sister', 'women', 'woman', 'ladies', 'female', 'meye', 'bou'], men: ['for him', 'him', 'husband', 'boyfriend', 'bf', 'dad', 'brother', 'men', 'man', 'male', 'chele'] };
   const STRENGTH = { stronger: ['strong', 'stronger', 'powerful', 'heavy', 'intense', 'shokto', 'kora'], softer: ['soft', 'softer', 'subtle', 'light', 'not loud', 'quiet', 'close to skin', 'halka', 'office safe'] };
@@ -125,7 +130,7 @@
   const PMAX_POST = ['er moddhe', 'moddhe', 'er modhe', 'modhe', 'er niche', 'niche', 'r moddhe', 'er bhitor', 'bhitor', 'er bhitore'];
   const PMIN = ['over', 'above', 'more than', 'at least', 'minimum', 'from', 'starting', 'starting from'];
   const PMIN_POST = ['er upore', 'upore', 'er beshi', 'r upore'];
-  const CHEAP = ['cheap', 'budget', 'sasta', 'shosta', 'dam kom', 'kom dam', 'kom dame', 'kom damer', 'affordable', 'inexpensive', 'low price', 'low budget'];
+  const CHEAP = ['cheap', 'cheapest', 'budget', 'sasta', 'shosta', 'sosta', 'dam kom', 'kom dam', 'kom dame', 'kom damer', 'affordable', 'inexpensive', 'low price', 'lowest price', 'low budget'];
   const CUR = ['taka', 'tk', 'bdt', '৳', 'tak'];
   const TRIGGERS = ['like', 'similar to', 'smells like', 'smell like', 'smelling like', 'alternative to', 'alternatives to', 'alternative of', 'alternative for', 'dupe of', 'dupe for', 'dupes of', 'clone of', 'clones of', 'same as', 'instead of', 'close to', 'reminds me of', 'version of', 'inspired by', 'copy of', 'moto'];
   const POST_TRIGGERS = ['type', 'er moto', 'r moto', 'er mto', 'er moton'];
@@ -153,6 +158,7 @@
   // same function, so both sides always agree.
   function normalize(text) {
     return String(text == null ? '' : text).toLowerCase()
+      .replace(/([a-z])[‘’']s\b/g, '$1')   // women's → women, dad's → dad
       .replace(/[‘’']/g, '')
       .replace(/(\d)[,.](?=\d{3}\b)/g, '$1')
       .replace(/\b(\d+)[.,](\d{1,2})\s*k\b/g, (m, a, b) => String(Math.round(parseFloat(a + '.' + b) * 1000)))
@@ -319,14 +325,34 @@
     CHEAP.forEach(w => add(w, { kind: 'cheap' })); add('cheaper', { kind: 'cheaper' }); add('between', { kind: 'between' });
     CONJ.forEach(w => add(w, { kind: 'conj' })); CUR.forEach(w => add(w, { kind: 'cur' })); add('ml', { kind: 'ml' });
     TRIGGERS.forEach(w => add(w, { kind: 'trigger' })); POST_TRIGGERS.forEach(w => add(w, { kind: 'ptrigger' }));
+    ANTI_TRIGGERS.forEach(w => add(w, { kind: 'antitrigger' }));
     DIFF_BRANDS.forEach(w => add(w, { kind: 'diffbrands' })); UNISEX.forEach(w => add(w, { kind: 'unisex' }));
     if (model) {
       model.vocab.b.forEach((name, i) => add(name, { kind: 'brand', data: { name, i } }));
       ['f', 'a', 'n', 'o', 'k'].forEach(p => model.vocab[p].forEach(label => add(label, { kind: 'vocab', data: { p, label, w: 1 } })));
       model.vocab.w.forEach(label => add(label, { kind: 'vocab', data: { p: 'w', label, w: 0.7 } }));
     }
-    INDEX = { L, model, idx, maxLen };
+    // Single lexicon/vocab words for the typo fallback ("frsh" → fresh, "swet" → sweet).
+    const words = []; idx.forEach((units, k) => { if (k.indexOf(' ') < 0 && k.length >= 4 && units.some(u => ['entry', 'vocab', 'strength', 'gender', 'brand'].indexOf(u.kind) >= 0)) words.push(k); });
+    INDEX = { L, model, idx, maxLen, words };
     return INDEX;
+  }
+  // Closest known word within one edit (two for long words); null when ambiguous or too far.
+  const KIND_RANK = { entry: 0, strength: 1, gender: 1, brand: 2, vocab: 3 };
+  const isSubsequence = (a, b) => { let i = 0; for (const ch of b) if (ch === a[i]) i++; return i === a.length; };
+  function typoFix(index, t) {
+    if (t.length < 4) return null;
+    const tol = t.length >= 8 ? 2 : 1; let best = null, n = 0;
+    for (const w of index.words) {
+      const d = lev(t, w, tol); if (d > tol) continue;
+      // A 4-letter word may only be a dropped letter ("frsh" → fresh), never a substitution ("year" → pear).
+      if (t.length === 4 && !(w.length === 5 && isSubsequence(t, w))) continue;
+      const units = kindsAt(index, w); let rank = 9; units.forEach(u => { const r = KIND_RANK[u.kind] == null ? 9 : (u.kind === 'vocab' && u.data && u.data.p === 'w' ? 4 : KIND_RANK[u.kind]); if (r < rank) rank = r; });
+      // A dropped double letter ("swet" → sweet, "offce" → office) is the commonest slip: it wins ties.
+      if (w.length === t.length + 1 && /(.)\1/.test(w) && w.replace(/(.)\1/, '$1') === t) rank -= 0.5;
+      if (!best || d < best.d || (d === best.d && rank < best.rank)) { best = { w, d, rank }; n = 1; } else if (d === best.d && rank === best.rank) n++;
+    }
+    return best && n === 1 ? best.w : null;   // one clear winner (a vibe word beats a description keyword at the same distance)
   }
   const kindsAt = (index, phrase) => index.idx.get(phrase) || [];
   const hasKind = (units, kind) => units.some(u => u.kind === kind);
@@ -377,9 +403,18 @@
         const score = real + 0.3 * generic + 0.5 * cover / Math.max(1, it._nt.length) + (prefix ? 0.2 : 0) + 0.2 * run.len + 0.01 * (it.bs || 0) - 0.3 * edits;
         if (!best || score > best.score || (score === best.score && it.idx < best.item.idx)) best = { score, item: it, used, edits };
       }
-      // The catalogue wins unless a reference-lexicon name is clearly closer (two edits fewer).
-      if (best && best.edits >= 2) { const r = resolveRef(C, L, strict); if (r && best.edits - r.edits >= 2) return r; }
-      if (best) return { kind: 'catalog', item: best.item, used: best.used };
+      // The catalogue wins unless a reference-lexicon name is clearly closer (two edits fewer), or the
+      // typed name IS a famous reference and only a flanker of it is stocked ("khamrah" → we stock
+      // Khamrah Qahwa: say "closest matches to Lattafa Khamrah", never "we stock Khamrah itself").
+      if (best) {
+        const r = resolveRef(C, L, strict);
+        if (r && best.edits >= 2 && best.edits - r.edits >= 2) return r;
+        const st = best.item._st; let lastCovered = -1;
+        st.forEach((t, i) => { if (C.some(c => tokEq(c, t, strict))) lastCovered = i; });
+        const flankerSuffix = st.slice(lastCovered + 1).some(t => !GENERIC.has(t)) && !st.slice(0, lastCovered).some(t => !GENERIC.has(t) && !C.some(c => tokEq(c, t, strict)));
+        if (r && r.edits === 0 && r.used.length === C.length && flankerSuffix) return r;
+        return { kind: 'catalog', item: best.item, used: best.used };
+      }
       // A leading brand name ("dior …") — unless a reference phrase covers more of the span ("dior sauvage").
       const r = resolveRef(C, L, strict);
       for (let bi = 0; bi < model.vocab.b.length; bi++) {
@@ -443,18 +478,24 @@
       if (lead.length && !unknownAnchor) { unknownAnchor = lead.map(j => tokens[j]).join(' '); lead.forEach(j => { consumed[j] = true; }); return true; }
       return false;
     };
-    // 1. triggered anchors ("like X", "alternative to X", "X type")
+    // 1. triggered anchors ("like X", "alternative to X", "X type") and anti-anchors ("different from X")
     for (let i = 0; i < tokens.length; i++) {
       if (consumed[i]) continue;
-      let tl = 0, post = false;
+      let tl = 0, post = false, anti = false;
       for (let n = Math.min(3, tokens.length - i); n >= 1 && !tl; n--) {
         const ks = kindsAt(index, tokens.slice(i, i + n).join(' '));
-        if (hasKind(ks, 'trigger')) tl = n; else if (hasKind(ks, 'ptrigger')) { tl = n; post = true; }
+        if (hasKind(ks, 'antitrigger')) { tl = n; anti = true; } else if (hasKind(ks, 'trigger')) tl = n; else if (hasKind(ks, 'ptrigger')) { tl = n; post = true; }
       }
       if (!tl) continue;
-      hadTrigger = true;
       const span = post ? spanBefore(i) : spanAfter(i + tl);
       if (!span.length) continue;
+      if (anti) {   // exclude that product (catalogue) — a famous name just drops out of the sentence
+        const res = resolveName(span.map(j => tokens[j]), model, L, index, false);
+        if (res) { res.used.forEach(ci => { consumed[span[ci]] = true; }); for (let k = 0; k < tl; k++) consumed[i + k] = true; }
+        if (res && res.kind === 'catalog') parts.push({ exclude: ['id:' + res.item.id], label: T.tokenPrefix.not + res.item.nm, text: 'different from ' + String(res.item.nm).toLowerCase() });
+        continue;
+      }
+      hadTrigger = true;
       if (settle(span, false)) for (let k = 0; k < tl; k++) consumed[i + k] = true;
     }
     // 2. phrase units over what is left (longest phrase first, whole tokens)
@@ -472,7 +513,12 @@
         if (ks.length) { hit = ks; hl = n; }
       }
       if (hit) { units.push({ pos: i, len: hl, raw: tokens.slice(i, i + hl).join(' '), kinds: hit }); i += hl; }
-      else { units.push({ pos: i, len: 1, raw: t, kinds: [{ kind: 'word' }] }); i++; }
+      else {
+        const fixed = !STOP.has(t) && isWord(t) ? typoFix(index, t) : null;
+        if (fixed) units.push({ pos: i, len: 1, raw: fixed, typo: t, kinds: kindsAt(index, fixed) });
+        else units.push({ pos: i, len: 1, raw: t, kinds: [{ kind: 'word' }] });
+        i++;
+      }
     }
     const kindOf = (u, k) => (u ? u.kinds.find(x => x.kind === k) : null);
     // A comma / contrast word ends a window; a brand / strength / gender / exclusive word
@@ -484,6 +530,8 @@
     const negs = units.filter(u => hasKind(u.kinds, 'neg')).map(u => ({ pos: u.pos, end: u.pos + u.len - 1, suffix: !!u.kinds.find(k => k.kind === 'neg').data }));
     const ints = units.filter(u => hasKind(u.kinds, 'int')).map(u => ({ pos: u.pos, end: u.pos + u.len - 1, f: u.kinds.find(k => k.kind === 'int').data }));
     const negated = u => { const e = u.pos + u.len - 1; return negs.some(n => (!n.suffix && u.pos - n.end >= 1 && u.pos - n.end <= 3 && !blocked(n.end, u.pos) && !closed(n.end, u.pos)) || (n.suffix && n.pos - e >= 1 && n.pos - e <= 3 && !blocked(e, n.pos) && !closed(e, n.pos))); };
+    // "not TOO sweet" / "not overly sweet": a mild wish for the feature, not a rejection.
+    const mild = u => negs.some(n => !n.suffix && u.pos - n.end >= 2 && u.pos - n.end <= 3 && tokens.slice(n.end + 1, u.pos).some(w => MILD_WORDS.indexOf(w) >= 0));
     const factorOf = u => { const x = ints.find(n => u.pos - n.end >= 1 && u.pos - n.end <= 2 && !blocked(n.end, u.pos)); return x ? x.f : 1; };
     // Does a matched phrase ("for my wife") contain a "for her" word? Then the unisex note applies.
     const womenIn = raw => { const tk = raw.split(' '); for (let i = 0; i < tk.length; i++) for (let n = 1; n <= 3 && i + n <= tk.length; n++) if (kindsAt(index, tk.slice(i, i + n).join(' ')).some(k => k.kind === 'gender' && k.data === 'women')) return true; return false; };
@@ -532,7 +580,7 @@
     // 3b. everything else
     units.forEach(u => {
       if (consumed[u.pos]) return;   // part of a resolved product name
-      const ks = u.kinds; const neg = negated(u); const factor = factorOf(u);
+      const ks = u.kinds; const isMild = mild(u); const neg = !isMild && negated(u); const factor = isMild ? 0.5 : factorOf(u);
       const entries = ks.filter(k => k.kind === 'entry');
       const gender = kindOf(u, 'gender'), strength = kindOf(u, 'strength');
       // A word that is also a strength / gender / exclusive / negation word is not a description keyword
@@ -780,7 +828,8 @@
     const out = [];
     for (const it of model.items) {
       if (!it.i || ex.has(it.id)) continue;
-      if (collection && it.c !== collection) continue;
+      // A brand asked for by name is shown even when its bottles live in the Exclusive collection (Xerjoff, Amouage).
+      if (collection && it.c !== collection && !(it.c === 'e' && wanted.has(brandOf(it, model).toLowerCase()))) continue;
       if (!opts.ignorePrice) {
         if (query.maxPrice != null && it.p > query.maxPrice) continue;
         if (query.minPrice != null && it.p < query.minPrice) continue;
@@ -1157,16 +1206,24 @@
   // Guided mode: the four questions are answered in the chip panel; the thread gets one
   // user line ("Office / University · Fresh & clean · ৳300–600 · Me") and then the answer.
   function startGuide() { S.thread.wizard = { picks: [] }; prepare(); setChips('occasion'); save(); }
+  // Steps whose slot is already filled (a typed budget, a gender word) are skipped.
+  function stepFilled(step) {
+    const q = S.thread.query || emptyQuery();
+    if (step === 'budget') return q.maxPrice != null || q.minPrice != null || q.cheaper;
+    if (step === 'who') return !!q.gender;
+    return false;
+  }
   function nextStep(from) {
-    const i = STEPS.indexOf(stepOf(from));
+    let i = STEPS.indexOf(stepOf(from));
+    while (i >= 0 && i < STEPS.length - 1 && stepFilled(STEPS[i + 1])) i++;
     if (i < 0 || i >= STEPS.length - 1) return finishGuide();
     setChips(STEPS[i + 1]); save();
   }
   function finishGuide() {
     const th = S.thread, picks = (th.wizard && th.wizard.picks) || [];
     th.wizard = null;
-    addUserTurn(picks.length ? picks.join(' · ') : T.guideChip);
-    runAnswer({ mode: 'answer' });
+    addUserTurn(picks.length ? picks.join(' · ') : T.skip);
+    runAnswer({ mode: 'answer', retry: true });
   }
   function onChip(c) {
     const th = S.thread;
@@ -1305,6 +1362,14 @@
         } else if (parsed.unknownAnchor) notes.push(T.unknownAnchor);
       }
       let q = th.query = compose(th.parts);
+      // Nothing about the SCENT yet (only a budget, a person, a brand exclusion…): ask the one
+      // question that matters instead of answering with the same default trio every time.
+      if (!th.lastIds.length && !q.anchor && !q.strength && !Object.keys(q.features).length && (req.mode === 'answer' || req.mode === 'text') && !req.retry && th.parts.length) {
+        const what = th.parts.map(p => p.label || p.text).filter(Boolean).join(', ');
+        botText(fill(T.askVibeFor, { what })); th.wizard = { picks: [], from: 'vibe' }; setChips('vibe'); save();
+        if (req.typed) logQuery(req.text, 0);
+        return;
+      }
       // Relational "cheaper": pin the reference price into the part so the token and the share URL carry it.
       if (q.cheaper && q.refPrice == null) {
         const R = referenceFor(model, q, true);
@@ -1328,9 +1393,13 @@
       const other = res.relaxed.filter(s => s !== 'cheaper' && s !== 'axis');
       if (other.length) notes.push(fill(T.relaxed, { what: joinAnd(other.map(s => T['relax' + cap(s)])) }));
       if (!res.picks.length) { botText(T.noMore); setChips('follow'); th.pending = []; save(); return; }
-      // Reply text
-      let text = T.answer;
+      // Reply text: echo what this answer is based on ("Three picks for fresh, office, under ৳500:").
+      const basis = th.parts.map(p => p.label || p.text).filter(Boolean);
+      let text = basis.length && !q.anchor ? fill(T.answerFor, { what: basis.slice(0, 5).join(', ') }) : T.answer;
       const a = q.anchor;
+      // Exclusive bottles shown only because their brand was asked for: say so once.
+      const exBrand = res.picks.find(r => r.item.c === 'e' && q.collection !== 'exclusive');
+      if (exBrand && notes.indexOf(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] })) < 0) notes.push(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] }));
       if (req.mode === 'cheaper' && q.cheaper) text = fill(T.cheaper, { price: q.refPrice });
       else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill(T.axisTitle[req.axis], { name: lastTop.nm });
       else if (req.mode === 'more' && !a) text = T.more;
@@ -1493,5 +1562,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, setRefs: r => { REFS = r || []; }, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, _state: S, _init };
 });

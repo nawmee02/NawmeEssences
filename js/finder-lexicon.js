@@ -31,6 +31,27 @@
 
     // ── entries ──────────────────────────────────────────────
     entries: [
+      // people, places and occasions shoppers actually type (added after the 100-message test, 2026-10-14)
+      { m: ['mosque', 'masjid', 'namaz', 'namaj', 'jummah', 'jumma', 'prayer', 'salah', 'tarabi', 'taraweeh'],
+        a: ['Musky', 'Soapy', 'Fresh', 'Powdery'], n: ['White Musk', 'Musk'], o: ['Everyday'], strength: 'softer' },
+      { m: ['boss', 'manager', 'colleague', 'coworker', 'co worker', 'client', 'interview', 'job interview', 'corporate', 'business meeting', 'meeting'],
+        o: ['Office', 'Formal'], a: ['Woody', 'Citrus', 'Aromatic'], strength: 'softer' },
+      { m: ['teenager', 'teen', 'teenage', 'student', 'school', 'college', 'varsity', 'young', 'youthful', 'playful', 'fun', 'college student'],
+        o: ['Everyday', 'Casual'], a: ['Fresh', 'Fruity', 'Sweet', 'Citrus'] },
+      { m: ['mature', 'old money', 'grown up', 'sophisticated', 'gentleman', 'uncle', 'old man', 'older man', 'elderly', 'year old man', 'middle aged', 'father', 'dad gift', 'classic', 'timeless'],
+        f: ['Woody', 'Chypre'], a: ['Woody', 'Leather', 'Aromatic', 'Amber'], o: ['Formal', 'Office'] },
+      { m: ['luxury', 'luxurious', 'premium', 'niche', 'high end', 'expensive', 'rich', 'classy', 'elegant', 'luxury hotel', 'hotel lobby', 'five star'],
+        a: ['Amber', 'Oud', 'Woody', 'Leather'], f: ['Oriental', 'Woody'], price: { min: 350 } },
+      { m: ['cheapest', 'lowest price', 'most affordable', 'sosta', 'shobcheye kom dam', 'kom dam e'],
+        price: { max: 300 } },
+      { m: ['rain', 'rainy', 'rainy day', 'monsoon', 'bristi', 'brishti', 'petrichor', 'after rain'],
+        a: ['Green', 'Aquatic', 'Fresh', 'Earthy'], o: ['Monsoon', 'Everyday'] },
+      { m: ['compliment', 'compliments', 'compliment magnet', 'attention', 'noticeable', 'noticed', 'stand out', 'head turner', 'crowd pleaser', 'night out'],
+        a: ['Sweet', 'Amber', 'Vanilla', 'Warm Spicy'], o: ['Date Night', 'Evening', 'Party'] },
+      { m: ['energetic', 'bright', 'morning', 'wake up', 'zesty', 'uplifting', 'sparkling'],
+        a: ['Citrus', 'Fresh', 'Aromatic', 'Fruity'], o: ['Everyday', 'Summer'] },
+      { m: ['cozy', 'cosy', 'comfy', 'warm', 'comforting', 'at home', 'home', 'blanket'],
+        a: ['Vanilla', 'Amber', 'Sweet', 'Warm Spicy'], o: ['Winter', 'Evening'] },
       // fresh / clean / blue
       { m: ['fresh', 'crisp', 'refreshing', 'fresher', 'fresh kichu', 'fresh smell', 'fresh kind', 'fresh feel', 'fresh vibe'],
         f: ['Fresh'], a: ['Fresh', 'Citrus', 'Aromatic'] },
@@ -276,7 +297,7 @@
         a: ['Fruity', 'Smoky', 'Musky', 'Woody', 'Fresh'], n: ['Pineapple', 'Birch', 'Musk', 'Bergamot', 'Black Currant', 'Oakmoss', 'Ambergris'], f: ['Chypre', 'Fruity'] },
       { m: ['sauvage', 'dior sauvage', 'savage', 'sauvage edp', 'sauvage elixir', 'sauvage edt', 'sauvage parfum'], name: 'Dior Sauvage',
         a: ['Fresh Spicy', 'Aromatic', 'Citrus', 'Amber', 'Musky'], n: ['Bergamot', 'Pepper', 'Ambroxan', 'Lavender', 'Pink Pepper', 'Vetiver', 'Patchouli'], f: ['Aromatic', 'Fresh'] },
-      { m: ['bleu de chanel', 'blue de chanel', 'chanel bleu', 'chanel blue', 'bleu de chanel parfum', 'bleu de chanel edp', 'bleu chanel'], name: 'Bleu de Chanel',
+      { m: ['bleu de chanel', 'blue de chanel', 'chanel bleu', 'chanel blue', 'bleu de chanel parfum', 'bleu de chanel edp', 'bleu chanel', 'blue chanel', 'bdc', 'chanel bleu de chanel'], name: 'Bleu de Chanel',
         a: ['Citrus', 'Woody', 'Aromatic', 'Fresh Spicy', 'Amber'], n: ['Grapefruit', 'Lemon', 'Mint', 'Pink Pepper', 'Ginger', 'Incense', 'Cedar', 'Sandalwood', 'Vetiver', 'Labdanum'], f: ['Woody', 'Aromatic', 'Citrus'] },
       { m: ['ultra male', 'jpg ultra male', 'ultramale', 'gaultier ultra male'], name: 'Jean Paul Gaultier Ultra Male',
         a: ['Sweet', 'Vanilla', 'Lavender', 'Fruity', 'Warm Spicy'], n: ['Pear', 'Lavender', 'Mint', 'Vanilla', 'Black Vanilla Husk', 'Cinnamon', 'Amber', 'Bergamot'], f: ['Oriental', 'Fougere'] },
@@ -501,8 +522,8 @@
     },
 
     genderWords: {
-      women: ['for her', 'her', 'wife', 'girlfriend', 'gf', 'mom', 'mother', 'sister', 'women', 'woman', 'ladies', 'female', 'meye', 'bou', 'ammu', 'apu', 'bon', 'girl', 'girls', 'she', 'fiancee', 'fiancée', 'lady'],
-      men: ['for him', 'him', 'husband', 'boyfriend', 'bf', 'dad', 'brother', 'men', 'man', 'male', 'chele', 'abbu', 'baba', 'boy', 'boys', 'he', 'shami', 'swami', 'bor'],
+      women: ['for her', 'her', 'wife', 'girlfriend', 'gf', 'mom', 'mother', 'sister', 'women', 'woman', 'womens', 'ladies', 'female', 'meye', 'bou', 'ammu', 'apu', 'bon', 'girl', 'girls', 'she', 'fiancee', 'fiancée', 'lady', 'bride', 'daughter', 'aunt', 'khala', 'fupu', 'mami', 'chachi', 'bhabi', 'nani', 'dadi'],
+      men: ['for him', 'him', 'husband', 'boyfriend', 'bf', 'dad', 'brother', 'men', 'man', 'mens', 'male', 'chele', 'abbu', 'baba', 'boy', 'boys', 'he', 'shami', 'swami', 'bor', 'groom', 'uncle', 'grandfather', 'nana', 'dada', 'chacha', 'mama', 'son', 'nephew', 'dulabhai', 'jamai'],
     },
 
     strength: {
