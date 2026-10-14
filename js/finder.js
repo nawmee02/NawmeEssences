@@ -98,6 +98,7 @@
   const QUERY_SHARE = 0.85, PROFILE_SHARE = 0.15, BS_BONUS = 0.05, STRENGTH_BONUS = 0.08, PRICE_PEN = 0.10;
   const MIN_COS = 0.05, BRAND_CAP = 2, ANSWER_SIZE = 3, CHEAP_DEFAULT = 300, ANCHOR_FEATURE_SHARE = 0.6;
   const VERIFIED_BONUS = 1;   // owner-entered inspired_by match: always first (scores are ≤ ~1.1 otherwise)
+  const ANCHOR_COS_SHARE = 0.5;   // "like X": 0.5 · cosine + 0.5 · coverage of X's profile (see coverage())
   // Phase 1c: typed questions are logged anonymously (text + match count only; never for chips).
   const LOG_QUERIES = true, LOG_TABLE = 'finder_queries';
   // Phase 2: on-device understanding is tried only when the deterministic parser is lost
@@ -682,6 +683,15 @@
     small.forEach((x, k) => { const y = big.get(k); if (y) s += x * y; });
     return s;
   }
+  // Share of the query's positive weight that the item carries. Cosine alone
+  // punishes richly described products (16 notes → a long vector → low cosine
+  // even when every note of the reference is there), which hid the real clones:
+  // for "like Bleu de Chanel" Club de Nuit Iconic carries 80% of the profile
+  // but ranked 5th by cosine. Anchor queries blend the two.
+  function coverage(q, v) {
+    let s = 0, t = 0; q.forEach((w, k) => { if (w > 0) { t += w; if (v.has(k)) s += w; } });
+    return t ? s / t : 0;
+  }
 
   // ── character axes: the OVERALL profile of a fragrance ──
   // A vibe word ("fresh") must describe the whole fragrance, not one note: a sweet
@@ -773,7 +783,7 @@
       if (exBrands.size && exBrands.has(brandOf(it, model).toLowerCase())) continue;
       if (!opts.ignoreCheaper && query.cheaper && refPrice != null && !(it.p < refPrice)) continue;
       if (axisMin && !(axisScore(it, axisMin.axis, model) > axisMin.min)) continue;
-      const cq = qv.size ? cosine(qv, it.vec) : 0;
+      const cq = qv.size ? (query.anchor ? ANCHOR_COS_SHARE * cosine(qv, it.vec) + (1 - ANCHOR_COS_SHARE) * coverage(qv, it.vec) : cosine(qv, it.vec)) : 0;
       // An owner-entered inspired_by match (migration 018) is a VERIFIED alternative:
       // it passes the threshold and outranks any scent-profile similarity.
       const verified = refAnchor != null && (it.ref || []).some(ri => normalize(model.vocab.r[ri]) === refAnchor);
