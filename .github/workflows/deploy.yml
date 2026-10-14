@@ -30,6 +30,16 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      # Finder Layer B (scripts/lib/embed.js): the embedding model is only downloaded
+      # when the build runs in vectors mode (FINDER_EMB_VECTORS=1); this keeps the
+      # ~24 MB of model files between runs. Key = model id + dtype (keep in sync with
+      # MODEL_ID / DTYPE in scripts/lib/embed.js — scripts/test-finder.js checks it).
+      # In the default json-only mode the directory never exists, so the post-job save
+      # only logs a "path does not exist" warning (nothing is cached, nothing fails).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/transformers-js
+          key: finder-model-mixedbread-ai--mxbai-embed-xsmall-v1-q8
       - name: Build site from Supabase (build + schema check + recs test, same as npm run build locally)
         run: npm run build
         env:

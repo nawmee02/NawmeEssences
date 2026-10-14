@@ -15,6 +15,10 @@
 //    • lg / pj — longevity / projection, ONLY copied when the
 //            (future) columns carry a number. Nothing is claimed
 //            from them until they exist.
+//    • cp  — co-purchase pairs [[idx, w], …] (scripts/lib/copurchase.js;
+//            idx = index in `items`, w ∈ (0, 1]) for "People who chose
+//            #1 also considered…". Display-only, never scored; present
+//            only when the build had the service key and enough orders.
 //
 //  vocab.b/f/a/n/o/k are copied verbatim from the recs data, so every
 //  index is identical to data/recs.json and the finder's vectors line
@@ -148,8 +152,25 @@ function vocabList() {
 
 const numberOrNull = v => (v === null || v === undefined || v === '' ? null : (Number.isFinite(Number(v)) ? Number(v) : null));
 
+// opts.coPurchase = buildCoPurchase() output (id → [[idx, w], …], idx = index in
+// recsData.items). Copies only well-formed pairs that point at another item;
+// returns [] when nothing survives (the caller then omits `cp`).
+function coPurchaseOf(coPurchase, id, self, n) {
+  const list = coPurchase && Object.prototype.hasOwnProperty.call(coPurchase, id) ? coPurchase[id] : null;
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  for (const e of list) {
+    if (!Array.isArray(e) || e.length < 2) continue;
+    const idx = e[0], w = Number(e[1]);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= n || idx === self || !Number.isFinite(w) || w <= 0) continue;
+    out.push([idx, w]);
+  }
+  return out;
+}
+
 // recsData = buildRecs(...) output; productDetails[id] = { description, inspiredBy?, longevity?, projection?, … }
-// opts.log(message) receives the coverage lines (default: silent); opts.maxKeywords for tests.
+// opts.log(message) receives the coverage lines (default: silent); opts.maxKeywords for tests;
+// opts.coPurchase (optional, see coPurchaseOf) adds `cp: [[idx, w], …]` to the items that have pairs.
 function buildFinder(recsData, productDetails, opts = {}) {
   if (!recsData || recsData.v !== 1 || !Array.isArray(recsData.items)) throw new Error('buildFinder: expected buildRecs() output');
   const details = productDetails || {};
@@ -157,7 +178,9 @@ function buildFinder(recsData, productDetails, opts = {}) {
   const vocab = recsData.vocab || {};
   const kwPerItem = extractKeywords(recsData.items, vocab, details, opts);
   const W = vocabList(), R = vocabList();
-  let withRef = 0, withLg = 0, withPj = 0, withKw = 0;
+  const coPurchase = opts.coPurchase && typeof opts.coPurchase === 'object' ? opts.coPurchase : null;
+  const n = recsData.items.length;
+  let withRef = 0, withLg = 0, withPj = 0, withKw = 0, withCp = 0;
   const items = recsData.items.map((it, i) => {
     const d = details[it.id] || {};
     const kw = kwPerItem[i].map(t => W.add(t));
@@ -168,12 +191,14 @@ function buildFinder(recsData, productDetails, opts = {}) {
     const lg = numberOrNull(d.longevity), pj = numberOrNull(d.projection);
     if (lg !== null) { out.lg = lg; withLg++; }
     if (pj !== null) { out.pj = pj; withPj++; }
+    const cp = coPurchaseOf(coPurchase, it.id, i, n);
+    if (cp.length) { out.cp = cp; withCp++; }
     if (ref.length) withRef++;
     if (kw.length) withKw++;
     return out;
   });
-  const n = items.length;
   log(`keywords on ${withKw}/${n} products (${W.list.length} tokens); inspired_by on ${withRef}/${n} (${R.list.length} names); longevity set on ${withLg}/${n}; projection set on ${withPj}/${n}`);
+  if (coPurchase) log(`co-purchase pairs on ${withCp}/${n} products`);
   return {
     v: FORMAT,
     src: recsData.src,
@@ -186,14 +211,35 @@ function buildFinder(recsData, productDetails, opts = {}) {
   };
 }
 
-function writeFinder(ROOT, data) {
-  const json = JSON.stringify(data);
-  const gz = zlib.gzipSync(json).length;
+// Same data without any `cp` (co-purchase is optional display data, so it is
+// the first thing to go when the file is over budget).
+function withoutCoPurchase(data) {
+  return Object.assign({}, data, { items: data.items.map(it => { const { cp, ...rest } = it; return rest; }) });
+}
+
+// Writes data/finder.json; throws above MAX_GZIP. If `cp` pairs are what push
+// the file over, they are dropped (logged via opts.log) and the write goes
+// ahead — co-purchase data must never fail a build. Result: { raw, gz, items,
+// cp: number of items carrying cp, cpDropped: true when the fallback ran }.
+function writeFinder(ROOT, data, opts = {}) {
+  const log = typeof opts.log === 'function' ? opts.log : () => {};
+  let out = data;
+  let json = JSON.stringify(out);
+  let gz = zlib.gzipSync(json).length;
+  let cpDropped = false;
+  if (gz > MAX_GZIP && out.items.some(it => it.cp)) {
+    out = withoutCoPurchase(out);
+    json = JSON.stringify(out);
+    const gz2 = zlib.gzipSync(json).length;
+    log(`data/finder.json would be ${gz} B gzipped with co-purchase pairs — over the ${MAX_GZIP} B budget, cp dropped (${gz2} B without)`);
+    gz = gz2;
+    cpDropped = true;
+  }
   if (gz > MAX_GZIP) throw new Error(`data/finder.json is ${gz} B gzipped — over the ${MAX_GZIP} B budget`);
   const dir = path.join(ROOT, 'data');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'finder.json'), json);
-  return { raw: json.length, gz, items: data.items.length };
+  return { raw: json.length, gz, items: out.items.length, cp: out.items.filter(it => it.cp).length, cpDropped };
 }
 
-module.exports = { buildFinder, writeFinder, tokenize, extractKeywords, STOP_WORDS, MAX_GZIP, MAX_KW, MIN_DF, FORMAT };
+module.exports = { buildFinder, writeFinder, withoutCoPurchase, tokenize, extractKeywords, STOP_WORDS, MAX_GZIP, MAX_KW, MIN_DF, FORMAT };

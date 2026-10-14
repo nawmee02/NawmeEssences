@@ -110,7 +110,7 @@
       <input id="finder-input" type="text" maxlength="200" placeholder="e.g. fresh for office under ৳500, or: like Sauvage but sweeter" />
       <button type="submit" class="btn-primary">Send</button>
     </form>
-    <p class="finder-privacy">Nothing you type leaves your browser.</p>
+    <p class="finder-privacy">Typed questions are stored anonymously (just the words, nothing about you) to improve the finder. Picks are computed in your browser.</p>
   </div>
 </section>
 </main>
@@ -160,6 +160,9 @@
 <script src="js/api.js?v=1db1e2ec" defer></script>
 <script src="js/render-card.js?v=bb55f3a3" defer></script>
 <script src="js/finder-lexicon.js?v=c2724e1b" defer></script>
-<script src="js/finder.js?v=75a17459" data-finder="data/finder.json?v=26132461" defer></script>
+<script src="js/finder.js?v=fe8b5ace" data-finder="data/finder.json?v=26132461" defer></script>
+<!-- Optional on-device understanding (Phase 2, Layer B): a carrier tag only. finder.js injects the
+     real script after the visitor taps "Understand my words better"; nothing loads at page load. -->
+<script type="text/plain" id="finder-nlu-loader" src="js/finder-nlu.js?v=ca649b59" data-emb="data/finder-emb.json?v=ca87b2c4" data-embbin="data/finder-emb.bin" data-model-mb="24"></script>
 </body>
 </html>

@@ -24,6 +24,7 @@ const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData, occasionsOf, concentrationOf, genderOf } = require('./generate-product-pages');
 const { buildRecs, writeRecs } = require('./lib/recs');
 const { buildFinder, writeFinder } = require('./lib/finder');
+const { fetchCoPurchase, buildCoPurchase } = require('./lib/copurchase');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
@@ -585,6 +586,26 @@ function injectStaticOrg() {
   console.log(`  injected → canonical org schema (${n} static pages)`);
 }
 
+// ─── Finder query log retention (migration 019) ──────────────
+// Belt-and-braces fallback for the pg_cron job: delete finder_queries rows
+// older than 180 days. Service key only (caller guards with CAN_WRITE). A
+// missing table (migration not run yet) or any other error only logs.
+const FINDER_QUERIES_RETENTION_DAYS = 180;
+async function pruneFinderQueries() {
+  try {
+    const cutoff = new Date(Date.now() - FINDER_QUERIES_RETENTION_DAYS * 86400000).toISOString();
+    const { error, count } = await sb.from('finder_queries').delete({ count: 'exact' }).lt('created_at', cutoff);
+    if (error) {
+      const notFound = error.code === 'PGRST205' || error.code === '42P01' || /finder_queries.*(not find|does not exist)|(not find|does not exist).*finder_queries/i.test(error.message || '');
+      console.log(notFound ? '   finder_queries not found (migration 019 not run)' : `   finder_queries retention skipped: ${error.message}`);
+      return;
+    }
+    console.log(`   finder_queries: deleted ${count == null ? '?' : count} rows older than ${FINDER_QUERIES_RETENTION_DAYS} days`);
+  } catch (e) {
+    console.log(`   finder_queries retention skipped: ${e.message}`);
+  }
+}
+
 // ─── Main ────────────────────────────────────────────────────
 async function run() {
   console.log(`🔑 Storage writes: ${CAN_WRITE ? 'enabled (service_role)' : 'DISABLED — no SUPABASE_SERVICE_ROLE_KEY; images will not be optimized'}`);
@@ -592,6 +613,9 @@ async function run() {
   console.log('📥 Fetching catalog from Supabase...');
   const { allProducts, productDetails, brandLogos } = await fetchCatalog();
   console.log(`   ${allProducts.length} products`);
+  // Finder query log retention (migration 019): 180 days, service key only —
+  // the anon key has no DELETE policy, and a missing table is not an error.
+  if (CAN_WRITE) await pruneFinderQueries();
   // Single source of truth for every "NN+ fragrances / NN+ brands" phrase
   // (schema description, page copy, llms.txt). Must run before any page is
   // generated or injected.
@@ -614,11 +638,32 @@ async function run() {
   const recsData = buildRecs(allProducts, productDetails, { occasionsOf, concentrationOf, genderOf, imageVersion });
   const recs = writeRecs(ROOT, recsData);
   console.log(`🧭 recs — data/recs.json: ${recs.items} items, ${(recs.raw / 1024).toFixed(1)} KB raw / ${(recs.gz / 1024).toFixed(1)} KB gzip`);
+  // Co-purchase pairs ("People who chose #1 also considered…", display-only)
+  // from real orders. Needs the service key (orders has no SELECT policy);
+  // locally / on any error it is simply absent — never a build failure.
+  let coPurchase = null;
+  if (CAN_WRITE) {
+    try { coPurchase = buildCoPurchase(await fetchCoPurchase(sb, { log: m => console.log(`   ${m}`) }), recsData.items, { log: m => console.log(`   ${m}`) }); }
+    catch (e) { console.log(`   co-purchase skipped: ${e.message}`); coPurchase = null; }
+  } else {
+    console.log('   co-purchase skipped: needs SUPABASE_SERVICE_ROLE_KEY (orders are not readable with the anon key)');
+  }
   // Finder feature file for js/finder.js (recommend.html): the same items and
-  // vocab indices as recs.json plus description keywords / inspired_by refs.
-  // Deterministic + size-guarded (20 KB gzip); versioned by versionAssets().
-  const finder = writeFinder(ROOT, buildFinder(recsData, productDetails, { log: m => console.log(`   ${m}`) }));
-  console.log(`🧭 finder — data/finder.json: ${finder.items} items, ${(finder.raw / 1024).toFixed(1)} KB raw / ${(finder.gz / 1024).toFixed(1)} KB gzip`);
+  // vocab indices as recs.json plus description keywords / inspired_by refs
+  // (+ cp pairs when available). Deterministic + size-guarded (20 KB gzip;
+  // cp is dropped first if it is what breaks the budget); versioned by versionAssets().
+  const finder = writeFinder(ROOT, buildFinder(recsData, productDetails, { log: m => console.log(`   ${m}`), coPurchase }), { log: m => console.log(`   ⚠ ${m}`) });
+  console.log(`🧭 finder — data/finder.json: ${finder.items} items, ${(finder.raw / 1024).toFixed(1)} KB raw / ${(finder.gz / 1024).toFixed(1)} KB gzip, co-purchase on ${finder.cp} items${finder.cpDropped ? ' (dropped: over budget)' : ''}`);
+  // ── Finder Layer B index (Phase 2, scripts/lib/embed.js → data/finder-emb.json
+  // [+ .bin in vectors mode]). Reads the finder.json just written; FINDER_EMBED=0
+  // skips it; any failure logs one line, removes stale files and never fails the build.
+  if (process.env.FINDER_EMBED !== '0') {
+    try { await require('./lib/embed').embedStep(ROOT, productDetails, { log: m => console.log(`   ${m}`) }); }
+    catch (e) { console.log(`   finder-emb skipped: ${e.message}`); }
+  } else {
+    console.log('   finder-emb skipped (FINDER_EMBED=0)');
+    try { require('./lib/embed').removeEmbeddings(ROOT); } catch (e) { /* nothing stale to remove */ }
+  }
 
   console.log('\n⚙️  Injecting site settings...');
   const settings = await fetchSettings(sb);

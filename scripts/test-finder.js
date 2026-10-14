@@ -10,7 +10,8 @@ const zlib = require('zlib');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const { buildRecs } = require('./lib/recs');
-const { buildFinder, writeFinder, tokenize, STOP_WORDS, MAX_GZIP, MAX_KW, MIN_DF } = require('./lib/finder');
+const { buildFinder, writeFinder, withoutCoPurchase, tokenize, STOP_WORDS, MAX_GZIP, MAX_KW, MIN_DF } = require('./lib/finder');
+const { fetchCoPurchase, buildCoPurchase, QUALIFYING_STATUS, MIN_ORDERS, MIN_SUPPORT, TOP, LIFT_CAP } = require('./lib/copurchase');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
 
 const ROOT = path.join(__dirname, '..');
@@ -139,6 +140,153 @@ assert.ok(zlib.gzipSync(JSON.stringify(big)).length > MAX_GZIP);
 assert.throws(() => writeFinder(tmp, big), /over the/);
 assert.strictEqual(fs.readFileSync(path.join(tmp, 'data', 'finder.json'), 'utf8'), written, 'a rejected write leaves the previous file intact');
 
+// ── co-purchase (scripts/lib/copurchase.js) ─────────────────────
+// recs.items order: a=0, b=1, c=2, e=3 (d has no sizes and is dropped by recs).
+assert.deepStrictEqual(recs.items.map(i => i.id), ['a', 'b', 'c', 'e']);
+assert.strictEqual(MIN_ORDERS, 30); assert.strictEqual(MIN_SUPPORT, 2); assert.strictEqual(TOP, 5); assert.strictEqual(LIFT_CAP, 10);
+assert.deepStrictEqual(QUALIFYING_STATUS, ['confirmed', 'dispatched', 'delivered']);
+let orderSeq = 0;
+const basket = (ids, times = 1) => {
+  const out = [];
+  for (let t = 0; t < times; t++) { const orderId = 'o' + (++orderSeq); for (const fragranceId of ids) out.push({ orderId, fragranceId }); }
+  return out;
+};
+// 33 qualifying orders: 20×{a,e}, 8×{a,b}, 4×{b,c,e}, 1×{a,c}; plus noise that must not count.
+const synthetic = [
+  ...basket(['a', 'e'], 19), ...basket(['a', 'ghost', 'e']),   // a product missing from the catalogue is ignored (still {a,e})
+  ...basket(['a', 'b'], 7), ...basket(['a', 'b', 'b']),         // duplicate lines count once
+  ...basket(['b', 'c', 'e'], 4), ...basket(['a', 'c']),         // a–c support 1 → never a pair
+  ...basket(['a'], 5), ...basket(['e', 'ghost'], 3), ...basket(['ghost', 'phantom']),   // < 2 catalogue products → not qualifying
+  { orderId: 'bad', fragranceId: null }, { orderId: null, fragranceId: 'a' }, null,    // junk lines tolerated
+];
+const cpLogs = [];
+const cpMap = buildCoPurchase(synthetic, recs.items, { log: m => cpLogs.push(m) });
+// N = 33; singles a 29, b 12, c 5, e 24; pairs a–e 20, a–b 8, b–c 4, b–e 4, c–e 4.
+// lift = nAB·N / (nA·nB): a–e 0.948, a–b 0.759, b–c 2.2, b–e 0.458, c–e 1.1 → w = round2(lift / 10).
+assert.deepStrictEqual(cpMap, {
+  a: [[3, 0.09], [1, 0.08]],
+  b: [[2, 0.22], [0, 0.08], [3, 0.05]],
+  c: [[1, 0.22], [3, 0.11]],
+  e: [[2, 0.11], [0, 0.09], [1, 0.05]],
+}, 'lift-scored pairs, support ≥ 2, ordered w desc then idx asc');
+assert.ok(cpLogs.some(m => /co-purchase: 33 qualifying orders → pairs on 4\/4 products/.test(m)), cpLogs.join(' | '));
+// Deterministic: line order does not matter.
+assert.strictEqual(JSON.stringify(buildCoPurchase(synthetic.slice().reverse(), recs.items)), JSON.stringify(cpMap));
+// Accepts the fetchCoPurchase() wrapper shape and null.
+assert.strictEqual(JSON.stringify(buildCoPurchase({ orders: 40, lines: synthetic }, recs.items)), JSON.stringify(cpMap));
+const nullLogs = [];
+assert.strictEqual(buildCoPurchase(null, recs.items, { log: m => nullLogs.push(m) }), null, 'no order data → null');
+assert.strictEqual(buildCoPurchase(undefined, recs.items), null);
+assert.strictEqual(buildCoPurchase({ orders: 0 }, recs.items), null);
+assert.ok(nullLogs.some(m => /co-purchase skipped: no order data/.test(m)));
+// < 30 qualifying orders → null with the exact log line.
+orderSeq = 0;
+const few = [...basket(['a', 'e'], 29), ...basket(['a'], 50)];
+const fewLogs = [];
+assert.strictEqual(buildCoPurchase(few, recs.items, { log: m => fewLogs.push(m) }), null, '29 qualifying orders → skipped');
+assert.ok(fewLogs.some(m => m === 'co-purchase skipped: 29 qualifying orders < 30'), fewLogs.join(' | '));
+assert.ok(buildCoPurchase([...few, ...basket(['a', 'e'])], recs.items) !== null, '30 qualifying orders → built');
+// Nothing reaches support 2 → null (not an empty map).
+orderSeq = 0;
+const fake = Array.from({ length: 8 }, (_, i) => ({ id: 'q' + i }));
+const thin = [];
+for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) thin.push(...basket(['q' + i, 'q' + j]));   // 28 distinct pairs, support 1 each
+assert.strictEqual(buildCoPurchase([...thin, ...basket(['q0', 'q1', 'q2'])], fake, { minOrders: 1, minSupport: 3 }), null);
+// Lift cap: lift ≥ 10 → w = 1; top 5 kept, ties broken by idx.
+orderSeq = 0;
+const capped = buildCoPurchase([...basket(['a', 'b'], 2), ...basket(['c', 'e'], 20)], recs.items, { minOrders: 1 });
+assert.deepStrictEqual(capped.a, [[1, 1]], 'lift 22 → w capped at 1');
+assert.deepStrictEqual(capped.c, [[3, 0.11]]);
+orderSeq = 0;
+const star = buildCoPurchase(Array.from({ length: 6 }, (_, k) => basket(['q0', 'q' + (k + 1)], 2)).flat(), fake, { minOrders: 1 });
+assert.deepStrictEqual(star.q0, [[1, 0.1], [2, 0.1], [3, 0.1], [4, 0.1], [5, 0.1]], 'at most 5 pairs per product, equal w → lower idx first');
+assert.deepStrictEqual(star.q6, [[0, 0.1]], 'the sixth partner still lists q0 from its own side');
+assert.strictEqual(star.q7, undefined, 'products without pairs are absent from the map');
+assert.throws(() => buildCoPurchase([], 'nope'), /items must be an array/);
+
+// buildFinder(opts.coPurchase): cp written only where pairs exist, idx = index in items.
+const withCp = buildFinder(recs, details, { coPurchase: cpMap, log: m => cpLogs.push(m) });
+assert.deepStrictEqual(withCp.items.map(i => i.cp), [cpMap.a, cpMap.b, cpMap.c, cpMap.e]);
+withCp.items.forEach((it, i) => {
+  const { kw, ref, lg, pj, cp, ...rest } = it;
+  assert.deepStrictEqual(rest, recs.items[i], 'every recs field unchanged with cp');
+  for (const [idx, w] of cp) { assert.ok(Number.isInteger(idx) && idx >= 0 && idx < withCp.items.length && idx !== i, 'cp idx points at another item'); assert.ok(w > 0 && w <= 1, 'w ∈ (0, 1]'); }
+});
+assert.ok(cpLogs.some(m => m === 'co-purchase pairs on 4/4 products'), cpLogs.join(' | '));
+assert.strictEqual(JSON.stringify(buildFinder(recs, details, { coPurchase: cpMap })), JSON.stringify(withCp), 'deterministic with cp');
+assert.deepStrictEqual(withoutCoPurchase(withCp), data, 'cp is the only difference from the plain build');
+assert.ok(!('cp' in buildFinder(recs, details, { coPurchase: null }).items[0]), 'coPurchase null → cp omitted');
+assert.ok(!('cp' in data.items[0]), 'coPurchase absent → cp omitted');
+assert.strictEqual(JSON.stringify(buildFinder(recs, details, { coPurchase: null })), JSON.stringify(data));
+const partial = buildFinder(recs, details, { coPurchase: { b: [[0, 0.5]], zz: [[0, 1]], c: [], e: 'junk' } });
+assert.deepStrictEqual(partial.items.map(i => i.cp), [undefined, [[0, 0.5]], undefined, undefined], 'only items with a non-empty valid list get cp; unknown ids ignored');
+const malformed = buildFinder(recs, details, { coPurchase: { a: [[0, 0.5], [9, 0.5], [-1, 0.5], [1, 0], [1, 'x'], [2], 'junk', [3, '0.25']] } });
+assert.deepStrictEqual(malformed.items[0].cp, [[3, 0.25]], 'self / out-of-range / non-positive / malformed entries dropped, numeric strings accepted');
+// Writer: cp inside the budget is kept and reported.
+const stats2 = writeFinder(tmp, withCp, {});
+assert.strictEqual(fs.readFileSync(path.join(tmp, 'data', 'finder.json'), 'utf8'), JSON.stringify(withCp));
+assert.deepStrictEqual({ cp: stats2.cp, dropped: stats2.cpDropped, items: stats2.items }, { cp: 4, dropped: false, items: 4 });
+assert.ok(stats2.gz <= MAX_GZIP);
+// Writer fallback: when cp alone pushes the file over 20 KB gzip, cp is dropped (logged), not the build.
+let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+const baseItems = Array.from({ length: 1500 }, (_, i) => ({ ...data.items[0], id: 'p' + i }));
+const under = { ...data, items: baseItems };
+assert.ok(zlib.gzipSync(JSON.stringify(under)).length <= MAX_GZIP, 'base fixture must fit the budget');
+const over = { ...data, items: baseItems.map((it, i) => ({ ...it, cp: Array.from({ length: 5 }, () => [Math.floor(rnd() * 1500), Math.round(rnd() * 100) / 100]).filter(e => e[0] !== i && e[1] > 0) })) };
+assert.ok(zlib.gzipSync(JSON.stringify(over)).length > MAX_GZIP, 'fixture with random cp must exceed the budget');
+const dropLogs = [];
+const stats3 = writeFinder(tmp, over, { log: m => dropLogs.push(m) });
+assert.strictEqual(stats3.cpDropped, true); assert.strictEqual(stats3.cp, 0); assert.ok(stats3.gz <= MAX_GZIP);
+assert.strictEqual(fs.readFileSync(path.join(tmp, 'data', 'finder.json'), 'utf8'), JSON.stringify(withoutCoPurchase(over)), 'written without cp');
+assert.ok(dropLogs.length === 1 && /over the .* budget, cp dropped/.test(dropLogs[0]), dropLogs.join(' | '));
+assert.ok(!JSON.parse(fs.readFileSync(path.join(tmp, 'data', 'finder.json'), 'utf8')).items.some(i => 'cp' in i));
+assert.throws(() => writeFinder(tmp, { ...big, items: big.items.map(it => ({ ...it, cp: [[1, 0.5]] })) }, {}), /over the/, 'still throws when the file is over budget without cp');
+assert.strictEqual(JSON.stringify(over).includes('"cp"'), true, 'the caller\'s data is not mutated by the fallback');
+
+// fetchCoPurchase against a fake Supabase client: status + date filters, paging, chunked order_items, errors → null.
+const fakeSb = (tables, failOn) => ({
+  from(name) {
+    const filters = [];
+    const q = {
+      select() { return q; },
+      in(col, vals) { filters.push(r => vals.includes(r[col])); return q; },
+      gte(col, v) { filters.push(r => r[col] >= v); return q; },
+      not(col, op, v) { assert.strictEqual(op, 'is'); assert.strictEqual(v, null); filters.push(r => r[col] != null); return q; },
+      order() { return q; },
+      range(from, to) {
+        if (failOn === name) return Promise.resolve({ data: null, error: { message: 'relation "' + name + '" does not exist', code: '42P01' } });
+        const rows = (tables[name] || []).filter(r => filters.every(f => f(r)));
+        return Promise.resolve({ data: rows.slice(from, to + 1), error: null });
+      },
+    };
+    return q;
+  },
+});
+const recent = new Date(Date.now() - 10 * 86400000).toISOString(), ancient = new Date(Date.now() - 400 * 86400000).toISOString();
+const ordersTbl = [], itemsTbl = [];
+for (let i = 0; i < 1250; i++) { ordersTbl.push({ id: 'ok' + i, status: QUALIFYING_STATUS[i % 3], created_at: recent }); itemsTbl.push({ order_id: 'ok' + i, fragrance_id: 'a' }, { order_id: 'ok' + i, fragrance_id: 'e' }); }
+ordersTbl.push({ id: 'pend', status: 'pending', created_at: recent }, { id: 'canc', status: 'cancelled', created_at: recent }, { id: 'old', status: 'delivered', created_at: ancient });
+itemsTbl.push({ order_id: 'pend', fragrance_id: 'b' }, { order_id: 'canc', fragrance_id: 'b' }, { order_id: 'old', fragrance_id: 'b' }, { order_id: 'ok0', fragrance_id: null });
+(async () => {
+  const fLogs = [];
+  const got = await fetchCoPurchase(fakeSb({ orders: ordersTbl, order_items: itemsTbl }), { log: m => fLogs.push(m) });
+  assert.strictEqual(got.orders, 1250, 'pending / cancelled / older than 180 days excluded; paging past 1000 rows works');
+  assert.strictEqual(got.lines.length, 2500, 'order_items fetched in id chunks; null fragrance_id dropped');
+  assert.ok(got.lines.every(l => l.orderId.startsWith('ok') && (l.fragranceId === 'a' || l.fragranceId === 'e')));
+  assert.ok(fLogs.some(m => /co-purchase: 1250 qualifying orders \/ 2500 order lines in the last 180 days/.test(m)), fLogs.join(' | '));
+  const built = buildCoPurchase(got, recs.items);
+  assert.deepStrictEqual(built, { a: [[3, 0.1]], e: [[0, 0.1]] }, 'end-to-end: lift 1 → w 0.1');
+  const eLogs = [];
+  assert.strictEqual(await fetchCoPurchase(fakeSb({ orders: ordersTbl, order_items: itemsTbl }, 'order_items'), { log: m => eLogs.push(m) }), null, 'any error → null');
+  assert.ok(eLogs.length === 1 && /co-purchase skipped: relation "order_items" does not exist/.test(eLogs[0]), eLogs.join(' | '));
+  assert.strictEqual(await fetchCoPurchase(fakeSb({}, 'orders')), null);
+  assert.strictEqual(await fetchCoPurchase(null), null, 'no client → null, no throw');
+  const empty = await fetchCoPurchase(fakeSb({}));
+  assert.deepStrictEqual(empty, { orders: 0, lines: [] }, 'anon key / no orders → empty set (buildCoPurchase then skips)');
+  assert.strictEqual(buildCoPurchase(empty, recs.items), null);
+  console.log('test-finder: co-purchase fetch checks passed');
+})().catch(e => { console.error(e); process.exit(1); });
+
 // ── asset versioning (scripts/lib/asset-version.js) ────────────
 const aroot = fs.mkdtempSync(path.join(os.tmpdir(), 'assets-'));
 for (const [f, body] of Object.entries({ 'css/style.css': 'body{}', 'css/finder.css': '.finder{}', 'js/main.js': '1', 'js/finder.js': '2', 'data/recs.json': '{"v":1}', 'data/finder.json': '{"v":1,"w":[]}', 'data/finder-emb.bin': 'bin', 'data/notes.txt': 'x', 'js/readme.md': 'x' })) {
@@ -185,6 +333,14 @@ const buildSrc = fs.readFileSync(path.join(ROOT, 'scripts', 'build-from-supabase
 assert.ok(/writeFinder\(ROOT, buildFinder\(recsData, productDetails/.test(buildSrc), 'build writes data/finder.json');
 assert.strictEqual((buildSrc.match(/'recommend\.html'/g) || []).length, 5, 'recommend.html is in all five root-page lists');
 assert.ok(buildSrc.indexOf('writeRecs(ROOT, recsData)') < buildSrc.indexOf('writeFinder(ROOT'), 'finder written after recs');
+// Phase 3 / 1c hooks: co-purchase and the finder_queries retention run only with the service key, inside try/catch.
+assert.ok(/require\('\.\/lib\/copurchase'\)/.test(buildSrc), 'build requires scripts/lib/copurchase.js');
+assert.ok(/if \(CAN_WRITE\) \{\s*try \{ coPurchase = buildCoPurchase\(await fetchCoPurchase\(sb/.test(buildSrc), 'co-purchase fetched only when CAN_WRITE, inside try/catch');
+assert.ok(/buildFinder\(recsData, productDetails, \{ log: [^\n]*?, coPurchase \}\)/.test(buildSrc), 'coPurchase passed to buildFinder');
+assert.ok(buildSrc.indexOf('fetchCoPurchase(sb') < buildSrc.indexOf('writeFinder(ROOT'), 'co-purchase built before writeFinder');
+assert.ok(/if \(CAN_WRITE\) await pruneFinderQueries\(\)/.test(buildSrc), 'finder_queries retention only with the service key');
+assert.ok(/async function pruneFinderQueries\(\) \{\s*try \{[\s\S]*?from\('finder_queries'\)\.delete\(\{ count: 'exact' \}\)\.lt\('created_at', cutoff\)[\s\S]*?\} catch/.test(buildSrc), 'retention delete inside try/catch');
+assert.ok(buildSrc.includes("'   finder_queries not found (migration 019 not run)'"), 'missing table is logged, not fatal');
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 assert.ok(/test-recs\.js && node scripts\/test-finder\.js$/.test(pkg.scripts.build), 'npm run build runs test-finder after test-recs');
 assert.strictEqual(pkg.scripts['test:finder'], 'node scripts/test-finder.js');
@@ -412,6 +568,61 @@ if (engine) {
   const aCat = F.reasons({ item: model.byId.get('a') }, Q({ anchor: cat }), model, cat);
   assert.ok(/^Bergamot & ambroxan · closest match to Dior Sauvage EDP · from ৳170$/.test(aCat), 'anchor mode lists the shared notes: ' + aCat);
 
+  // ── Phase 1b: verified inspired_by reference outranks similarity ──
+  {
+    const q = F.parse('alternative to aventus', L, model, {});
+    assert.ok(q.anchor && q.anchor.kind === 'ref', 'aventus resolves to a reference anchor');
+    const r = F.answer(model, q, { limit: 3 });
+    assert.ok(r.picks.length && r.picks[0].id === 'a' && r.picks[0].verified === true, 'the inspired_by product is first and flagged verified');
+    assert.ok(/^Verified alternative to Creed Aventus/.test(F.reasons(r.picks[0], q, model, q.anchor)), 'verified wording');
+    assert.ok(!r.picks.slice(1).some(p => p.verified), 'other picks are not verified');
+  }
+  // ── character axes: vibe words score the overall profile, follow-ups are relational ──
+  {
+    const e = model.byId.get('e'), a = model.byId.get('a');
+    assert.ok(F.axisScore(e, 'fresh', model) > 0.3 && F.axisScore(a, 'fresh', model) <= 0, 'Sauvage leans fresh, the woody musky one does not');
+    assert.ok(F.queryAxes(F.parse('fresh', L, model, {})).fresh > 0, '"fresh" engages the fresh axis');
+    assert.ok(F.queryAxes(F.parse('not sweet', L, model, {})).sweet < 0, '"not sweet" pushes the sweet axis negative');
+    assert.ok(F.axisScore(a, 'strong', model) > F.axisScore(e, 'strong', model), 'the woody oriental leans stronger than the fresh citrus one');
+    assert.ok(!('strong' in F.queryAxes({ strength: 'stronger', features: {} })), 'strength is not double-counted as an axis (strengthBonus owns it)');
+    const q = F.parse('office', L, model, {});
+    const all = F.rank(model, q, { limit: 10 }).map(p => p.id);
+    const fresherOnly = F.rank(model, q, { limit: 10, axisMin: { axis: 'fresh', min: 0.1 } }).map(p => p.id);
+    assert.ok(all.includes('a') && !fresherOnly.includes('a') && fresherOnly.includes('e'), 'axisMin keeps only fragrances that lean fresh overall');
+    const relaxed = F.answer(model, q, { limit: 3, axisMin: { axis: 'fresh', min: 2 } });
+    assert.ok(relaxed.relaxed[0] === 'axis' && relaxed.picks.length, 'an impossible axis bar is relaxed first and said so');
+    for (const k of ['fresh', 'sweet', 'strong']) assert.ok(F.T.axisTitle[k] && F.T.noAxis[k], 'axis templates present for ' + k);
+  }
+  // ── Phase 2: on-device fragments → the structured query (validate + merge rule) ──
+  {
+    const frag = F.validateFragment({ features: { 'a:citrus': 0.8, 'a:Nope': 1, 'x:Citrus': 1, 'o:office': 2, 'f:Aromatic': -0.5 }, strength: 'softer', gender: 'any', exclude_brands: ['Rasasi', 'Unknown Brand', 'brand:Dior'], unknown: ['uncle-like'] }, model);
+    assert.ok(frag && frag.features['a:Citrus'] === 0.8 && frag.features['o:Office'] === 1 && frag.features['f:Aromatic'] === -0.5, 'labels canonicalised, weights clamped');
+    assert.ok(!('a:Nope' in frag.features) && !Object.keys(frag.features).some(k => /^x:/.test(k)), 'unknown labels / prefixes dropped');
+    assert.ok(frag.strength === 'softer' && frag.gender === null && frag.exclude.join() === 'brand:Rasasi,brand:Dior' && frag.unknown[0] === 'uncle-like', 'strength kept, bad gender dropped, brands canonicalised');
+    assert.strictEqual(F.validateFragment({ features: {}, strength: 'none' }, model), null, 'an empty fragment is null');
+    const parsed = F.parse('fresh under 500 not citrus', L, model, {});
+    const part = F.mergeNLU(parsed, F.validateFragment({ features: { 'a:Citrus': 1, 'a:Woody': 0.6, 'o:Office': 0.5 }, strength: 'stronger', gender: 'men' }, model), model);
+    assert.ok(part && part.ai === true && !('a:Citrus' in part.features) && part.features['a:Woody'] === 0.6 && part.features['o:Office'] === 0.5, 'merge: the parser keeps its own (negated) feature, the model adds new ones');
+    assert.ok(part.strength === 'stronger' && part.gender === 'men' && part.maxPrice == null, 'merge: strength/gender added, prices never come from a model');
+    const merged = F.mergeQuery(parsed, part);
+    assert.ok(merged.maxPrice === 500 && merged.features['a:Citrus'] < 0, 'merged query keeps the parser price and sign');
+    assert.strictEqual(F.mergeNLU(parsed, F.validateFragment({ features: { 'a:Citrus': 1 } }, model), model), null, 'nothing new → no part');
+    assert.ok(F.needsNLU('something expensive but not loud for office', F.parse('something expensive but not loud for office', L, model, {})) === (F.parse('something expensive but not loud for office', L, model, {}).unknown.length >= 2 || !F.parse('something expensive but not loud for office', L, model, {}).parts.length), 'escalation follows the unknown-words rule');
+    assert.ok(!F.needsNLU('fresh office', F.parse('fresh office', L, model, {})), 'short understood sentences never escalate');
+    assert.ok(/JSON/.test(F.aiSystemPrompt(model)) && F.NLU_SCHEMA.required[0] === 'features', 'prompt + schema present');
+    for (const s of ['aiRead', 'aiOffer', 'aiConsent', 'aiLoading', 'aiLoadFailed']) assert.ok(F.T[s], 'template ' + s);
+  }
+  // ── Phase 3: "also considered" (display only) + Phase 1c log row ──
+  {
+    const idx = id => model.items.findIndex(it => it.id === id);
+    const pick = { item: Object.assign({}, model.byId.get('a'), { cp: [[idx('e'), 0.9], [idx('a'), 1], [idx('c'), 0.8], [idx('b'), 0.5]] }) };
+    const also = F.alsoConsidered(pick, model, ['b'], 3);
+    assert.deepStrictEqual(also.map(x => x.id), ['e'], 'skips itself, out-of-stock and excluded ids');
+    assert.deepStrictEqual(F.alsoConsidered({ item: model.byId.get('b') }, model, [], 3), [], 'no cp → nothing');
+    assert.deepStrictEqual(F.queryLogBody('  ' + 'x'.repeat(300) + '  ', 150), { q: 'x'.repeat(200), matched: 99 }, 'log row: trimmed, capped');
+    assert.ok(F.T.also && !/for you|history|browsed/i.test(F.T.also), 'also-row template is neutral');
+  }
+
   // ── claims: every template string and every lexicon string ──
   const strings = (v, out) => { if (typeof v === 'string') out.push(v); else if (Array.isArray(v)) v.forEach(x => strings(x, out)); else if (v && typeof v === 'object') Object.keys(v).forEach(k => strings(v[k], out)); return out; };
   for (const s of strings(F.T, [])) assert.ok(!BANNED.test(s), 'template makes a longevity/projection claim: ' + s);
@@ -476,7 +687,7 @@ if (engine) {
   const dm = F.prepareData({ v: 1, vocab: { b: ['X'], f: [], a: ['Vanilla', 'Sweet'], n: ['Vanilla', 'Tonka Bean'], o: [], k: [], w: [], r: [] }, items: [{ id: 'v', nm: 'V', b: 0, f: [], a: [0, 1], n: [0, 1], o: [], g: 3, k: -1, s: [[3, 100]], sp: 0, p: 100, i: 1, bs: 0, t: [], v: 1, c: 'r', kw: [], ref: [] }] });
   const dq = Q({ features: { 'n:Vanilla': 1, 'a:Vanilla': 1, 'a:Sweet': 1, 'n:Tonka Bean': 1 } });
   const dr = F.reasons(F.rank(dm, dq, { limit: 1 })[0], dq, dm, null);
-  assert.strictEqual(dr, 'Vanilla, tonka bean & sweet · from ৳100', 'de-duplicated reason: ' + dr);
+  assert.strictEqual(dr, 'Vanilla, sweet & tonka bean · from ৳100', 'de-duplicated reason (accords first, then notes): ' + dr);
   const danchor = { kind: 'catalog', id: 'v', name: 'V' };
   assert.ok(!/vanilla.*vanilla/i.test(F.reasons({ item: dm.byId.get('v') }, Q({ anchor: danchor }), dm, danchor)), 'anchor mode de-duplicated too');
   // no-effect texts: nothing parsed, nothing unknown (the UI answers with T.nothingNew)
@@ -486,3 +697,175 @@ if (engine) {
 
   console.log('test-finder: engine checks passed' + (lexicon ? '' : ' (stand-in lexicon)'));
 }
+
+// ── NLU (Phase 2 Layer B: scripts/lib/embed.js, scripts/lib/finder-exemplars.js, js/finder-nlu.js) ──
+// Pure checks only — no model is loaded here. The optional package is reported,
+// never required (CI without it simply ships no Layer B).
+(async () => {
+  const embedLib = require('./lib/embed');
+  const { exemplars } = require('./lib/finder-exemplars');
+  const NLU = require('../js/finder-nlu.js');
+  let pkg = true; try { require.resolve('@huggingface/transformers'); } catch (e) { pkg = false; warn('@huggingface/transformers not installed — the NLU checks below run without a model (as designed)'); }
+
+  // 1. constants in sync across build, browser module and the CI cache key
+  assert.strictEqual(NLU.MODEL_ID, embedLib.MODEL_ID, 'browser and build use the same model');
+  assert.strictEqual(NLU.DTYPE, embedLib.DTYPE); assert.strictEqual(NLU.DIM, embedLib.DIM);
+  assert.ok(typeof NLU.ENABLED === 'boolean' && NLU.THRESHOLD > 0 && NLU.THRESHOLD < 1 && NLU.TOP >= 1);
+  assert.ok(/^https:\/\/(cdn\.jsdelivr\.net|unpkg\.com)\//.test(NLU.LIB_URL) && /^https:\/\//.test(NLU.MODEL_HOST), 'library and model hosts are single https constants');
+  const yml = fs.readFileSync(path.join(ROOT, '.github', 'workflows', 'deploy.yml'), 'utf8');
+  assert.ok(yml.includes(`key: finder-model-${embedLib.MODEL_ID.replace('/', '--')}-${embedLib.DTYPE}`), 'deploy.yml cache key = model id + dtype');
+  assert.ok(/actions\/cache@v4/.test(yml) && yml.includes('path: ~/.cache/transformers-js'), 'deploy.yml caches the transformers.js model dir');
+  assert.ok(embedLib.MODEL_CACHE_DIR.replace(/\\/g, '/').endsWith('/.cache/transformers-js') || process.env.FINDER_MODEL_CACHE, 'MODEL_CACHE_DIR matches the cached path');
+  const nluSrc = fs.readFileSync(path.join(ROOT, 'js', 'finder-nlu.js'), 'utf8');
+  assert.ok(nluSrc.includes("getElementById('finder-nlu-loader')") && /data-emb\b/.test(nluSrc) && /data-embbin/.test(nluSrc), 'carrier-tag contract documented in the module');
+  assert.ok(!/^import\s/m.test(nluSrc) && !/^export\s/m.test(nluSrc), 'plain script (dynamic import only)');
+  assert.ok(buildSrc.includes("require('./lib/embed').embedStep(ROOT, productDetails") && buildSrc.includes("process.env.FINDER_EMBED !== '0'"), 'build calls the embed step after writeFinder, guarded by FINDER_EMBED');
+  assert.ok(buildSrc.indexOf('writeFinder(ROOT') < buildSrc.indexOf('embedStep(ROOT'), 'embed step runs after finder.json is written');
+  const pkgJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  assert.strictEqual(pkgJson.scripts.embed, 'node scripts/lib/embed.js'); assert.strictEqual(pkgJson.scripts['eval:finder'], 'node scripts/eval-finder-nlu.js');
+  assert.ok(pkgJson.optionalDependencies && pkgJson.optionalDependencies['@huggingface/transformers'], 'transformers.js is an optional dependency');
+
+  // 2. exemplar fragments: allowed fields, prefixed keys with labels that exist in the
+  //    catalogue vocab (case-insensitive, like the lexicon check), values in [-1, 1], no claims
+  const ALLOWED = new Set(['features', 'strength', 'gender', 'collection', 'exclude']);
+  let realVocab = null; try { realVocab = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'finder.json'), 'utf8')).vocab; } catch (e) { warn('data/finder.json missing — exemplar labels not checked against the catalogue vocab'); }
+  const lk = realVocab && Object.fromEntries(['f', 'a', 'n', 'o', 'k', 'b'].map(p => [p, new Set((realVocab[p] || []).map(s => String(s).toLowerCase()))]));
+  assert.ok(exemplars.length >= 150 && exemplars.length <= 400, `${exemplars.length} exemplars (expected ~200)`);
+  const seenText = new Set();
+  let withNeg = 0, withStrength = 0, withGender = 0;
+  for (const e of exemplars) {
+    assert.ok(typeof e.text === 'string' && e.text.trim().length >= 4 && e.text.length <= 120, 'exemplar text: ' + e.text);
+    assert.ok(!seenText.has(e.text), 'duplicate exemplar: ' + e.text); seenText.add(e.text);
+    assert.ok(e.frag && typeof e.frag === 'object', 'fragment object: ' + e.text);
+    for (const k of Object.keys(e.frag)) assert.ok(ALLOWED.has(k), `fragment field "${k}" not allowed (${e.text})`);
+    const f = e.frag.features || {};
+    assert.ok(Object.keys(f).length || e.frag.strength || e.frag.gender || e.frag.collection, 'fragment has an effect: ' + e.text);
+    for (const k of Object.keys(f)) {
+      const m = /^([fanokb]):(.+)$/.exec(k); assert.ok(m, `feature key "${k}" (${e.text})`);
+      const v = f[k]; assert.ok(typeof v === 'number' && v >= -1 && v <= 1 && v !== 0, `feature value ${k}=${v} (${e.text})`);
+      if (lk) assert.ok(lk[m[1]].has(m[2].toLowerCase()), `label not in the catalogue vocab: ${k} (${e.text})`);
+      if (v < 0) withNeg++;
+    }
+    if (e.frag.strength) { assert.ok(['stronger', 'softer'].includes(e.frag.strength)); withStrength++; }
+    if (e.frag.gender) { assert.ok(['men', 'unisex'].includes(e.frag.gender)); withGender++; }
+    if (e.frag.collection) assert.strictEqual(e.frag.collection, 'exclusive');
+    if (e.frag.exclude) { assert.ok(Array.isArray(e.frag.exclude)); e.frag.exclude.forEach(x => assert.ok(/^brand:.+/.test(x), 'exclude entries are brand:<Name>')); }
+    assert.ok(!/price|maxPrice|minPrice|৳|\btk\b/i.test(JSON.stringify(e.frag)), 'no prices in fragments (the parser owns numbers): ' + e.text);
+    assert.ok(!BANNED.test(JSON.stringify(e)), 'banned claim in exemplar: ' + e.text);
+  }
+  assert.ok(withNeg >= 10 && withStrength >= 10 && withGender >= 3, `coverage: ${withNeg} negative weights, ${withStrength} strength, ${withGender} gender fragments`);
+
+  // 3. semantic card (deterministic text from recs item + details + vocab)
+  const card = embedLib.semanticCard(data.items.find(i => i.id === 'a'), details.a, data.vocab);
+  assert.ok(card.startsWith('Alpha · Rasasi · ') && card.includes('Woody') && card.includes('Bergamot') && card.includes('Office') && card.includes('for men') && card.includes('EDP'), card);
+  assert.ok(!card.includes('](') && !card.includes('/brands/') && card.includes('by Rasasi with'), 'markdown links reduced to their text');
+  assert.strictEqual(embedLib.semanticCard(data.items[0], undefined, data.vocab), embedLib.semanticCard(data.items[0], {}, data.vocab), 'missing details tolerated');
+  const longCard = embedLib.semanticCard(data.items[0], { description: 'word '.repeat(1000) }, data.vocab);
+  assert.ok(longCard.length <= embedLib.semanticCard(data.items[0], {}, data.vocab).length + embedLib.CARD_DESC_CHARS + 3, 'description capped at 600 chars');
+
+  // 4. quantisation, packing, PCA projection and the browser-side match (synthetic rows, no model)
+  const rnd = seed => () => { seed = (seed + 0x6D2B79F5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296 - 0.5; };   // mulberry32
+  const r = rnd(7); const mkRow = () => embedLib.l2(Float32Array.from({ length: embedLib.DIM }, r));
+  const prodRows = Array.from({ length: 5 }, mkRow), exRows = Array.from({ length: 8 }, mkRow), ex8 = exemplars.slice(0, 8);
+  const full = embedLib.pack({ productRows: prodRows, exemplarRows: exRows, exemplars: ex8, src: 'test', dims: 0, key: 'k' });
+  assert.strictEqual(full.bin.length, 13 * embedLib.DIM, 'bin = rows × dim int8'); assert.strictEqual(full.json.rows, 13); assert.strictEqual(full.json.products, 5); assert.strictEqual(full.json.scales.length, 13); assert.ok(!full.json.pca);
+  assert.strictEqual(full.json.model, embedLib.MODEL_ID); assert.strictEqual(full.json.dtype, embedLib.DTYPE); assert.strictEqual(full.json.exemplars.length, 8); assert.deepStrictEqual(Object.keys(full.json.exemplars[0]), ['text', 'frag']);
+  const q = embedLib.quantRow(exRows[0]); let dot = 0, n2 = 0; for (let i = 0; i < q.q.length; i++) { dot += q.q[i] * q.scale * exRows[0][i]; n2 += (q.q[i] * q.scale) ** 2; }
+  assert.ok(Math.abs(dot / Math.sqrt(n2) - 1) < 1e-3, 'int8 row ≈ float row');
+  assert.deepStrictEqual(Array.from(NLU._quantRow(exRows[1])), Array.from(embedLib.quantRow(exRows[1]).q), 'browser and build quantise identically');
+  const red = embedLib.pack({ productRows: prodRows, exemplarRows: exRows, exemplars: ex8, src: 'test', dims: 8, key: 'k', pcaIters: 20 });
+  assert.strictEqual(red.json.dim, 8); assert.ok(red.json.pca && red.json.pca.offset === 13 * 8 && red.json.pca.mean.length === embedLib.DIM && red.json.pca.dim === embedLib.DIM);
+  assert.strictEqual(red.bin.length, 13 * 8 + embedLib.DIM * 8, 'projection matrix appended after the rows'); assert.ok(red.json.pca.variance > 0 && red.json.pca.variance <= 1);
+  assert.deepStrictEqual(embedLib.pack({ productRows: prodRows, exemplarRows: exRows, exemplars: ex8, src: 'test', dims: 8, key: 'k', pcaIters: 20 }).bin, red.bin, 'PCA packing is deterministic');
+  NLU._expect(embedLib.MODEL_ID, embedLib.DTYPE);
+  const i8 = b => new Int8Array(b.buffer, b.byteOffset, b.length);
+  NLU._setIndex(full.json, i8(full.bin));
+  let m = NLU._match(exRows[2]); assert.strictEqual(m.exemplars[0].text, ex8[2].text); assert.ok(m.confidence > 0.99 && m.confidence <= 1.0001, 'own row → cosine ≈ 1: ' + m.confidence);
+  NLU._setIndex(red.json, i8(red.bin));
+  const pr = NLU._project(exRows[2]); assert.strictEqual(pr.length, 8); let nn = 0; pr.forEach(x => { nn += x * x; }); assert.ok(Math.abs(nn - 1) < 1e-4, 'projected query is unit length');
+  m = NLU._match(exRows[2]); assert.strictEqual(m.exemplars[0].text, ex8[2].text, 'PCA index still finds its own row first');
+  const jsonOnly = embedLib.packTexts({ exemplars: ex8, src: 'test' });
+  assert.strictEqual(jsonOnly.bin, null); assert.strictEqual(jsonOnly.json.rows, 0); assert.strictEqual(jsonOnly.json.products, 0); assert.ok(/^[0-9a-f]{16}$/.test(jsonOnly.json.key));
+  assert.strictEqual(embedLib.packTexts({ exemplars: ex8, src: 'other' }).json.key, jsonOnly.json.key, 'key depends on model + dtype + texts only');
+  assert.notStrictEqual(embedLib.packTexts({ exemplars: ex8, src: 'test', modelId: 'x/y' }).json.key, jsonOnly.json.key);
+  NLU._setIndex(jsonOnly.json, null); assert.throws(() => NLU._scores(exRows[0]), /no vectors yet/, 'json-only index needs the on-device rows first');
+  assert.throws(() => NLU._setIndex(Object.assign({}, full.json, { model: 'other/model' }), i8(full.bin)), /index built with/, 'model mismatch refused');
+  assert.throws(() => NLU._setIndex(full.json, i8(full.bin).subarray(0, 100)), /bin too short/);
+  // merge rule: top-3 above the threshold, weights relative to the best, clamped to [-1, 1], best-first scalar fields, exclude union
+  const base = mkRow(); const near = embedLib.l2(Float32Array.from(base, (x, i) => x + (i % 7 ? 0 : 0.01)));
+  const two = embedLib.pack({ productRows: [], exemplarRows: [base, near, mkRow()], exemplars: [
+    { text: 'a', frag: { features: { 'a:Sweet': 0.8, 'a:Fresh': -0.5 }, strength: 'softer' } },
+    { text: 'b', frag: { features: { 'a:Sweet': 0.8, 'o:Office': 1 }, gender: 'men', exclude: ['brand:Armaf'] } },
+    { text: 'c', frag: { features: { 'a:Oud': 1 } } }], src: 't', dims: 0, key: 'k' });
+  NLU._setIndex(two.json, i8(two.bin));
+  m = NLU._match(base);
+  assert.deepStrictEqual(m.exemplars.map(e => e.text), ['a', 'b'], 'unrelated row is below the threshold: ' + JSON.stringify(m.exemplars));
+  assert.strictEqual(m.features['a:Sweet'], 1, 'agreeing features add up and clamp to 1'); assert.ok(m.features['a:Fresh'] < 0 && m.features['o:Office'] > 0.9, JSON.stringify(m.features));
+  assert.strictEqual(m.strength, 'softer'); assert.strictEqual(m.gender, 'men'); assert.deepStrictEqual(m.exclude, ['brand:Armaf']); assert.ok(!m.collection);
+  assert.ok(Object.values(m.features).every(v => v >= -1 && v <= 1) && m.confidence > 0.99);
+  const none = NLU._match(embedLib.l2(Float32Array.from(base, x => -x)));
+  assert.deepStrictEqual(none.features, {}); assert.strictEqual(none.exemplars.length, 0); assert.ok(none.confidence < NLU.THRESHOLD, 'nothing above the threshold → empty fragment, confidence reported');
+  // load() through the on-device path with an injected embedder (what the eval and the browser do)
+  NLU._state.ready = false; NLU._state.loading = null;
+  const fakeEmbed = async texts => texts.map((t, i) => (i % 2 ? near : base));
+  await NLU.load({ embed: fakeEmbed, index: { json: embedLib.packTexts({ exemplars: [{ text: 'p', frag: { features: { 'a:Oud': 1 } } }, { text: 'q', frag: { features: { 'a:Rose': 1 } } }], src: 't' }).json, bin: null } });
+  assert.ok(NLU.ready() && NLU._state.index.rows.length === 2 * embedLib.DIM, 'exemplar rows built on load from the injected embedder');
+  const u = await NLU.understand('anything');
+  assert.ok(u.exemplars.length === 2 && u.features['a:Oud'] === 1 && u.features['a:Rose'] > 0.9, JSON.stringify(u));
+
+  // 5. write / hard size guard / removal (temp dir) and the build hook's behaviour
+  const eroot = fs.mkdtempSync(path.join(os.tmpdir(), 'emb-')); fs.mkdirSync(path.join(eroot, 'data'));
+  const embJson = path.join(eroot, 'data', 'finder-emb.json'), embBin = path.join(eroot, 'data', 'finder-emb.bin');
+  const s1 = embedLib.writeEmbeddings(eroot, jsonOnly);
+  assert.ok(fs.existsSync(embJson) && !fs.existsSync(embBin) && s1.gzTotal <= embedLib.MAX_GZIP && s1.binRaw === 0);
+  embedLib.writeEmbeddings(eroot, full); assert.ok(fs.existsSync(embBin), 'vectors mode writes the bin'); assert.deepStrictEqual(fs.readFileSync(embBin), full.bin);
+  embedLib.writeEmbeddings(eroot, jsonOnly); assert.ok(!fs.existsSync(embBin), 'json-only mode removes a stale bin');
+  const huge = embedLib.pack({ productRows: Array.from({ length: 200 }, mkRow), exemplarRows: Array.from({ length: 200 }, mkRow), exemplars: Array.from({ length: 200 }, (_, i) => ({ text: 'x' + i, frag: { features: { 'a:Oud': 1 } } })), src: 't', dims: 0, key: 'k' });
+  assert.ok(embedLib.sizes(huge).gzTotal > embedLib.MAX_GZIP, 'synthetic 400 × 384 int8 index is over budget'); assert.throws(() => embedLib.writeEmbeddings(eroot, huge), /over budget/);
+  assert.strictEqual(fs.readFileSync(embJson, 'utf8'), JSON.stringify(jsonOnly.json), 'a rejected write leaves the previous file intact');
+  assert.strictEqual(embedLib.removeEmbeddings(eroot), 1); assert.strictEqual(embedLib.removeEmbeddings(eroot), 0);
+  // embedStep: FINDER_EMBED=0 → null + stale files removed; json-only default needs no model; vectors with a failing embedder → null, nothing left behind
+  const prevEnv = process.env.FINDER_EMBED, logs2 = [], log2 = m => logs2.push(m);
+  fs.writeFileSync(embJson, '{}'); process.env.FINDER_EMBED = '0';
+  assert.strictEqual(await embedLib.embedStep(eroot, {}, { log: log2 }), null); assert.ok(!fs.existsSync(embJson) && /FINDER_EMBED=0/.test(logs2[0]));
+  delete process.env.FINDER_EMBED;
+  assert.strictEqual(await embedLib.embedStep(eroot, {}, { log: log2 }), null, 'missing data/finder.json → null, no throw'); assert.ok(/skipped/.test(logs2[logs2.length - 1]));
+  fs.writeFileSync(path.join(eroot, 'data', 'finder.json'), JSON.stringify(data));
+  const s2 = await embedLib.embedStep(eroot, details, { log: log2 });
+  assert.ok(s2 && s2.gzTotal <= embedLib.MAX_GZIP && fs.existsSync(embJson) && !fs.existsSync(embBin), 'default (json-only) step writes the index without a model');
+  const shipped = JSON.parse(fs.readFileSync(embJson, 'utf8'));
+  assert.strictEqual(shipped.exemplars.length, exemplars.length); assert.strictEqual(shipped.rows, 0); assert.strictEqual(shipped.model, embedLib.MODEL_ID); assert.strictEqual(shipped.src, data.src);
+  assert.strictEqual(await embedLib.embedStep(eroot, details, { log: log2, vectors: true, noCache: true, embed: async () => { throw new Error('no network'); } }), null, 'vectors mode with a failing embedder → null');
+  assert.ok(!fs.existsSync(embJson) && !fs.existsSync(embBin), 'stale index removed after a failure'); assert.ok(/no network/.test(logs2.join('\n')));
+  const s3 = await embedLib.embedStep(eroot, details, { log: log2, vectors: true, noCache: true, dims: 0, exemplars: ex8, embed: async texts => texts.map(mkRow) });
+  assert.ok(s3 && fs.existsSync(embBin) && fs.statSync(embBin).size === (data.items.length + 8) * embedLib.DIM, 'vectors mode with a small catalogue: rows = products + exemplars: ' + logs2[logs2.length - 1]);
+  assert.strictEqual(JSON.parse(fs.readFileSync(embJson, 'utf8')).rows, data.items.length + 8);
+  assert.strictEqual(await embedLib.embedStep(eroot, details, { log: log2, vectors: true, noCache: true, dims: 0, embed: async texts => texts.map(mkRow) }), null, 'all 243 exemplars at 384-d do not fit the budget → null (why json-only is the default)');
+  assert.ok(/over budget/.test(logs2[logs2.length - 2] + logs2[logs2.length - 1]), logs2.slice(-2).join(' | '));
+  if (prevEnv != null) process.env.FINDER_EMBED = prevEnv; else delete process.env.FINDER_EMBED;
+
+  // 6. the real shipped index, when the build has produced one: hard 40 KB gzip test + consistency
+  const realJson = path.join(ROOT, 'data', 'finder-emb.json'), realBin = path.join(ROOT, 'data', 'finder-emb.bin');
+  if (fs.existsSync(realJson)) {
+    const j = JSON.parse(fs.readFileSync(realJson, 'utf8'));
+    let gzTotal = zlib.gzipSync(fs.readFileSync(realJson), { level: 9 }).length;
+    assert.strictEqual(j.v, 1); assert.strictEqual(j.model, embedLib.MODEL_ID); assert.strictEqual(j.dtype, embedLib.DTYPE); assert.strictEqual(j.exemplars.length, exemplars.length);
+    if (j.rows > 0) {
+      assert.ok(fs.existsSync(realBin), 'rows > 0 → bin present');
+      const bin = fs.readFileSync(realBin); gzTotal += zlib.gzipSync(bin, { level: 9 }).length;
+      assert.strictEqual(bin.length, j.rows * j.dim + (j.pca ? j.pca.dim * j.dim : 0), 'bin bytes = rows × dim (+ projection)');
+      assert.strictEqual(j.scales.length, j.rows); assert.strictEqual(j.rows, j.products + j.exemplars.length);
+    } else assert.ok(!fs.existsSync(realBin), 'json-only index ships no bin');
+    assert.ok(gzTotal <= embedLib.MAX_GZIP, `data/finder-emb.* is ${(gzTotal / 1024).toFixed(1)} KB gzip > ${embedLib.MAX_GZIP / 1024} KB`);
+    console.log(`test-finder: data/finder-emb.json ${j.rows ? '+ .bin ' : ''}= ${(gzTotal / 1024).toFixed(1)} KB gzip (${j.exemplars.length} exemplars${j.rows ? `, ${j.rows} rows × ${j.dim}` : ', json-only'})`);
+  } else warn('data/finder-emb.json not built — shipped-size check skipped');
+
+  // 7. asset versioning stamps the carrier tag's data-emb / data-embbin
+  const emap = { 'js/finder-nlu.js': 'aaaaaaaa', 'data/finder-emb.json': 'bbbbbbbb', 'data/finder-emb.bin': 'cccccccc' };
+  const tag = '<script type="text/plain" id="finder-nlu-loader" src="js/finder-nlu.js" data-emb="data/finder-emb.json" data-embbin="/data/finder-emb.bin?v=stale" data-model-mb="24"></script>';
+  const stamped = versionHtml(tag, emap);
+  assert.ok(stamped.includes('src="js/finder-nlu.js?v=aaaaaaaa"') && stamped.includes('data-emb="data/finder-emb.json?v=bbbbbbbb"') && stamped.includes('data-embbin="/data/finder-emb.bin?v=cccccccc"') && stamped.includes('data-model-mb="24"'), stamped);
+  assert.strictEqual(versionHtml(tag, { 'js/finder-nlu.js': 'aaaaaaaa' }), tag.replace('src="js/finder-nlu.js"', 'src="js/finder-nlu.js?v=aaaaaaaa"'), 'data files missing from the map are left alone');
+
+  console.log('test-finder: NLU checks passed' + (pkg ? '' : ' (package absent)'));
+})().catch(e => { console.error(e); process.exit(1); });

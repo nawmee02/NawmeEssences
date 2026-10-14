@@ -243,6 +243,49 @@
       .filter(x => x.q && x.a);
   }
 
+  // ─── Finder questions (finder_queries, migration 019) ──────
+  // Read-only log of what visitors typed into Find a Scent: the sentence, how
+  // many products it matched and when — nothing identifying. RLS lets only
+  // signed-in admins read it; rows are immutable, so there is no edit/delete.
+  // Loaded when the Site content tab opens and on ↻ Refresh (latest 200).
+  async function loadFinderQueries() {
+    const list = $('fq-list'), summary = $('fq-summary'), count = $('fq-count');
+    if (!list || !sb) return;
+    summary.textContent = 'Loading…';
+    const { data, error } = await sb.from('finder_queries')
+      .select('q, matched, created_at').order('created_at', { ascending: false }).limit(200);
+    if (error) {
+      // PGRST205 = not in PostgREST's schema cache, 42P01 = undefined table.
+      const missing = error.code === 'PGRST205' || error.code === '42P01' ||
+        /finder_queries/.test(error.message || '') && /not find|not found|does not exist|schema cache/i.test(error.message || '');
+      summary.textContent = missing
+        ? 'Table not found yet — run supabase/migrations/019_finder_queries.sql in the Supabase SQL Editor, then Refresh.'
+        : 'Could not load finder questions: ' + (error.message || 'unknown error');
+      list.innerHTML = ''; count.textContent = '';
+      return;
+    }
+    const rows = data || [];
+    const since = Date.now() - 30 * 864e5;
+    const recent = rows.filter(r => new Date(r.created_at).getTime() >= since);
+    const none = recent.filter(r => !r.matched).length;
+    count.textContent = `(${rows.length})`;
+    summary.textContent = `${recent.length} question${recent.length === 1 ? '' : 's'} in the last 30 days · ${none} matched nothing`
+      + (rows.length === 200 ? ' · latest 200 shown' : '');
+    const row = r => `<tr>
+        <td class="admin-muted" style="white-space:nowrap">${esc(new Date(r.created_at).toLocaleString())}</td>
+        <td>${esc(r.q)}</td>
+        <td style="text-align:center">${r.matched ? r.matched : '<span class="admin-muted" title="Matched nothing">—</span>'}</td></tr>`;
+    list.innerHTML = rows.length
+      ? `<table class="admin-table"><thead><tr>
+           <th class="admin-muted" style="text-align:left;padding:6px 8px">When</th>
+           <th class="admin-muted" style="text-align:left;padding:6px 8px">Question</th>
+           <th class="admin-muted" style="text-align:center;padding:6px 8px">Matched</th></tr></thead>
+         <tbody>${rows.map(row).join('')}</tbody></table>`
+      : '<p class="admin-muted">No questions yet.</p>';
+  }
+  $('nav-settings').addEventListener('click', loadFinderQueries);
+  $('fq-refresh').addEventListener('click', loadFinderQueries);
+
   // Standard FAQ preview: exactly what the product page will generate from the
   // form's current data (js/product-faq.js is shared with the build). Delivery
   // rates come from site_settings so the delivery answer matches the site.
@@ -302,7 +345,7 @@
     $('sizes-rows').innerHTML = '';
     $('faq-rows').innerHTML = '';
     document.querySelectorAll('.f-tag, .f-occ').forEach(c => c.checked = false);
-    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-concentration','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
+    ['f-name','f-id','f-brand','f-family','f-gender','f-launch-year','f-concentration','f-inspired-by','f-top','f-heart','f-base','f-accords','f-occasions','f-description','f-sale','f-sale-until','f-meta-title','f-meta-desc'].forEach(x => $(x).value = '');
     $('f-image').value = ''; $('current-image').innerHTML = '';
     $('f-collection').value = 'regular'; $('f-status').value = p ? '' : 'draft';
     $('f-instock').checked = true; $('f-bestseller').checked = false;
@@ -340,6 +383,7 @@
       $('f-gender').value = d.gender || '';                 // migration 015
       $('f-launch-year').value = d.launch_year || '';
       $('f-concentration').value = d.concentration || '';     // migration 016
+      $('f-inspired-by').value = (Array.isArray(d.inspired_by) ? d.inspired_by : []).join(', ');   // migration 018
       (Array.isArray(d.faq) ? d.faq : []).forEach(x => x && addFaqRow(x.q || '', x.a || ''));
       $('f-description').value = d.description || '';
     }
@@ -404,6 +448,9 @@
         // migration 016
         concentration: $('f-concentration').value.trim().replace(/\s+/g, ' ').slice(0, 60),
         faq: getFaq(),
+        // migration 018 — "Alternative to" names for Find a Scent; the RPC
+        // trims, de-duplicates and caps at 10 × 80 chars (never shown publicly).
+        inspired_by: csv($('f-inspired-by').value).map(s => s.replace(/\s+/g, ' ').slice(0, 80)).slice(0, 10),
       },
     };
   }

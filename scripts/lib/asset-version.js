@@ -40,12 +40,12 @@ function buildAssetMap(ROOT) {
 }
 
 // Rewrite local css/<name>.css, js/<name>.js and data/<name>.json|bin references
-// (href/src/data-recs/data-finder/data-emb, with or without a leading slash) to
+// (href/src/data-recs/data-finder/data-emb/data-embbin, with or without a leading slash) to
 // carry ?v=<hash>. External URLs (https://…) and assets missing from the map
 // never change.
 function versionHtml(html, map) {
   return html.replace(
-    /(href|src|data-recs|data-finder|data-emb)="(\/?)((?:css\/[A-Za-z0-9_-]+\.css)|(?:data\/[A-Za-z0-9_-]+\.(?:json|bin))|(?:js\/[A-Za-z0-9_-]+\.js))(?:\?v=[a-z0-9]+)?"/g,
+    /(href|src|data-recs|data-finder|data-emb|data-embbin)="(\/?)((?:css\/[A-Za-z0-9_-]+\.css)|(?:data\/[A-Za-z0-9_-]+\.(?:json|bin))|(?:js\/[A-Za-z0-9_-]+\.js))(?:\?v=[a-z0-9]+)?"/g,
     (m, attr, slash, asset) => {
       const v = map[asset];
       return v ? `${attr}="${slash}${asset}?v=${v}"` : m;

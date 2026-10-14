@@ -13,12 +13,17 @@
     "test:recs": "node scripts/test-recs.js",
     "test:finder": "node scripts/test-finder.js",
     "verify-schema": "node scripts/verify-schema.js",
-    "upload-original": "node scripts/upload-original.js"
+    "upload-original": "node scripts/upload-original.js",
+    "embed": "node scripts/lib/embed.js",
+    "eval:finder": "node scripts/eval-finder-nlu.js"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.108.2",
     "dotenv": "^17.4.2",
     "marked": "^12.0.2",
     "sharp": "^0.35.2"
+  },
+  "optionalDependencies": {
+    "@huggingface/transformers": "^4.3.1"
   }
 }

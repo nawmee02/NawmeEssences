@@ -58,6 +58,9 @@
     relaxCollection: 'the collection filter', relaxThreshold: 'the scent match',
     cheaper: 'Cheaper than ৳{price}:',
     noCheaper: "I couldn't find a cheaper match, so here are the closest alternatives.",
+    // Relational follow-ups: each pick must be fresher / sweeter / stronger than the last #1 overall.
+    axisTitle: { fresh: 'Fresher than {name}:', sweet: 'Sweeter than {name}:', strong: 'Stronger than {name}:' },
+    noAxis: { fresh: "Nothing that still fits is fresher than {name} overall, so here are the closest picks.", sweet: "Nothing that still fits is sweeter than {name} overall, so here are the closest picks.", strong: "Nothing that still fits is stronger than {name} overall, so here are the closest picks." },
     compare: 'Side by side:',
     compareNeed: 'Pick a few answers first, then I can compare the top two.',
     honesty: 'Scent sits differently on everyone — start with a 3 ml decant before a bigger size.',
@@ -71,7 +74,20 @@
     examples: ['Fresh & clean for the office', 'Like Aventus, but cheaper', 'Sweet for winter nights', 'Something that gets compliments'],
     follow: { more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
-    tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ' },
+    tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: 'AI: ' },
+    // Phase 3 (display only, never in the score)
+    also: 'People who chose {name} also considered:',
+    // Phase 2 — on-device understanding (nothing leaves the browser; nothing loads until asked)
+    aiRead: 'On-device AI read that as: {what}.',
+    aiNothing: "On-device AI couldn't add anything, so these follow the words I understood.",
+    aiConsent: "Use Chrome's built-in AI to understand your words? It runs on your device and may download a large model once.",
+    aiConsentChip: "Yes, use Chrome's built-in AI",
+    aiOffer: 'I understood only part of that. Want better understanding of free text? It downloads a small model (~{mb} MB) once and runs on your device.',
+    aiOfferChip: 'Understand my words better (~{mb} MB once)',
+    aiLoading: 'Downloading the language model… {pct}%',
+    aiLoadFailed: "The model couldn't be loaded, so I'll keep using the words I understand.",
+    aiNoSupport: "This browser can't run the on-device model, so I'll keep using the words I understand.",
+    noThanks: 'No thanks',
   };
 
   // ── tuning (vector weights MUST stay identical to js/recs.js) ──
@@ -81,9 +97,13 @@
   const SIGNALS_KEY = 'nawme_signals', STATE_KEY = 'nawme_finder';
   const QUERY_SHARE = 0.85, PROFILE_SHARE = 0.15, BS_BONUS = 0.05, STRENGTH_BONUS = 0.08, PRICE_PEN = 0.10;
   const MIN_COS = 0.05, BRAND_CAP = 2, ANSWER_SIZE = 3, CHEAP_DEFAULT = 300, ANCHOR_FEATURE_SHARE = 0.6;
+  const VERIFIED_BONUS = 1;   // owner-entered inspired_by match: always first (scores are ≤ ~1.1 otherwise)
+  // Phase 1c: typed questions are logged anonymously (text + match count only; never for chips).
+  const LOG_QUERIES = true, LOG_TABLE = 'finder_queries';
+  // Phase 2: on-device understanding is tried only when the deterministic parser is lost
+  // (≥ 4 words and ≥ 2 unknown content words, or nothing parsed at all).
+  const NLU_MIN_WORDS = 4, NLU_MIN_UNKNOWN = 2, NLU_TIMEOUT_MS = 4000, NLU_CONSENT_KEY = 'nawme_finder_ai';
   const WA_FALLBACK = '8801988536843', CDN = 'https://cdn.nawmeessences.com';
-  const STRONG_K = ['extrait', 'parfum', 'edp intense'], STRONG_A = ['amber', 'woody', 'vanilla', 'oud'];
-  const SOFT_K = ['edt', 'edc'], SOFT_A = ['fresh', 'citrus', 'aquatic', 'green'];
 
   // ── built-in word lists (unioned with the lexicon's; the lexicon may be richer) ──
   const NEG = ['not', 'no', "don't", 'dont', 'without', 'hate', 'avoid', 'never', 'nothing', 'na', 'noy', 'chai na', 'nai', 'except'];
@@ -663,15 +683,59 @@
     return s;
   }
 
+  // ── character axes: the OVERALL profile of a fragrance ──
+  // A vibe word ("fresh") must describe the whole fragrance, not one note: a sweet
+  // amber with a bergamot top note is not "fresh". Accords are listed in dominance
+  // order in the data, so the first accords weigh most; the family and (for
+  // strength) the concentration add a little. Scores land in [-1, 1].
+  const AXES = {
+    fresh: { plus: { fresh: 1, citrus: 1, aquatic: 1, marine: 1, ozonic: 1, green: 0.8, aromatic: 0.6, 'fresh spicy': 0.5, mineral: 0.5, herbal: 0.5, salty: 0.5, tea: 0.3, soapy: 0.4 },
+             minus: { sweet: 1, vanilla: 0.9, gourmand: 1, caramel: 0.8, chocolate: 0.8, cacao: 0.8, honey: 0.6, amber: 0.7, oud: 0.6, boozy: 0.6, 'warm spicy': 0.5, tobacco: 0.5, leather: 0.4, smoky: 0.4 },
+             fam: { fresh: 0.5, citrus: 0.5, aquatic: 0.5, green: 0.4, gourmand: -0.5, vanilla: -0.5, oriental: -0.3 } },
+    sweet: { plus: { sweet: 1, vanilla: 1, gourmand: 1, caramel: 0.9, chocolate: 0.8, cacao: 0.8, honey: 0.7, coconut: 0.6, lactonic: 0.5, almond: 0.5, fruity: 0.4, boozy: 0.3, tonka: 0.5 },
+             minus: { fresh: 1, citrus: 0.8, aquatic: 0.8, marine: 0.8, ozonic: 0.8, green: 0.8, herbal: 0.5, mossy: 0.5, mineral: 0.5 },
+             fam: { gourmand: 0.5, vanilla: 0.5, fresh: -0.5, citrus: -0.5, aquatic: -0.5, green: -0.4 } },
+    strong: { plus: { oud: 1, amber: 0.8, leather: 0.8, tobacco: 0.8, smoky: 0.8, animalic: 0.8, 'warm spicy': 0.7, balsamic: 0.6, boozy: 0.6, patchouli: 0.5, woody: 0.4, sweet: 0.3, vanilla: 0.3 },
+              minus: { aquatic: 0.9, marine: 0.9, ozonic: 0.9, fresh: 0.8, citrus: 0.8, green: 0.6, soapy: 0.5, tea: 0.5, mineral: 0.5 },
+              fam: { oriental: 0.4, leather: 0.4, fresh: -0.4, aquatic: -0.5, citrus: -0.4 },
+              conc: { extrait: 0.6, parfum: 0.5, 'edp intense': 0.5, elixir: 0.5, edp: 0.1, edt: -0.3, edc: -0.5 } },
+  };
+  const AXIS_W = 0.3, AXIS_STEP = 0.05, AXIS_FLOOR = 0.1;   // "fresher" = fresher than #1 AND at least leaning fresh overall
+  // Which axes a query cares about, from its signed features and strength: { fresh: 1, sweet: -0.5, strong: 1 }.
+  const AXIS_OF = { 'a:fresh': ['fresh', 1], 'a:citrus': ['fresh', 0.8], 'a:aquatic': ['fresh', 1], 'a:marine': ['fresh', 1], 'a:ozonic': ['fresh', 1], 'a:green': ['fresh', 0.6], 'f:fresh': ['fresh', 1], 'f:citrus': ['fresh', 0.8], 'f:aquatic': ['fresh', 1], 'f:green': ['fresh', 0.6],
+    'a:sweet': ['sweet', 1], 'a:vanilla': ['sweet', 0.8], 'a:gourmand': ['sweet', 1], 'a:caramel': ['sweet', 0.8], 'a:honey': ['sweet', 0.5], 'a:chocolate': ['sweet', 0.7], 'f:gourmand': ['sweet', 1], 'f:vanilla': ['sweet', 0.8] };
+  // An axis counts in proportion to how much of the query is about it: "fresh" is
+  // all fresh (≈0.75), while "woody musky office" only brushes it through the
+  // office entry's mild fresh tilt (≈0.1), so the woody match still wins.
+  function queryAxes(query) {
+    const out = {}, f = (query && query.features) || {};
+    let total = 0; Object.keys(f).forEach(k => { total += Math.abs(f[k]); });
+    Object.keys(f).forEach(k => {
+      const m = AXIS_OF[k.toLowerCase()]; if (!m) return;
+      out[m[0]] = (out[m[0]] || 0) + f[k] * m[1];
+    });
+    Object.keys(out).forEach(k => { out[k] = total ? clamp(out[k] / total, -1, 1) : 0; if (Math.abs(out[k]) < 0.02) delete out[k]; });
+    return out;   // strength is scored once, by strengthBonus() on the strong axis
+  }
+  function axisScore(it, axis, model) {
+    const A = AXES[axis]; if (!A || !it) return 0;
+    let s = 0;
+    (it.a || []).forEach((ai, i) => {
+      const l = String(model.vocab.a[ai] || '').toLowerCase(), pos = Math.max(0.3, 1 - 0.12 * i);
+      if (A.plus[l]) s += A.plus[l] * pos; if (A.minus[l]) s -= A.minus[l] * pos;
+    });
+    (it.f || []).forEach(fi => { const l = String(model.vocab.f[fi] || '').toLowerCase(); if (A.fam && A.fam[l]) s += A.fam[l]; });
+    if (A.conc && it.k >= 0) { const k = String(model.vocab.k[it.k] || '').toLowerCase(); if (A.conc[k]) s += A.conc[k]; }
+    return clamp(s / 2.2, -1, 1);
+  }
+
   // ── ranking ──
   const brandOf = (it, model) => model.vocab.b[it.b] || '';
+  // Continuous: a "stronger" request rewards the whole heavy profile (oud, amber,
+  // leather, higher concentration), "softer" rewards the light one; ±0.12 at most.
   function strengthBonus(it, strength, model) {
-    if (!strength) return 0;
-    const k = String(model.vocab.k[it.k] || '').toLowerCase();
-    const acc = (it.a || []).map(i => String(model.vocab.a[i] || '').toLowerCase());
-    if (strength === 'stronger') return STRONG_K.indexOf(k) >= 0 || acc.some(a => STRONG_A.indexOf(a) >= 0) ? STRENGTH_BONUS : 0;
-    if (strength === 'softer') return SOFT_K.indexOf(k) >= 0 || acc.some(a => SOFT_A.indexOf(a) >= 0) ? STRENGTH_BONUS : 0;
-    return 0;
+    if (strength !== 'stronger' && strength !== 'softer') return 0;
+    return STRENGTH_BONUS * 1.5 * (strength === 'stronger' ? 1 : -1) * axisScore(it, 'strong', model);
   }
   // Ordered candidates after the hard filters, brand-capped while walking, up to opts.limit.
   //   opts: exclude (Set/array of ids), referencePrice, signals | profile, limit, brandCap, minCos,
@@ -693,6 +757,9 @@
     const refPrice = opts.referencePrice > 0 ? opts.referencePrice : (query.cheaper && query.refPrice > 0 ? query.refPrice : null);
     const minCos = opts.minCos == null ? MIN_COS : opts.minCos;
     const collection = opts.anyCollection ? null : (query.collection === 'exclusive' ? 'e' : 'r');
+    const refAnchor = query.anchor && query.anchor.kind === 'ref' && model.vocab.r && model.vocab.r.length ? normalize(query.anchor.name) : null;
+    const axes = opts.axes || queryAxes(query), axisKeys = Object.keys(axes).filter(k => axes[k]);
+    const axisMin = !opts.ignoreAxis && opts.axisMin && AXES[opts.axisMin.axis] ? opts.axisMin : null;   // relational "fresher than #1"
     const out = [];
     for (const it of model.items) {
       if (!it.i || ex.has(it.id)) continue;
@@ -705,13 +772,20 @@
       if (!opts.ignoreGender && query.gender === 'unisex' && it.g !== 3) continue;
       if (exBrands.size && exBrands.has(brandOf(it, model).toLowerCase())) continue;
       if (!opts.ignoreCheaper && query.cheaper && refPrice != null && !(it.p < refPrice)) continue;
+      if (axisMin && !(axisScore(it, axisMin.axis, model) > axisMin.min)) continue;
       const cq = qv.size ? cosine(qv, it.vec) : 0;
-      if (hasQ && cq <= minCos) continue;
+      // An owner-entered inspired_by match (migration 018) is a VERIFIED alternative:
+      // it passes the threshold and outranks any scent-profile similarity.
+      const verified = refAnchor != null && (it.ref || []).some(ri => normalize(model.vocab.r[ri]) === refAnchor);
+      if (hasQ && cq <= minCos && !verified) continue;
       const cp = prof && prof.weight ? cosine(prof.vec, it.vec) : 0;
-      let score = QUERY_SHARE * cq + PROFILE_SHARE * cp + BS_BONUS * (it.bs || 0) + strengthBonus(it, query.strength, model);
+      let score = QUERY_SHARE * cq + PROFILE_SHARE * cp + BS_BONUS * (it.bs || 0) + strengthBonus(it, query.strength, model) + (verified ? VERIFIED_BONUS : 0);
+      // Overall character: "fresh" ranks genuinely fresh fragrances above a sweet one with a citrus top note.
+      let ax = 0; axisKeys.forEach(k => { ax += axes[k] * axisScore(it, k, model); });
+      score += AXIS_W * ax;
       if (refPrice != null) score -= PRICE_PEN * Math.min(1, Math.abs(Math.log(it.p) - Math.log(refPrice)) / Math.log(3));
       const matched = []; qv.forEach((w, k) => { if (w > 0 && it.vec.has(k)) matched.push(k); });
-      out.push({ id: it.id, item: it, score, cos: cq, matched });
+      out.push({ id: it.id, item: it, score, cos: cq, matched, verified, axis: ax });
     }
     out.sort((x, y) => (y.score - x.score) || (x.item.p - y.item.p) || (x.item.idx - y.item.idx));
     const cap_ = opts.brandCap == null ? BRAND_CAP : opts.brandCap, limit = opts.limit == null ? ANSWER_SIZE : opts.limit;
@@ -728,6 +802,7 @@
   // returns { picks, relaxed: [codes] } so the reply can say what was dropped.
   function answer(model, query, opts) {
     const steps = [];
+    if (opts && opts.axisMin) steps.push('axis');
     if (query.cheaper) steps.push('cheaper');
     if (query.maxPrice != null || query.minPrice != null) steps.push('price');
     if (query.gender) steps.push('gender');
@@ -738,7 +813,7 @@
     for (const s of steps) {
       if (picks.length) break;
       relaxed.push(s);
-      if (s === 'cheaper') o.ignoreCheaper = true; else if (s === 'price') o.ignorePrice = true; else if (s === 'gender') o.ignoreGender = true; else if (s === 'collection') o.anyCollection = true; else o.minCos = -1;
+      if (s === 'axis') o.ignoreAxis = true; else if (s === 'cheaper') o.ignoreCheaper = true; else if (s === 'price') o.ignorePrice = true; else if (s === 'gender') o.ignoreGender = true; else if (s === 'collection') o.anyCollection = true; else o.minCos = -1;
       picks = rank(model, query, o);
     }
     return { picks, relaxed };
@@ -764,14 +839,87 @@
     }
     const m = cand.matched || [];
     const pick = (p, limit) => m.filter(k => k.charAt(0) === p).map(k => V[p][Number(k.slice(1))]).filter(Boolean).slice(0, limit);
-    notes = uniq(pick('n', 3).concat(pick('a', 3))).slice(0, 3);
+    // Accords describe the overall character ("Fresh, citrus & aromatic"); notes follow if room is left.
+    notes = uniq(pick('a', 3).concat(pick('n', 3))).slice(0, 3);
     if (!notes.length) notes = labelsOf('a', (it.a || []).slice(0, 2));
     const occ = pick('o', 2);
     return [notes.length ? lowerList(notes) : '', occ.length ? occ.join(', ') : '', price].filter(Boolean).join(' · ');
   }
 
+  // ── Phase 2: on-device NLU fragments → the same structured query (pure parts) ──
+  // A fragment is what any understanding layer may return: { features, strength, gender,
+  // exclude, unknown }. validateFragment() keeps only keys the catalogue knows; mergeNLU()
+  // applies the merge rule: the deterministic parser's prices, anchor, negations and gender
+  // always win, a model may only ADD features / strength / exclusions.
+  const NLU_SCHEMA = {
+    type: 'object', additionalProperties: false,
+    properties: {
+      features: { type: 'object', additionalProperties: { type: 'number', minimum: -1, maximum: 1 }, description: 'keys like "a:Sweet", "o:Office", "n:Vanilla", "f:Woody", "k:EDP", "b:Lattafa"; negative = avoid' },
+      strength: { type: 'string', enum: ['stronger', 'softer', 'none'] },
+      gender: { type: 'string', enum: ['men', 'unisex', 'none'] },
+      exclude_brands: { type: 'array', items: { type: 'string' }, maxItems: 5 },
+      unknown: { type: 'array', items: { type: 'string' }, maxItems: 6 },
+    },
+    required: ['features'],
+  };
+  function validateFragment(raw, model) {
+    if (!raw || typeof raw !== 'object' || !model) return null;
+    const out = { features: {}, strength: null, gender: null, exclude: [], unknown: [] };
+    const f = raw.features && typeof raw.features === 'object' ? raw.features : {};
+    Object.keys(f).forEach(k => {
+      const m = /^([fanokb]):(.+)$/.exec(String(k)); const w = Number(f[k]);
+      if (!m || !isFinite(w) || !w) return;
+      const idx = model.lookup[m[1]] && model.lookup[m[1]].get(m[2].trim().toLowerCase()); if (idx == null) return;
+      const key = m[1] + ':' + model.vocab[m[1]][idx];
+      out.features[key] = clamp((out.features[key] || 0) + clamp(w, -1, 1), -1, 1);
+    });
+    if (raw.strength === 'stronger' || raw.strength === 'softer') out.strength = raw.strength;
+    if (raw.gender === 'men' || raw.gender === 'unisex') out.gender = raw.gender;
+    (Array.isArray(raw.exclude_brands) ? raw.exclude_brands : (Array.isArray(raw.exclude) ? raw.exclude : [])).forEach(b => {
+      const name = String(b).replace(/^brand:/i, '').trim(); const idx = model.lookup.b.get(name.toLowerCase());
+      if (idx != null && out.exclude.length < 5) out.exclude.push('brand:' + model.vocab.b[idx]);
+    });
+    (Array.isArray(raw.unknown) ? raw.unknown : []).forEach(u => { if (typeof u === 'string' && u.trim() && out.unknown.length < 6) out.unknown.push(u.trim().slice(0, 40)); });
+    const effect = Object.keys(out.features).length || out.strength || out.gender || out.exclude.length;
+    return effect ? out : null;
+  }
+  // parsed = the deterministic parser's own query for this sentence; returns ONE part or null.
+  function mergeNLU(parsed, frag, model) {
+    if (!frag) return null;
+    const own = (parsed && parsed.features) || {};
+    const part = { features: {}, exclude: [], label: '', text: '' };
+    const said = [];
+    Object.keys(frag.features).forEach(k => {
+      if (own[k] != null) return;                                  // the parser already decided this feature (sign included)
+      part.features[k] = frag.features[k]; said.push((frag.features[k] < 0 ? 'no ' : '') + k.slice(2).toLowerCase());
+    });
+    if (frag.strength && !(parsed && parsed.strength)) { part.strength = frag.strength; said.push(frag.strength); }
+    if (frag.gender && !(parsed && parsed.gender)) { part.gender = frag.gender; said.push(frag.gender === 'men' ? 'for men' : 'unisex'); }
+    frag.exclude.forEach(e => { if (!(parsed && (parsed.exclude || []).indexOf(e) >= 0)) { part.exclude.push(e); said.push('not ' + e.slice(6).toLowerCase()); } });
+    if (!hasEffect(part)) return null;
+    part.label = T.tokenPrefix.ai + said.slice(0, 4).join(', ');
+    part.text = said.join(' ');
+    part.ai = true;
+    return part;
+  }
+  // Phase 3 — "People who chose #1 also considered": display only, from the build's cp pairs.
+  function alsoConsidered(pick, model, excludeIds, limit) {
+    const it = pick && (pick.item || pick); if (!it || !Array.isArray(it.cp) || !model) return [];
+    const ex = new Set(excludeIds || []); const out = [];
+    for (const pair of it.cp) {
+      const o = model.items[Number(pair[0])]; if (!o || !o.i || o.id === it.id || ex.has(o.id)) continue;
+      if (o.c === 'e' && it.c !== 'e') continue;   // exclusive bottles only alongside an exclusive pick
+      out.push({ id: o.id, nm: o.nm }); if (out.length >= (limit || 3)) break;
+    }
+    return out;
+  }
+  // Phase 1c — anonymous query log row (text + match count only).
+  const queryLogBody = (text, matched) => ({ q: String(text || '').trim().slice(0, 200), matched: clamp(Number(matched) || 0, 0, 99) });
+  const wordCount = text => tokensOf(text).filter(t => t !== ',').length;
+  const needsNLU = (text, parsed) => wordCount(text) >= NLU_MIN_WORDS && ((parsed.unknown || []).length >= NLU_MIN_UNKNOWN || !(parsed.parts || []).length);
+
   // ── browser integration ──
-  const S = { url: '', model: null, pending: null, failed: false, lex: null, thread: null, el: null, chips: [] };
+  const S = { url: '', model: null, pending: null, failed: false, lex: null, thread: null, el: null, chips: [], logged: new Set(), ai: { session: null, avail: null, loading: null, lastText: '' } };
   const STEP_ASK = { vibe: 'askVibe', budget: 'askBudget', who: 'askWho' };
   const DEFAULT_CHIPS = {
     occasion: [{ label: 'Office / University', o: ['Office', 'Everyday'] }, { label: 'Everyday', o: ['Everyday', 'Casual'] }, { label: 'Date night', o: ['Date Night', 'Evening'] }, { label: 'Evening / Party', o: ['Party', 'Evening'] }, { label: 'Summer heat', o: ['Summer'], a: ['Fresh', 'Citrus'] }, { label: 'Winter', o: ['Winter'], a: ['Amber', 'Warm Spicy'] }, { label: 'Gym', o: ['Gym / Sport'], a: ['Fresh'] }, { label: 'Formal / Wedding', o: ['Formal', 'Wedding'] }],
@@ -876,6 +1024,10 @@
       html += '</div>';
     }
     if (turn.table) html += compareTable(turn.table);
+    if (turn.also && turn.also.items && turn.also.items.length) {
+      html += '<p class="finder-also">' + esc(fill(T.also, { name: turn.also.name })) + ' ' +
+        turn.also.items.map(x => '<a href="/product/' + esc(x.id) + '/">' + esc(x.nm) + '</a>').join(', ') + '</p>';
+    }
     if (ids.length || turn.table) html += '<p class="finder-note">' + esc(T.honesty) + '</p>';
     const node = appendMsg(msgEl('bot', html));
     // js/api.js declares `const ProductAPI` (a global lexical binding, NOT a window property), so test the name itself.
@@ -929,8 +1081,8 @@
     }
     return [];
   }
-  function setChips(id) {
-    S.thread.chips = id; S.chips = chipSet(id);
+  function setChips(id, aiKind) {
+    S.thread.chips = id; S.chips = aiChips(aiKind).concat(chipSet(id));
     const box = S.el.chips; if (!box) return;
     box.textContent = '';
     S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'name' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : ''); b.dataset.chip = String(k); b.textContent = c.label; box.appendChild(b); });
@@ -990,6 +1142,7 @@
     } else if (c.kind === 'skip') { addUserTurn(T.skip); th.awaitName = false; advance(c.next); }
     else if (c.kind === 'name') { addUserTurn(c.label); th.awaitName = true; botText(T.askName); setChips('name'); prepare(); save(); }
     else if (c.kind === 'example') onSubmit(c.text);
+    else if (c.kind === 'ai-consent' || c.kind === 'ai-load' || c.kind === 'ai-no') onAiChip(c);
     else if (c.kind === 'follow') followUp(c.op, c.n);
   }
   function onSubmit(raw) {
@@ -1000,8 +1153,75 @@
       let t = text;
       if (th.awaitName && model && !hasTrigger(t, S.lex, model)) t = 'like ' + t;
       th.awaitName = false;
-      runAnswer({ mode: 'text', text: t });
+      runAnswer({ mode: 'text', text: t, typed: true });
     });
+  }
+  // ── Phase 1c: anonymous log of typed questions (never chips; once per sentence per page) ──
+  function logQuery(text, matched) {
+    try {
+      if (!LOG_QUERIES || typeof fetch !== 'function') return;
+      if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') return;
+      if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true) return;
+      const body = queryLogBody(text, matched); if (!body.q || S.logged.has(body.q)) return;
+      S.logged.add(body.q);
+      fetch(SUPABASE_URL + '/rest/v1/' + LOG_TABLE, {
+        method: 'POST', keepalive: true, credentials: 'omit',
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(body),
+      }).catch(() => {});
+    } catch (e) { /* logging is optional */ }
+  }
+  // ── Phase 2: Layer A — Chrome's built-in model (desktop Chrome; feature-detected) ──
+  const hasPromptApi = () => typeof LanguageModel !== 'undefined' && LanguageModel && typeof LanguageModel.create === 'function';
+  function aiSystemPrompt(model) {
+    const V = model.vocab;
+    return 'You turn a perfume shopper\'s sentence into a JSON object for a catalogue search. Use ONLY these labels. ' +
+      'Feature keys are "<prefix>:<label>" with prefixes a (accord), f (family), n (note), o (occasion), k (concentration), b (brand); weight 1 = wanted, -1 = avoid. ' +
+      'Accords: ' + V.a.join(', ') + '. Families: ' + V.f.join(', ') + '. Occasions: ' + V.o.join(', ') + '. Concentrations: ' + V.k.join(', ') + '. Brands: ' + V.b.join(', ') + '. ' +
+      'Notes (use only if named): ' + V.n.slice(0, 120).join(', ') + '. ' +
+      '"strength": "stronger" for strong/loud/heavy/long wear requests, "softer" for subtle/office-safe/light, else "none". "gender": "men", "unisex" (also for women, gifts, partners) or "none". ' +
+      'Never output prices, product names or anything not in the lists. Put words you could not map into "unknown". Output JSON only.';
+  }
+  const withTimeout = (p, ms) => new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('timeout')), ms); p.then(v => { clearTimeout(t); res(v); }, e => { clearTimeout(t); rej(e); }); });
+  async function promptApiUnderstand(text, model) {
+    if (!hasPromptApi()) return null;
+    const ai = S.ai;
+    if (ai.avail == null) { try { ai.avail = await LanguageModel.availability(); } catch (e) { ai.avail = 'unavailable'; } }
+    if (ai.avail === 'unavailable') return null;
+    let consent = null; try { consent = localStorage.getItem(NLU_CONSENT_KEY); } catch (e) {}
+    if (ai.avail !== 'available' && consent !== 'yes') return { needConsent: true };
+    if (!ai.session) ai.session = await withTimeout(LanguageModel.create({ initialPrompts: [{ role: 'system', content: aiSystemPrompt(model) }] }), 20000);
+    const raw = await withTimeout(ai.session.prompt(text, { responseConstraint: NLU_SCHEMA }), NLU_TIMEOUT_MS);
+    let obj = null; try { obj = JSON.parse(String(raw).replace(/^```json\s*|```\s*$/g, '')); } catch (e) { return null; }
+    return validateFragment(obj, model);
+  }
+  // ── Phase 2: Layer B — js/finder-nlu.js (browser embedding model, loaded only after a tap) ──
+  const nluCarrier = () => document.getElementById('finder-nlu-loader');
+  const nluModule = () => (typeof window !== 'undefined' && window.FinderNLU && window.FinderNLU.ENABLED !== false ? window.FinderNLU : null);
+  function nluSupported() { const c = nluCarrier(); if (!c) return false; const m = nluModule(); if (m && typeof m.supports === 'function') { const s = m.supports(); return !!(s && (s.webgpu || s.wasm)); } return !!(window.WebAssembly); }
+  function loadNluScript() {
+    const c = nluCarrier(); if (!c) return Promise.reject(new Error('no carrier'));
+    if (nluModule()) return Promise.resolve(nluModule());
+    return new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = c.getAttribute('src'); s.async = true;
+      Object.keys(c.dataset).forEach(k => { s.dataset[k] = c.dataset[k]; });
+      s.onload = () => { const m = nluModule(); m ? res(m) : rej(new Error('module missing')); }; s.onerror = () => rej(new Error('script failed'));
+      document.body.appendChild(s);
+    });
+  }
+  const nluMb = () => { const c = nluCarrier(); const mb = c && Number(c.dataset.modelMb); return mb > 0 ? mb : 25; };
+  async function embeddingUnderstand(text, model) {
+    const m = nluModule(); if (!m || typeof m.ready !== 'function' || !m.ready() || typeof m.understand !== 'function') return null;
+    const raw = await withTimeout(m.understand(text), NLU_TIMEOUT_MS);
+    return validateFragment(raw, model);
+  }
+  // Escalation: Layer A first, then an already-loaded Layer B; otherwise the chips offer one.
+  async function understand(text, parsed, model) {
+    let frag = null, offer = null;
+    try { const a = await promptApiUnderstand(text, model); if (a && a.needConsent) offer = 'consent'; else frag = a; } catch (e) { frag = null; }
+    if (!frag && !offer) { try { frag = await embeddingUnderstand(text, model); } catch (e) { frag = null; } }
+    if (!frag && !offer && !nluModule() && nluCarrier() && nluSupported()) offer = 'load';
+    return { part: mergeNLU(parsed, frag, model), offer, tried: !!(frag || offer === null) };
   }
   const lastBrands = model => { const out = []; S.thread.renderedIds.forEach(id => { const it = model.byId.get(id); const b = it && model.vocab.b[it.b]; if (b && out.indexOf(b) < 0) out.push(b); }); return out; };
   const median = arr => { const a = arr.slice().sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) / 2)] : null; };
@@ -1014,18 +1234,30 @@
   }
   function runAnswer(req) {
     const th = S.thread;
-    return prepare().then(model => {
+    return prepare().then(async model => {
       if (!model) { renderUnavailable(); return; }
       const notes = [];
-      let parsed = null;
+      let parsed = null, aiOffer = null;
       if (req.text != null) {
         parsed = parse(req.text, S.lex, model, { lastBrands: lastBrands(model), refPrice: null });
+        // Phase 2: only typed sentences the parser is lost on go to an on-device layer.
+        if (req.typed && needsNLU(req.text, parsed)) {
+          S.ai.lastText = req.text;
+          const u = await understand(req.text, parsed, model);
+          if (u.part) {
+            parsed.parts.push(u.part);
+            notes.push(fill(T.aiRead, { what: u.part.text }));
+            parsed.unknown = parsed.unknown.filter(w => u.part.text.toLowerCase().indexOf(w) < 0);
+          } else if (u.tried) notes.push(T.aiNothing);
+          aiOffer = u.offer;
+        }
         if (parsed.parts.length) addParts(parsed.parts);
         if (!parsed.parts.length) {
           const words = parsed.unknown.join(', ');
-          if (parsed.unknownAnchor && !th.parts.length) { botText(T.unknownAnchorOnly); save(); return; }
+          if (req.typed) logQuery(req.text, 0);
+          if (parsed.unknownAnchor && !th.parts.length) { botText(T.unknownAnchorOnly); offerAi(aiOffer); save(); return; }
           // Nothing usable yet: echo the unknown words, or (only stop-words: "thanks", "different brands" before any answer) say so.
-          if (!parsed.unknownAnchor && !th.parts.length) { botText(words ? fill(T.notUnderstood, { words }) : T.nothingNew); save(); return; }
+          if (!parsed.unknownAnchor && !th.parts.length) { botText(words ? fill(T.notUnderstood, { words }) : T.nothingNew); offerAi(aiOffer); save(); return; }
           // After an answer, a message with no new constraint and no unknown words changes nothing: no re-answer.
           if (!parsed.unknownAnchor && !words && th.lastIds.length) { botText(T.nothingNew); setChips('follow'); save(); return; }
           // Chips so far + a throw-away text → answer from the chips (with the honest note when words were unknown).
@@ -1042,20 +1274,25 @@
         q = th.query = compose(th.parts); renderBar();
       }
       const refPrice = q.cheaper ? q.refPrice : referenceFor(model, q, false);
-      const res = answer(model, q, { exclude: th.renderedIds, referencePrice: refPrice, signals: readSignals(), limit: ANSWER_SIZE });
+      // Relational axis follow-up ("Fresher"): the previous #1 sets the bar.
+      const lastTop = th.lastIds.length ? model.byId.get(th.lastIds[0]) : null;
+      const axisMin = req.mode === 'axis' && lastTop ? { axis: req.axis, min: Math.max(axisScore(lastTop, req.axis, model) + AXIS_STEP, AXIS_FLOOR) } : null;
+      const res = answer(model, q, { exclude: th.renderedIds, referencePrice: refPrice, signals: readSignals(), limit: ANSWER_SIZE, axisMin });
+      if (res.relaxed.indexOf('axis') >= 0 && lastTop) notes.push(fill(T.noAxis[req.axis], { name: lastTop.nm }));
       if (res.relaxed.indexOf('cheaper') >= 0) {
         const k = th.parts.findIndex(p => p.cheaper); if (k >= 0) removePart(k);
         th.query = compose(th.parts);
         if (req.mode === 'cheaper' && th.lastIds.length) { botText(T.noCheaper); setChips('follow'); th.pending = []; save(); shareUrl(); return; }
         notes.push(T.noCheaper);
       }
-      const other = res.relaxed.filter(s => s !== 'cheaper');
+      const other = res.relaxed.filter(s => s !== 'cheaper' && s !== 'axis');
       if (other.length) notes.push(fill(T.relaxed, { what: joinAnd(other.map(s => T['relax' + cap(s)])) }));
       if (!res.picks.length) { botText(T.noMore); setChips('follow'); th.pending = []; save(); return; }
       // Reply text
       let text = T.answer;
       const a = q.anchor;
       if (req.mode === 'cheaper' && q.cheaper) text = fill(T.cheaper, { price: q.refPrice });
+      else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill(T.axisTitle[req.axis], { name: lastTop.nm });
       else if (req.mode === 'more' && !a) text = T.more;
       else if (a && a.kind === 'catalog') { const ai = model.byId.get(a.id); text = fill(ai && ai.i && th.renderedIds.indexOf(a.id) < 0 ? T.anchorStocked : T.anchorCatalog, { name: a.name }); }
       else if (a && a.kind === 'ref') text = fill(T.anchorRef, { name: a.name });
@@ -1070,12 +1307,43 @@
       const ids = res.picks.map(r => r.id);
       res.picks.forEach(r => { th.cards[r.id] = { c: toCard(r.item, model), e: r.item.c === 'e' }; });
       const turn = { role: 'bot', text, notes, ids, reasons: res.picks.map(r => reasons(r, q, model, a)), mode: req.mode || 'answer' };
+      // Phase 3: co-purchase row for #1 (display only; never a card, never in the score)
+      const also = alsoConsidered(res.picks[0], model, th.renderedIds.concat(ids), 3);
+      if (also.length) turn.also = { name: res.picks[0].item.nm, items: also };
       th.turns.push(turn);
       ids.forEach(id => { if (th.renderedIds.indexOf(id) < 0) th.renderedIds.push(id); });
       th.lastIds = ids;
       renderTurn(turn, true);
-      setChips('follow'); renderFoot(); shareUrl(); save();
+      setChips('follow', aiOffer); renderFoot(); shareUrl(); save();
+      if (req.typed) logQuery(req.text, ids.length);
     });
+  }
+  // The on-device layers are offered, never imposed: a chip the visitor can ignore.
+  function offerAi(kind) { if (kind) setChips(S.thread.chips === 'opening' ? 'opening' : 'follow', kind); }
+  function aiChips(kind) {
+    if (kind === 'consent') return [{ label: T.aiConsentChip, kind: 'ai-consent' }, { label: T.noThanks, kind: 'ai-no' }];
+    if (kind === 'load') return [{ label: fill(T.aiOfferChip, { mb: nluMb() }), kind: 'ai-load' }, { label: T.noThanks, kind: 'ai-no' }];
+    return [];
+  }
+  function onAiChip(c) {
+    const th = S.thread;
+    if (c.kind === 'ai-no') { setChips(th.lastIds.length ? 'follow' : th.chips === 'opening' ? 'opening' : th.chips); save(); return; }
+    const text = S.ai.lastText; if (!text) { setChips('follow'); return; }
+    if (c.kind === 'ai-consent') {
+      try { localStorage.setItem(NLU_CONSENT_KEY, 'yes'); } catch (e) {}
+      addUserTurn(c.label);
+      runAnswer({ mode: 'text', text, typed: true, retry: true });
+      return;
+    }
+    // ai-load: inject js/finder-nlu.js, load the model with progress, then re-run the sentence.
+    addUserTurn(c.label);
+    const node = appendMsg(msgEl('bot', '<p>' + esc(fill(T.aiLoading, { pct: 0 })) + '</p>'));
+    setChips('none');
+    const onProgress = (fraction) => { try { node.firstChild.textContent = fill(T.aiLoading, { pct: Math.round(clamp(fraction || 0, 0, 1) * 100) }); } catch (e) {} };
+    loadNluScript().then(m => (typeof m.load === 'function' ? m.load({ onProgress }) : null)).then(() => {
+      node.remove();
+      runAnswer({ mode: 'text', text, typed: true, retry: true });
+    }).catch(() => { node.remove(); botText(T.aiLoadFailed); setChips(th.lastIds.length ? 'follow' : 'opening'); save(); });
   }
   function followUp(op, n) {
     const th = S.thread;
@@ -1083,9 +1351,9 @@
     addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : T.follow[op]);
     if (op === 'more') runAnswer({ mode: 'more' });
     else if (op === 'cheaper') runAnswer({ mode: 'cheaper', text: 'cheaper' });
-    else if (op === 'stronger') runAnswer({ mode: 'answer', text: 'stronger' });
-    else if (op === 'fresher') runAnswer({ mode: 'answer', text: 'fresh' });
-    else if (op === 'sweeter') runAnswer({ mode: 'answer', text: 'sweet' });
+    else if (op === 'stronger') runAnswer({ mode: 'axis', axis: 'strong', text: 'stronger' });
+    else if (op === 'fresher') runAnswer({ mode: 'axis', axis: 'fresh', text: 'fresh' });
+    else if (op === 'sweeter') runAnswer({ mode: 'axis', axis: 'sweet', text: 'sweet' });
     else if (op === 'brands') runAnswer({ mode: 'answer', text: 'different brands' });
     else if (op === 'like') {
       prepare().then(model => {
@@ -1180,5 +1448,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, setRefs: r => { REFS = r || []; }, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, setRefs: r => { REFS = r || []; }, _state: S, _init };
 });

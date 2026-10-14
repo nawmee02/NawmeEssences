@@ -116,6 +116,7 @@
               <option value="Eau Fraîche"></option>
               <option value="Attar/Oil">Attar / perfume oil</option>
             </datalist><small class="admin-muted">Pick a suggestion or type the exact label from the bottle. EDP/EDT/EDC are expanded on the site (EDP Intense → Eau de Parfum Intense). Blank = read EDP/EDT from the name or description.</small></label>
+          <label>Alternative to<input type="text" id="f-inspired-by" maxlength="400" placeholder="e.g. Creed Aventus, Dior Sauvage" autocomplete="off" /><small class="admin-muted">Names visitors may type in Find a Scent ("alternative to Aventus"). Shown nowhere on the public page. Comma-separated, up to 10.</small></label>
           <label>Sale % off<input type="number" id="f-sale" min="0" max="95" placeholder="0" /><small class="admin-muted">0 = no sale. Applies to every size.</small></label>
           <label>Sale valid until<input type="date" id="f-sale-until" /><small class="admin-muted">Optional. The sale ends after this date (Bangladesh time) and prices revert automatically; Google is told the offer end date.</small></label>
         </div>
@@ -292,6 +293,17 @@
           <button type="submit" class="btn-primary" id="settings-save">Save site content</button>
         </div>
       </form>
+
+      <!-- Finder questions (finder_queries, migration 019): read-only log of what
+           visitors typed into Find a Scent. Rendered by js/admin.js; rows are
+           immutable, so there is nothing to edit or delete here. -->
+      <div class="admin-toolbar" style="margin-top:36px">
+        <h2>Finder questions <span id="fq-count" class="admin-muted"></span></h2>
+        <div><button type="button" id="fq-refresh" class="btn-outline btn-sm">↻ Refresh</button></div>
+      </div>
+      <small class="admin-muted">What visitors typed into Find a Scent (sentence, how many products it matched, when). Anonymous — no names, IPs or sessions; kept 180 days. Use it to spot words the finder does not understand yet.</small>
+      <p id="fq-summary" class="admin-muted" style="margin:10px 0 6px"></p>
+      <div id="fq-list"></div>
     </div>
 
     <!-- BRANDS -->
