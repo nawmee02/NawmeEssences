@@ -71,7 +71,14 @@
     waLooking: 'Looking for: ',
     skip: 'Skip', nameChip: 'Alternative to a fragrance I like',
     // Example prompts on the opening screen (tapping one sends it as typed text).
-    examples: ['Fresh & clean for the office', 'Like Aventus, but cheaper', 'Sweet for winter nights', 'Something that gets compliments'],
+    examples: ['Fresh & clean for the office', 'Like Aventus, but cheaper', 'Sweet for winter nights'],
+    // Guided mode: four short questions answered in ONE panel (nothing piles up in the thread).
+    guideChip: 'Answer four quick questions',
+    stepOf: 'Step {n} of 4',
+    stepTitle: { occasion: 'When will you mostly wear it?', vibe: 'What kind of scent do you lean towards?', budget: 'Budget for the smallest decant?', who: 'Who is it for?' },
+    moodsChip: 'Pick a mood instead', vibesChip: 'Back to scent types',
+    guideDone: 'Show my picks',
+    likeThis: 'More like this', compareLink: 'Compare the top two', brandsLink: 'Other brands',
     follow: { more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
     tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: 'AI: ' },
@@ -930,7 +937,6 @@
 
   // ── browser integration ──
   const S = { url: '', model: null, pending: null, failed: false, lex: null, thread: null, el: null, chips: [], logged: new Set(), ai: { session: null, avail: null, loading: null, lastText: '' } };
-  const STEP_ASK = { vibe: 'askVibe', budget: 'askBudget', who: 'askWho' };
   const DEFAULT_CHIPS = {
     occasion: [{ label: 'Office / University', o: ['Office', 'Everyday'] }, { label: 'Everyday', o: ['Everyday', 'Casual'] }, { label: 'Date night', o: ['Date Night', 'Evening'] }, { label: 'Evening / Party', o: ['Party', 'Evening'] }, { label: 'Summer heat', o: ['Summer'], a: ['Fresh', 'Citrus'] }, { label: 'Winter', o: ['Winter'], a: ['Amber', 'Warm Spicy'] }, { label: 'Gym', o: ['Gym / Sport'], a: ['Fresh'] }, { label: 'Formal / Wedding', o: ['Formal', 'Wedding'] }],
     vibe: [{ label: 'Fresh & clean', a: ['Fresh', 'Citrus', 'Aromatic'] }, { label: 'Sweet', a: ['Sweet', 'Vanilla'] }, { label: 'Woody & warm', a: ['Woody', 'Amber'] }, { label: 'Spicy', a: ['Warm Spicy', 'Fresh Spicy'] }, { label: 'Aquatic / blue', a: ['Aquatic', 'Marine', 'Fresh'] }, { label: 'Soft & powdery', a: ['Powdery', 'Musky'] }, { label: 'Green', a: ['Green'] }, { label: 'Surprise me', surprise: true }],
@@ -938,7 +944,8 @@
     who: [{ label: 'Me', g: 'men' }, { label: 'Unisex / anyone', g: 'unisex' }, { label: 'A gift', g: 'unisex', gift: true }],
   };
   const lexChips = set => { const c = ((S.lex || {}).chips || {})[set]; return Array.isArray(c) && c.length ? c : DEFAULT_CHIPS[set]; };
-  function freshThread() { return { v: 1, query: emptyQuery(), turns: [], renderedIds: [], parts: [], chips: 'opening', lastIds: [], awaitName: false, pending: [], cards: {} }; }
+  function freshThread() { return { v: 1, query: emptyQuery(), turns: [], renderedIds: [], parts: [], chips: 'opening', lastIds: [], awaitName: false, pending: [], cards: {}, wizard: null }; }
+  const STEPS = ['occasion', 'vibe', 'budget', 'who'];
   function imgUrl(item, size) {
     const base = (typeof IMAGE_BASE === 'string' && IMAGE_BASE) || CDN;
     return base + '/storage/v1/object/public/product-images/' + encodeURIComponent(item.id) + '/' + size + '.webp?v=' + item.v;
@@ -969,7 +976,7 @@
   function save() {
     try {
       const th = S.thread; if (!th) return;
-      sessionStorage.setItem(STATE_KEY, JSON.stringify({ v: 1, query: th.query, turns: th.turns, renderedIds: th.renderedIds, parts: th.parts, chips: th.chips, lastIds: th.lastIds, awaitName: th.awaitName, pending: th.pending, cards: th.cards }));
+      sessionStorage.setItem(STATE_KEY, JSON.stringify({ v: 1, query: th.query, turns: th.turns, renderedIds: th.renderedIds, parts: th.parts, chips: th.chips, lastIds: th.lastIds, awaitName: th.awaitName, pending: th.pending, cards: th.cards, wizard: th.wizard || null }));
     } catch (e) {}
   }
   function loadStored() {
@@ -1016,32 +1023,38 @@
   }
   // Cards render from the thread's stored card data (filled at answer time), so a
   // restored thread paints synchronously: no fetch, nothing moves.
+  // A bot turn = a short bubble (sentence + notes). Cards live OUTSIDE the bubble in a
+  // plain answer block: grid, one reason line and a "More like this" per card, then the
+  // "also considered" row and two quiet links. The honesty line and WhatsApp handoff
+  // appear once, at the end of the thread (renderFoot), not under every answer.
   function renderTurn(turn, scroll) {
     if (turn.role === 'user') return appendMsg(msgEl('user', esc(turn.text)));
     const cards = S.thread.cards || {};
     let html = '<p>' + esc(turn.text) + '</p>';
     (turn.notes || []).forEach(n => { html += '<p class="finder-sub">' + esc(n) + '</p>'; });
+    if (turn.table) html += compareTable(turn.table);
+    const node = appendMsg(msgEl('bot', html));
     const ids = (turn.ids || []).filter(id => cards[id] && cards[id].c);
     if (ids.length) {
-      html += '<div class="product-grid finder-cards">';
+      let a = '<div class="product-grid finder-cards">';
       ids.forEach((id, i) => {
         const c = cards[id];
         const card = window.RenderCard && typeof RenderCard.renderCard === 'function'
           ? RenderCard.renderCard(c.c, { isExclusive: !!c.e, priority: false })
           : '<div class="product-card" data-id="' + esc(c.c.id) + '"><a class="card-link" href="/product/' + esc(c.c.id) + '/">' + esc(c.c.name) + '</a></div>';
-        html += card + '<p class="finder-reason">' + esc((turn.reasons || [])[i] || '') + '</p>';
+        a += card + '<p class="finder-reason">' + esc((turn.reasons || [])[i] || '') + ' <button type="button" class="finder-like" data-n="' + i + '">' + esc(T.likeThis) + '</button></p>';
       });
-      html += '</div>';
+      a += '</div>';
+      if (turn.also && turn.also.items && turn.also.items.length) {
+        a += '<p class="finder-also">' + esc(fill(T.also, { name: turn.also.name })) + ' ' +
+          turn.also.items.map(x => '<a href="/product/' + esc(x.id) + '/">' + esc(x.nm) + '</a>').join(', ') + '</p>';
+      }
+      a += '<p class="finder-links">' + (ids.length >= 2 ? '<button type="button" class="finder-link" data-op="compare">' + esc(T.compareLink) + '</button>' : '') + '<button type="button" class="finder-link" data-op="brands">' + esc(T.brandsLink) + '</button></p>';
+      const block = document.createElement('div'); block.className = 'finder-answer'; block.innerHTML = a;
+      appendMsg(block);
+      // js/api.js declares `const ProductAPI` (a global lexical binding, NOT a window property), so test the name itself.
+      if (typeof ProductAPI !== 'undefined' && ProductAPI && typeof ProductAPI.hydrateCards === 'function') { try { ProductAPI.hydrateCards(); } catch (e) {} }
     }
-    if (turn.table) html += compareTable(turn.table);
-    if (turn.also && turn.also.items && turn.also.items.length) {
-      html += '<p class="finder-also">' + esc(fill(T.also, { name: turn.also.name })) + ' ' +
-        turn.also.items.map(x => '<a href="/product/' + esc(x.id) + '/">' + esc(x.nm) + '</a>').join(', ') + '</p>';
-    }
-    if (ids.length || turn.table) html += '<p class="finder-note">' + esc(T.honesty) + '</p>';
-    const node = appendMsg(msgEl('bot', html));
-    // js/api.js declares `const ProductAPI` (a global lexical binding, NOT a window property), so test the name itself.
-    if (ids.length && typeof ProductAPI !== 'undefined' && ProductAPI && typeof ProductAPI.hydrateCards === 'function') { try { ProductAPI.hydrateCards(); } catch (e) {} }
     if (scroll) { try { node.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
     return node;
   }
@@ -1073,30 +1086,34 @@
       bar.appendChild(b);
     });
   }
+  // Chip sets. Opening: three examples + the two ways in. Guided steps: one question's
+  // chips at a time (the vibe step can swap to moods). Follow-ups: five refinements + reset;
+  // "more like this", compare and other brands sit on the answer block itself.
   function chipSet(id) {
     const L = S.lex || {};
-    const mk = (c, next) => ({ label: c.label, kind: c.surprise ? 'surprise' : 'chip', data: c, next });
-    if (id === 'opening') return (T.examples || []).map(x => ({ label: x, kind: 'example', text: x })).concat(lexChips('occasion').map(c => mk(c, 'vibe')), (L.moods || []).map(c => mk(c, 'vibe')), [{ label: T.nameChip, kind: 'name' }, { label: T.skip, kind: 'skip', next: 'vibe' }]);
-    if (id === 'vibe') return lexChips('vibe').map(c => mk(c, 'budget')).concat([{ label: T.skip, kind: 'skip', next: 'budget' }]);
-    if (id === 'budget') return lexChips('budget').map(c => mk(c, 'who')).concat([{ label: T.skip, kind: 'skip', next: 'who' }]);
-    if (id === 'who') return lexChips('who').map(c => mk(c, 'answer')).concat([{ label: T.skip, kind: 'skip', next: 'answer' }]);
-    if (id === 'name') return [{ label: T.skip, kind: 'skip', next: 'vibe' }];
-    if (id === 'follow') {
-      const n = S.thread.lastIds.length, out = [];
-      ['more', 'cheaper', 'stronger', 'fresher', 'sweeter', 'brands'].forEach(op => out.push({ label: T.follow[op], kind: 'follow', op }));
-      for (let i = 0; i < Math.min(3, n); i++) out.push({ label: fill(T.follow.like, { n: i + 1 }), kind: 'follow', op: 'like', n: i });
-      if (n >= 2) out.push({ label: T.follow.compare, kind: 'follow', op: 'compare' });
-      out.push({ label: T.follow.reset, kind: 'follow', op: 'reset' });
-      return out;
-    }
+    const mk = c => ({ label: c.label, kind: c.surprise ? 'surprise' : 'chip', data: c });
+    if (id === 'opening') return (T.examples || []).map(x => ({ label: x, kind: 'example', text: x })).concat([{ label: T.guideChip, kind: 'guide' }, { label: T.nameChip, kind: 'name' }]);
+    if (id === 'occasion' || id === 'budget' || id === 'who') return lexChips(id).map(mk).concat([{ label: T.skip, kind: 'skip' }]);
+    if (id === 'vibe') return lexChips('vibe').map(mk).concat((L.moods || []).length ? [{ label: T.moodsChip, kind: 'moods' }] : [], [{ label: T.skip, kind: 'skip' }]);
+    if (id === 'moods') return (L.moods || []).map(mk).concat([{ label: T.vibesChip, kind: 'vibes' }, { label: T.skip, kind: 'skip' }]);
+    if (id === 'name') return [{ label: T.skip, kind: 'skip' }];
+    if (id === 'follow') return ['more', 'cheaper', 'fresher', 'sweeter', 'stronger', 'reset'].map(op => ({ label: T.follow[op], kind: 'follow', op }));
     return [];
   }
+  const stepOf = id => (id === 'moods' ? 'vibe' : id);
   function setChips(id, aiKind) {
     S.thread.chips = id; S.chips = aiChips(aiKind).concat(chipSet(id));
     const box = S.el.chips; if (!box) return;
     box.textContent = '';
-    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'name' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : ''); b.dataset.chip = String(k); b.textContent = c.label; box.appendChild(b); });
-    // Screen readers hear the question from the (live) thread; this sr-only status says the buttons changed too.
+    const step = STEPS.indexOf(stepOf(id));
+    if (step >= 0) {   // guided mode: the question lives in the panel, not in the thread
+      const h = document.createElement('p'); h.className = 'finder-step';
+      h.innerHTML = '<span class="finder-step-n">' + esc(fill(T.stepOf, { n: step + 1 })) + '</span> ' + esc(T.stepTitle[stepOf(id)]);
+      box.appendChild(h);
+    }
+    const row = document.createElement('div'); row.className = 'finder-chip-row'; box.appendChild(row);
+    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'guide' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : c.kind === 'skip' || c.kind === 'moods' || c.kind === 'vibes' || c.kind === 'ai-no' ? ' chip-quiet' : ''); b.dataset.chip = String(k); b.textContent = c.label; row.appendChild(b); });
+    // Screen readers hear the question from the panel; this sr-only status says the buttons changed too.
     if (S.el.status) S.el.status.textContent = S.chips.length ? fill(T.status, { n: S.chips.length }) : '';
   }
   function waHref() {
@@ -1112,8 +1129,8 @@
   function renderFoot() {
     const th = S.thread; let foot = S.el.thread.querySelector('.finder-foot');
     if (!th.lastIds.length) { if (foot) foot.remove(); return; }
-    if (!foot) { foot = document.createElement('p'); foot.className = 'finder-foot'; }
-    foot.innerHTML = '<a class="finder-wa" href="' + esc(waHref()) + '" target="_blank" rel="noopener">' + esc(T.whatsapp) + '</a>';
+    if (!foot) { foot = document.createElement('div'); foot.className = 'finder-foot'; }
+    foot.innerHTML = '<p class="finder-note">' + esc(T.honesty) + '</p><a class="finder-wa" href="' + esc(waHref()) + '" target="_blank" rel="noopener">' + esc(T.whatsapp) + '</a>';
     S.el.thread.appendChild(foot);
   }
   function shareUrl() {
@@ -1137,19 +1154,32 @@
 
   // ── the conversation ──
   function renderOpening() { botText(T.opening); setChips('opening'); save(); }
-  function advance(next) {
-    if (next === 'answer') runAnswer({ mode: 'answer' });
-    else { botText(T[STEP_ASK[next]] || T.askVibe); setChips(next); save(); }
+  // Guided mode: the four questions are answered in the chip panel; the thread gets one
+  // user line ("Office / University · Fresh & clean · ৳300–600 · Me") and then the answer.
+  function startGuide() { S.thread.wizard = { picks: [] }; prepare(); setChips('occasion'); save(); }
+  function nextStep(from) {
+    const i = STEPS.indexOf(stepOf(from));
+    if (i < 0 || i >= STEPS.length - 1) return finishGuide();
+    setChips(STEPS[i + 1]); save();
+  }
+  function finishGuide() {
+    const th = S.thread, picks = (th.wizard && th.wizard.picks) || [];
+    th.wizard = null;
+    addUserTurn(picks.length ? picks.join(' · ') : T.guideChip);
+    runAnswer({ mode: 'answer' });
   }
   function onChip(c) {
     const th = S.thread;
     if (c.kind === 'chip' || c.kind === 'surprise') {
-      addUserTurn(c.label);
-      const part = c.kind === 'surprise' ? surprisePart(th.turns.length, S.lex, S.model) : chipPart(c.data, S.model);
+      const part = c.kind === 'surprise' ? surprisePart(th.turns.length + ((th.wizard && th.wizard.picks.length) || 0), S.lex, S.model) : chipPart(c.data, S.model);
       if (part) addParts([part]);
       prepare();
-      advance(c.next);
-    } else if (c.kind === 'skip') { addUserTurn(T.skip); th.awaitName = false; advance(c.next); }
+      if (th.wizard) { th.wizard.picks.push(c.label); nextStep(th.chips); }
+      else { addUserTurn(c.label); runAnswer({ mode: 'answer' }); }   // a chip outside guided mode (restored older state) answers directly
+    } else if (c.kind === 'guide') startGuide();
+    else if (c.kind === 'moods') { setChips('moods'); save(); }
+    else if (c.kind === 'vibes') { setChips('vibe'); save(); }
+    else if (c.kind === 'skip') { th.awaitName = false; if (th.wizard) nextStep(th.chips); else { setChips(th.lastIds.length ? 'follow' : 'opening'); save(); } }
     else if (c.kind === 'name') { addUserTurn(c.label); th.awaitName = true; botText(T.askName); setChips('name'); prepare(); save(); }
     else if (c.kind === 'example') onSubmit(c.text);
     else if (c.kind === 'ai-consent' || c.kind === 'ai-load' || c.kind === 'ai-no') onAiChip(c);
@@ -1358,7 +1388,7 @@
   function followUp(op, n) {
     const th = S.thread;
     if (op === 'reset') { reset(); return; }
-    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : T.follow[op]);
+    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : (T.follow[op] || (op === 'compare' ? T.compareLink : op === 'brands' ? T.brandsLink : op)));
     if (op === 'more') runAnswer({ mode: 'more' });
     else if (op === 'cheaper') runAnswer({ mode: 'cheaper', text: 'cheaper' });
     else if (op === 'stronger') runAnswer({ mode: 'axis', axis: 'strong', text: 'stronger' });
@@ -1425,6 +1455,11 @@
     if (S.el.chips) S.el.chips.addEventListener('click', e => {
       const b = e.target && e.target.closest ? e.target.closest('button[data-chip]') : null; if (!b) return;
       const c = S.chips[Number(b.dataset.chip)]; if (c) onChip(c);
+    });
+    // Answer-block controls: "More like this" per card, compare / other brands links.
+    S.el.thread.addEventListener('click', e => {
+      const t = e.target && e.target.closest ? e.target.closest('button.finder-like, button.finder-link') : null; if (!t) return;
+      if (t.classList.contains('finder-like')) followUp('like', Number(t.dataset.n)); else followUp(t.dataset.op);
     });
     if (S.el.bar) S.el.bar.addEventListener('click', e => {
       const b = e.target && e.target.closest ? e.target.closest('button[data-part]') : null; if (!b) return;

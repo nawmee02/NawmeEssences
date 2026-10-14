@@ -52,7 +52,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
   <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
   <link rel="stylesheet" href="css/style.css?v=0a1ec4df" />
-  <link rel="stylesheet" href="css/finder.css?v=8dd22499" />
+  <link rel="stylesheet" href="css/finder.css?v=fd457e2a" />
 </head>
 <body>
 
@@ -99,7 +99,7 @@
 <main>
 <section class="section finder-page">
   <h1 class="section-title">Find a <span>Scent</span></h1>
-  <p class="finder-intro">Not sure which perfume to try? Describe what you want in plain words and the finder picks three matching decants from our catalogue of men's and unisex fragrances, available from 3 ml to 30 ml. Try something like “fresh for office under 500”, “alternative to Creed Aventus” or “sweet for winter nights” — or answer a few quick questions and refine from there.</p>
+  <p class="finder-intro">Describe what you want in plain words, or answer four quick questions, and get three matching decants from our men's and unisex catalogue — 3 ml to 30 ml.</p>
   <noscript><p>Open the <a href="shop.html">shop</a> to browse all fragrances.</p></noscript>
   <div id="finder" class="finder">
     <div id="finder-bar" class="finder-bar" aria-live="polite"></div>
@@ -108,7 +108,7 @@
     <form id="finder-form" class="finder-form" autocomplete="off">
       <label for="finder-input" class="sr-only">Describe what you are looking for</label>
       <input id="finder-input" type="text" maxlength="200" placeholder="e.g. fresh for office under ৳500, or: like Sauvage but sweeter" />
-      <button type="submit" class="btn-primary">Send</button>
+      <button type="submit" class="btn-outline">Send</button>
     </form>
     <p class="finder-privacy">Typed questions are stored anonymously (just the words, nothing about you) to improve the finder. Picks are computed in your browser.</p>
   </div>
@@ -160,7 +160,7 @@
 <script src="js/api.js?v=1db1e2ec" defer></script>
 <script src="js/render-card.js?v=bb55f3a3" defer></script>
 <script src="js/finder-lexicon.js?v=c2724e1b" defer></script>
-<script src="js/finder.js?v=d332eee4" data-finder="data/finder.json?v=26132461" defer></script>
+<script src="js/finder.js?v=8e97f252" data-finder="data/finder.json?v=26132461" defer></script>
 <!-- Optional on-device understanding (Phase 2, Layer B): a carrier tag only. finder.js injects the
      real script after the visitor taps "Understand my words better"; nothing loads at page load. -->
 <script type="text/plain" id="finder-nlu-loader" src="js/finder-nlu.js?v=ca649b59" data-emb="data/finder-emb.json?v=ca87b2c4" data-embbin="data/finder-emb.bin" data-model-mb="24"></script>
