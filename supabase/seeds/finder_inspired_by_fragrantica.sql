@@ -25,29 +25,31 @@ BEGIN
   IF NOT FOUND THEN RAISE NOTICE 'no fragrance_details row for %', p_id; END IF;
 END $$;
 
-SELECT pg_temp.add_inspired('afnan-9pm', ARRAY['ZARA Gourmand Leather']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('afnan-9pm', ARRAY['JEAN PAUL GAULTIER Ultra Male', 'ZARA Gourmand Leather']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('afnan-modest-une', ARRAY['DIOR Sauvage', 'DIOR Sauvage Eau de Parfum']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('afnan-supremacy-collectors', ARRAY['CREED Absolu Aventus']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('afnan-supremacy-not-only-intense', ARRAY['CREED Aventus']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('afnan-supremacy-collectors', ARRAY['CREED Absolu Aventus 2023', 'CREED Absolu Aventus']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('afnan-supremacy-not-only-intense', ARRAY['NISHANE Hacivat', 'CREED Aventus']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('afnan-turathi-brown', ARRAY['YVES SAINT LAURENT Tuxedo', 'ROCHAS Moustache Eau de Parfum']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('al-haramain-amber-oud-aqua-dubai', ARRAY['LOUIS VUITTON Imagination']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('al-haramain-amber-oud-dubai-night', ARRAY['MONTALE Arabians Tonka', 'RIIFFS PERFUMES Momento']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('al-haramain-amber-oud-gold', ARRAY['TIZIANA TERENZI Kirkè', 'SOSPIRO PERFUMES Erba Pura']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('al-haramain-amber-oud-gold', ARRAY['XERJOFF Erba Pura', 'TIZIANA TERENZI Kirkè']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('arabiyat-prestige-bois-blanc', ARRAY['ESSENTIAL PARFUMS Bois Impérial']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('armaf-cdni-edp', ARRAY['CREED Aventus', 'MONTBLANC Explorer']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('armaf-cdni-extrait', ARRAY['CREED Aventus']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('armaf-cdni-iconic', ARRAY['CHANEL Bleu de Chanel']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('armaf-cdni-milestone', ARRAY['SEAN JOHN Unforgivable']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('armaf-cdni-iconic', ARRAY['CHANEL Bleu de Chanel Eau de Parfum', 'CHANEL Bleu de Chanel']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('armaf-cdni-milestone', ARRAY['CREED Millésime Impérial', 'SEAN JOHN Unforgivable']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('bentley-silverlake', ARRAY['GIORGIO ARMANI Acqua di Gio Essenza', 'GIORGIO ARMANI Acqua di Gio']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-aether', ARRAY['PARFUMS DE MARLY Greenley']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-liquid-brun', ARRAY['PARFUMS DE MARLY Althaïr']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-black-friday', ARRAY['XERJOFF Deified Tony Iommi Parfum', 'XERJOFF Deified Tony Iommi Signed Edition']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-feu', ARRAY['STÉPHANE HUMBERT LUCAS 777 God of Fire']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-sable', ARRAY['STÉPHANE HUMBERT LUCAS 777 Sand Dance']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('lattafa-angham', ARRAY['RARE BEAUTY Rare', 'BATH & BODY WORKS Vanilla Ease']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('lattafa-angham', ARRAY['BURBERRY Goddess', 'RARE BEAUTY Rare']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('lattafa-dynasty', ARRAY['CLIVE CHRISTIAN L Red Tea Vetiver', 'DOLCE&GABBANA Velvet Infusion']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('lattafa-khamrah-qahwa', ARRAY['RIIFFS PERFUMES Golden Elixir Reserve']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rasasi-fattan', ARRAY['HERMÈS Terre d''Hermès', 'HERMÈS Terre d''Hermes Parfum']);  -- Fragrantica votes
-SELECT pg_temp.add_inspired('rasasi-hawas', ARRAY['RABANNE Invictus Aqua', 'ABERCROMBIE & FITCH First Instinct Together Eau de Toilette For Him']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('rasasi-hawas', ARRAY['RABANNE Invictus', 'RABANNE Invictus Aqua']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('rasasi-hawas-black', ARRAY['NISHANE Hacivat']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rasasi-hawas-elixir', ARRAY['JEAN PAUL GAULTIER Le Male Elixir']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rasasi-hawas-ice', ARRAY['RABANNE Invictus Aqua (2018)', 'RABANNE Invictus']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rasasi-hawas-kobra', ARRAY['LOUIS VUITTON Imagination', 'BUJAIRAMI Hectic']);  -- Fragrantica votes

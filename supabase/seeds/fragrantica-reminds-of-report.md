@@ -3,6 +3,7 @@
 Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate for "Alternative to"); ⌂ = also in our catalogue (cross-sell); confidence = how well the Fragrantica page name matched ours (review anything below 0.6).
 
 ## Afnan 9PM (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/9pm-65414.html) · confidence 1
+- ★ JEAN PAUL GAULTIER Ultra Male — 2900/177
 - LATTAFA PERFUMES Ramz Lattafa Silver — 730/72
 - ⌂ RAYHAAN Lion — 279/42 (ours: rayhaan-lion)
 - ARMAF Odyssey Spectra — 146/23
@@ -10,7 +11,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - MAISON ALHAMBRA Glacier Ultra — 64/17
 - AL WATANIAH Attar Al Wesal — 62/12
 - DUMONT Nitro Green — 50/11
-- RASASI Hawas Gold Digger — 45/9
 
 ## Afnan 9PM Rebel (Afnan) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Afnan/9pm-65414.html, /perfume/Afnan/9PM-Elixir-111894.html
 
@@ -25,6 +25,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - MAISON ALHAMBRA Salvo — 12/2
 
 ## Afnan Supremacy Collector's Edition (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/Supremacy-Collector-s-Edition-Pour-Homme-98689.html) · confidence 1
+- ★ CREED Absolu Aventus 2023 — 1100/274
 - ARMAF Club de Nuit Precieux I — 525/204
 - ★ CREED Absolu Aventus — 370/159
 - ★ MONTBLANC Explorer Extreme — 258/145
@@ -32,9 +33,9 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - DUMONT Nitro Intense — 58/38
 - RUE BROCA Théorème Matrix — 54/28
 - ★ ASSAF Strike Black — 39/7
-- ATRALIA Absolute Noir — 32/16
 
 ## Afnan Supremacy Not Only Intense (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/Supremacy-Not-Only-Intense-68271.html) · confidence 1
+- ★ NISHANE Hacivat — 1100/443
 - ★ CREED Aventus — 927/280
 - ARMAF Club de Nuit Intense Man — 674/219
 - ★ MONTBLANC Explorer — 265/165
@@ -42,7 +43,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ARMAF Club de Nuit Intense Man Limited Edition Parfum — 174/63
 - AL HARAMAIN PERFUMES L'Aventure Intense — 85/39
 - ARMAF Club de Nuit Intense Man Parfum — 68/34
-- LATTAFA PERFUMES Shaheen Silver — 63/29
 
 ## Afnan Turathi Brown (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/Turathi-Brown-84403.html) · confidence 1
 - ★ YVES SAINT LAURENT Tuxedo — 251/43
@@ -64,6 +64,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - LATTAFA PERFUMES Ana Abiyedh — 5/1
 
 ## Al Haramain Amber Oud Aqua Dubai (Al Haramain) — [page](https://www.fragrantica.com/perfume/Al-Haramain-Perfumes/Amber-Oud-Aqua-Dubai-96482.html) · confidence 1
+- ★ LOUIS VUITTON Imagination — 1100/523
 - ARABIYAT PRESTIGE Marwa — 239/67
 - ⌂ RASASI Hawas Kobra — 211/57 (ours: rasasi-hawas-kobra)
 - JO MILANO PARIS Game of Spades Full House — 142/35
@@ -71,7 +72,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - LATTAFA PERFUMES Art of Arabia I — 112/64
 - FRENCH AVENUE Essence de Blanc — 75/37
 - ZIMAYA Mazaaj Infused — 61/17
-- ★ ⌂ BUJAIRAMI Hectic — 60/32 (ours: bujairami-hectic)
 
 ## Al Haramain Amber Oud Dubai Night (Al Haramain) — [page](https://www.fragrantica.com/perfume/Al-Haramain-Perfumes/Amber-Oud-Dubai-Night-96481.html) · confidence 1
 - ★ MONTALE Arabians Tonka — 257/83
@@ -86,6 +86,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ XERJOFF Torino24 — 28/3
 
 ## Al Haramain Amber Oud Gold Edition (Al Haramain) — [page](https://www.fragrantica.com/perfume/Al-Haramain-Perfumes/Amber-Oud-Gold-Edition-51816.html) · confidence 1
+- ★ XERJOFF Erba Pura — 1300/138
 - ★ TIZIANA TERENZI Kirkè — 381/131
 - ★ SOSPIRO PERFUMES Erba Pura — 229/47
 - LATTAFA PERFUMES Ana Abiyedh — 220/44
@@ -93,7 +94,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ ORIENTICA PREMIUM Royal Amber — 137/24
 - ★ MANCERA Jardin Exclusif — 131/43
 - ★ XERJOFF Erba Gold — 99/58
-- RASASI La Yuqawam Jasmine Wisp — 94/57
 
 ## Amouage Enclave (Amouage) — [page](https://www.fragrantica.com/perfume/Amouage/Enclave-62856.html) · confidence 1
 - ★ SPIRITICA Atmayatra — 79/48
@@ -127,6 +127,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ⌂ AFNAN Supremacy Not Only Intense — 7/1 (ours: afnan-supremacy-not-only-intense)
 
 ## Armaf Club de Nuit Iconic (Armaf) — [page](https://www.fragrantica.com/perfume/Armaf/Club-de-Nuit-Blue-Iconic-78475.html) · confidence 0.75
+- ★ CHANEL Bleu de Chanel Eau de Parfum — 1100/213
 - ★ CHANEL Bleu de Chanel — 484/142
 - ★ MISSONI Missoni Parfum Pour Homme — 132/80
 - AL HARAMAIN PERFUMES Amber Oud Bleu Edition — 73/27
@@ -134,9 +135,9 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ARMAF Ventana Marine — 44/16
 - MAISON ALHAMBRA Blue de Chance — 39/12
 - AHMED AL MAGHRIBI Blue by Ahmed — 31/10
-- FRENCH AVENUE Zenith Deep — 28/18
 
 ## Armaf Club de Nuit Milestone (Armaf) — [page](https://www.fragrantica.com/perfume/Armaf/Club-de-Nuit-Milestone-64104.html) · confidence 1
+- ★ CREED Millésime Impérial — 1200/111
 - ★ SEAN JOHN Unforgivable — 163/60
 - ARMAF Club De Nuit Milestone Perfume Oil — 46/4
 - ★ ORIENTICA PREMIUM Imperial Gold — 19/10
@@ -148,6 +149,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 ## Giorgio Armani ADG Profondo 2020 (Giorgio Armani) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Giorgio-Armani/Armani-827.html, /perfume/Giorgio-Armani/Armani-Eau-Pour-Homme-409.html
 
 ## Giorgio Armani Stronger With You Absolutely (Giorgio Armani) — [page](https://www.fragrantica.com/perfume/Giorgio-Armani/Emporio-Armani-Stronger-With-You-Absolutely-64501.html) · confidence 0.8
+- GIORGIO ARMANI Emporio Armani Stronger With You Intensely — 1100/143
 - GIORGIO ARMANI Emporio Armani Stronger With You — 420/95
 - GIORGIO ARMANI Emporio Armani Stronger With You Parfum — 348/66
 - GIORGIO ARMANI Emporio Armani Stronger With You Powerfully — 129/57
@@ -155,17 +157,16 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - GIORGIO ARMANI Emporio Armani Stronger With You Tobacco — 120/66
 - GIORGIO ARMANI Emporio Armani Stronger With You Leather — 92/55
 - GIORGIO ARMANI Emporio Armani Stronger With You Amber — 92/57
-- GIORGIO ARMANI Emporio Armani Stronger With You Oud — 71/41
 
 ## Giorgio Armani Stronger With You Intensely (Giorgio Armani) — [page](https://www.fragrantica.com/perfume/Giorgio-Armani/Emporio-Armani-Stronger-With-You-Intensely-52802.html) · confidence 0.8
+- GIORGIO ARMANI Emporio Armani Stronger With You — 1200/111
+- GIORGIO ARMANI Emporio Armani Stronger With You Absolutely — 1100/143
+- ★ AZZARO The Most Wanted — 1100/468
 - ★ ⌂ AZZARO The Most Wanted Parfum — 580/367 (ours: azzaro-most-wanted-parfum)
 - LATTAFA PERFUMES Asad Bourbon — 474/290
 - GIORGIO ARMANI Emporio Armani Stronger With You Powerfully — 291/51
 - GIORGIO ARMANI Emporio Armani Stronger With You Parfum — 208/74
 - ★ CRISTIANO RONALDO CR7 Game On — 182/62
-- GIORGIO ARMANI Emporio Armani Stronger With You Leather — 154/78
-- GIORGIO ARMANI Emporio Armani Stronger With You Amber — 144/56
-- LA RIVE Heroic Man — 122/23
 
 ## Azzaro The Most Wanted EDP Intense (Azzaro) — [page](https://www.fragrantica.com/perfume/Azzaro/The-Most-Wanted-Intense-90953.html) · confidence 0.75
 - MYKONOS Constantine — 9/1
@@ -220,6 +221,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - (no clear "reminds me of" votes)
 
 ## Davidoff Cool Water (Davidoff) — [page](https://www.fragrantica.com/perfume/Davidoff/Cool-Water-507.html) · confidence 1
+- ★ CREED Green Irish Tweed — 2100/742
 - ★ COTY Aspen For Men — 700/168
 - ARMAF Tres Nuit — 588/205
 - ★ O BOTICÁRIO Quasar Classic — 374/49
@@ -227,12 +229,12 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - RASASI Egra Men — 191/55
 - AL HARAMAIN PERFUMES L'Aventure Knight — 157/70
 - AL HARAMAIN PERFUMES Amber Oud Carbon Edition — 153/32
-- ULRIC DE VARENS UDV Blue — 120/32
 
 ## Davidoff Indigo (Davidoff) — [page](https://www.fragrantica.com/perfume/Davidoff/Indigo-102429.html) · confidence 1
 - ⌂ DAVIDOFF Cool Water — 20/8 (ours: davidoff-cool-water)
 
 ## Dolce & Gabbana Light Blue Eau Intense (Dolce & Gabbana) — [page](https://www.fragrantica.com/perfume/Dolce-Gabbana/Light-Blue-Eau-Intense-44034.html) · confidence 1
+- DOLCE&GABBANA Light Blue — 1100/111
 - ★ MOSCHINO Cheap & Chic I Love Love — 433/173
 - DOLCE&GABBANA Light Blue Summer Vibes — 96/37
 - ARMAF Tag-Her — 78/32
@@ -240,7 +242,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - RUE BROCA Nexa Immortal — 68/14
 - LA RIVE Donna — 62/12
 - DOLCE&GABBANA Light Blue Italian Zest — 52/27
-- ★ 24 24 Ice Gold — 46/9
 
 ## Dior Homme Intense (Dior) — [page](https://www.fragrantica.com/perfume/Dior/Dior-Homme-Intense-2007-1771.html) · confidence 1
 - DIOR Dior Homme Intense 2011 — 953/116
@@ -371,6 +372,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 ## Issey Miyake L’eau D’issey Pour Homme EDT (Issey Miyake) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Issey-Miyake/L-Eau-d-Issey-Pour-Homme-Eau-de-Toilette-L-Ete-14739.html, /perfume/Issey-Miyake/L-Eau-d-Issey-Pure-Eau-de-Toilette-41934.html
 
 ## JPG Le Beau (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Beau-55785.html) · confidence 1
+- JEAN PAUL GAULTIER Le Beau Le Parfum — 1400/100
 - JEAN PAUL GAULTIER Le Beau Paradise Garden — 680/262
 - ★ NATURA Conexão de Humor — 232/48
 - KHADLAJ PERFUMES Island — 179/55
@@ -378,7 +380,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ CALVIN KLEIN Eternity Aromatic Essence for Men — 146/70
 - ARMAF Odyssey Artisto — 108/39
 - FRAGRANCE WORLD Hayaati Beau — 67/10
-- PARIS CORNER Kaheela Platinum — 63/18
 
 ## JPG Le Beau Paradise Garden (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Beau-Paradise-Garden-88836.html) · confidence 1
 - JEAN PAUL GAULTIER Le Beau — 680/262
@@ -391,6 +392,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - FRAGRANCE WORLD Urban Man Paradise — 46/2
 
 ## JPG Le Male (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Male-430.html) · confidence 1
+- ★ CUBA PARIS Cuba Gold — 1700/206
 - ★ PRADA Luna Rossa Sport — 741/367
 - ★ CAROLINA HERRERA 212 Sexy Men — 502/334
 - JEAN PAUL GAULTIER Le Male Terrible — 461/121
@@ -398,17 +400,16 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ PERRY ELLIS 360° White for Men — 173/65
 - JEAN PAUL GAULTIER Le Male In Blue — 173/70
 - ★ CRISTIANO RONALDO CR7 — 166/42
-- LA RIVE Cabana — 161/48
 
 ## JPG Le Male Elixir (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Male-Elixir-81642.html) · confidence 1
+- JEAN PAUL GAULTIER Le Male Le Parfum — 2000/1300
+- LATTAFA PERFUMES The Kingdom For Men — 1200/94
 - JEAN PAUL GAULTIER Le Male Elixir Absolu — 756/206
 - RAYHAAN Rayhaan Elixir — 667/94
 - ⌂ RASASI Hawas Elixir — 460/46 (ours: rasasi-hawas-elixir)
 - ARMAF Club De Nuit Lionheart Man — 369/65
 - ATRALIA Elixir — 114/23
 - ★ CAROLINA HERRERA 212 Men Parfum — 88/49
-- FRAGRANCE WORLD Urban Man Elixir — 86/21
-- MAISON ALHAMBRA Glacier Gold — 68/2
 
 ## JPG Le Male In Blue (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Male-In-Blue-122212.html) · confidence 1
 - JEAN PAUL GAULTIER Le Male — 173/71
@@ -419,6 +420,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ TED LAPIDUS Wild Attraction — 5/0
 
 ## JPG Le Male Le Parfum (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Male-Le-Parfum-61856.html) · confidence 1
+- JEAN PAUL GAULTIER Le Male Elixir — 2000/1300
 - MAISON ALHAMBRA Glacier Le Noir — 367/75
 - IN THE BOX Homine Optimum — 77/37
 - FRAGRANCE WORLD John Gustav Homme Le Parfum — 43/20
@@ -433,6 +435,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ VERSACE Eros Eau de Parfum — 5/2
 
 ## JPG Ultra Male (Old Formulation) (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Ultra-Male-30947.html) · confidence 1
+- ⌂ AFNAN 9pm — 2900/177 (ours: afnan-9pm)
 - LATTAFA PERFUMES Ramz Lattafa Silver — 963/49
 - ⌂ RAYHAAN Lion — 480/25 (ours: rayhaan-lion)
 - FRAGRANCE ONE Date For Men — 468/227
@@ -440,7 +443,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - AL WATANIAH Attar Al Wesal — 243/21
 - ★ ZARA Gourmand Leather 2019 — 177/64
 - ARMAF Odyssey Spectra — 170/16
-- ★ NIKE Nike Blue — 149/40
 
 ## Junaid Perfumes Sanaya (Junaid Perfumes) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Junaid-Perfumes/Sanaya-Aqua-22402.html, /perfume/Junaid-Perfumes/Sanaya-Sport-22422.html
 
@@ -455,15 +457,18 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - (no clear "reminds me of" votes)
 
 ## Lalique Encre Noire A L'Extreme (Lalique) — [page](https://www.fragrantica.com/perfume/Lalique/Encre-Noire-A-L-Extreme-32356.html) · confidence 1
+- LALIQUE Encre Noire — 1200/308
 - ★ CHANEL Les Exclusifs de Chanel Sycomore — 283/153
 - ★ ATKINSONS James — 71/42
 - ★ VERTUS XXIV Carat Gold — 16/10
 
 ## Lalique Encre Noire Sport (Lalique) — [page](https://www.fragrantica.com/perfume/Lalique/Encre-Noire-Sport-21369.html) · confidence 1
+- LALIQUE Encre Noire — 1500/247
 - ★ AESOP Tacit — 8/4
 - ★ MAISON VIEGAS Black Sport Noire — 7/2
 
 ## Lattafa Angham (Lattafa) — [page](https://www.fragrantica.com/perfume/Lattafa-Perfumes/Angham-96768.html) · confidence 1
+- ★ BURBERRY Goddess — 1500/151
 - MAISON ALHAMBRA Athena — 341/33
 - ★ RARE BEAUTY Rare — 310/66
 - ★ BATH & BODY WORKS Vanilla Ease — 96/18
@@ -471,7 +476,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ AL ABSAR Hirfah — 33/9
 - ★ WE PINK Wonderful — 30/7
 - LATTAFA PERFUMES Angham Mist — 24/4
-- ★ MANGO Linen Vanilla — 24/8
 
 ## Lattafa Art Of Universe (Lattafa) — [page](https://www.fragrantica.com/perfume/Lattafa-Perfumes/Art-Of-Universe-101314.html) · confidence 1
 - ★ EX NIHILO Blue Talisman — 470/251
@@ -490,6 +494,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ARMAF Club De Nuit Elite — 5/0
 
 ## Lattafa Khamrah Qahwa (Lattafa) — [page](https://www.fragrantica.com/perfume/Lattafa-Perfumes/Khamrah-Qahwa-88175.html) · confidence 1
+- LATTAFA PERFUMES Khamrah — 1800/171
 - LATTAFA PERFUMES Khamrah Dukhan — 250/101
 - ZIMAYA Sharaf Blend — 245/85
 - FRAGRANCE WORLD Caramel Macchiato — 127/31
@@ -497,7 +502,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ AROMA CONCEPTS Jawhari Daniel Rene — 63/38
 - KHADLAJ PERFUMES Mocha Latte — 55/12
 - ★ RIIFFS PERFUMES Golden Elixir Reserve — 51/10
-- GULF ORCHID Sweet Heaven Extreme — 38/22
 
 ## Lattafa Teriaq Intense (Lattafa) — [page](https://www.fragrantica.com/perfume/Lattafa-Perfumes/Teriaq-Intense-99586.html) · confidence 1
 - ★ RIIFFS PERFUMES Momento Liquid Gold — 12/6
@@ -583,6 +587,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - LE FALCONÉ PERFUMES Risala Autograph — 7/4
 
 ## Rasasi Hawas for Him (Rasasi) — [page](https://www.fragrantica.com/perfume/Rasasi/Hawas-for-Him-46890.html) · confidence 1
+- ★ RABANNE Invictus — 1000/177
 - ⌂ RASASI Hawas Ice — 742/78 (ours: rasasi-hawas-ice)
 - ★ RABANNE Invictus Aqua — 604/115
 - ★ MONTBLANC Legend Spirit — 348/211
@@ -590,9 +595,9 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - LATTAFA PERFUMES Najdia — 269/66
 - DUMONT Nitro Red — 190/65
 - ★ RABANNE Invictus Aqua (2018) — 109/62
-- ★ ABERCROMBIE & FITCH First Instinct Together Eau de Toilette For Him — 66/27
 
 ## Rasasi Hawas Black (Rasasi) — [page](https://www.fragrantica.com/perfume/Rasasi/Hawas-Black-96817.html) · confidence 1
+- ★ NISHANE Hacivat — 1100/128
 - ★ NISHANE Hacivat X — 160/85
 - LATTAFA PERFUMES Niche Emarati Al Dana — 75/45
 - LATTAFA PERFUMES Shaheen Silver — 58/38
@@ -600,7 +605,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ ASSAF Aura — 22/5
 - RASASI Emir Noir — 12/1
 - KHADLAJ PERFUMES Valor Chivalry — 9/1
-- ★ ASSAF Error 404 — 8/1
 
 ## Rasasi Hawas Elixir (Rasasi) — [page](https://www.fragrantica.com/perfume/Rasasi/Hawas-Elixir-110808.html) · confidence 1
 - ★ JEAN PAUL GAULTIER Le Male Elixir — 459/46
@@ -753,6 +757,7 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 ## YSL Tuxedo 2ml Official Sample (Yves Saint Laurent) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Yves-Saint-Laurent/Tuxedo-32269.html, /perfume/Yves-Saint-Laurent/Tuxedo-Sharp-Patchouli-104942.html
 
 ## YSL Y EDP (Yves Saint Laurent) — [page](https://www.fragrantica.com/perfume/Yves-Saint-Laurent/Y-Eau-de-Parfum-50757.html) · confidence 1
+- LATTAFA PERFUMES Fakhar Black — 1900/322
 - YVES SAINT LAURENT Y Le Parfum — 758/111
 - YVES SAINT LAURENT Yves Saint Laurent Y — 753/94
 - ARMAF Odyssey Mega Man — 622/51
@@ -760,9 +765,8 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - YVES SAINT LAURENT Y Live — 337/50
 - YVES SAINT LAURENT Y Eau de Parfum Intense — 325/127
 - YVES SAINT LAURENT Y Iced Cologne — 234/32
-- YVES SAINT LAURENT Y Eau de Toilette — 234/32
 
 
-**Summary:** 105 products crawled · 90 matched a Fragrantica page · 87 with a clear "reminds me of" list · 36 with a data-backed "Alternative to" seed · 15 unmatched.
+**Summary:** 105 products crawled · 90 matched a Fragrantica page · 87 with a clear "reminds me of" list · 38 with a data-backed "Alternative to" seed · 15 unmatched.
 
-**Famous references voted ≥ 30 that the finder lexicon does not know yet (add as refs):** CHANEL Bleu de Chanel; STÉPHANE HUMBERT LUCAS 777 God of Fire; PRADA Luna Rossa Sport; VERSACE Versace Pour Homme; PARFUMS DE MARLY Greenley; COTY Aspen For Men; JEAN PAUL GAULTIER Le Beau Paradise Garden; PARFUMS DE MARLY Carlisle; AMOUAGE Outlands; RABANNE Invictus Aqua; CAROLINA HERRERA 212 Sexy Men; AZZARO The Most Wanted Parfum; GIORGIO ARMANI Emporio Armani Stronger With You Intensely; HERMÈS Terre d'Hermès; CREED Virgin Island Water 2007; RABANNE Invictus Aqua (2018); VALENTINO Valentino Uomo Intense; EX NIHILO Blue Talisman; XERJOFF XJ 1861 Naxos; MOSCHINO Cheap & Chic I Love Love; GIORGIO ARMANI Emporio Armani Stronger With You; ZARA Gourmand Leather; TIZIANA TERENZI Kirkè; O BOTICÁRIO Quasar Classic; CREED Absolu Aventus; MONTBLANC Legend Spirit; JEAN PAUL GAULTIER Le Beau Le Parfum; GUERLAIN Spiritueuse Double Vanille; THOMAS KOSMALA Nọ 4 - Après l’Amour Eau de Parfum; PARFUMS DE MARLY Darley
+**Famous references voted ≥ 30 that the finder lexicon does not know yet (add as refs):** CUBA PARIS Cuba Gold; BURBERRY Goddess; CREED Absolu Aventus 2023; CHANEL Bleu de Chanel Eau de Parfum; AZZARO The Most Wanted; CHANEL Bleu de Chanel; STÉPHANE HUMBERT LUCAS 777 God of Fire; PRADA Luna Rossa Sport; VERSACE Versace Pour Homme; PARFUMS DE MARLY Greenley; COTY Aspen For Men; JEAN PAUL GAULTIER Le Beau Paradise Garden; PARFUMS DE MARLY Carlisle; AMOUAGE Outlands; RABANNE Invictus Aqua; CAROLINA HERRERA 212 Sexy Men; AZZARO The Most Wanted Parfum; GIORGIO ARMANI Emporio Armani Stronger With You Intensely; HERMÈS Terre d'Hermès; CREED Virgin Island Water 2007; RABANNE Invictus Aqua (2018); VALENTINO Valentino Uomo Intense; EX NIHILO Blue Talisman; XERJOFF XJ 1861 Naxos; MOSCHINO Cheap & Chic I Love Love; GIORGIO ARMANI Emporio Armani Stronger With You; ZARA Gourmand Leather; TIZIANA TERENZI Kirkè; O BOTICÁRIO Quasar Classic; CREED Absolu Aventus
