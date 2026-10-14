@@ -1633,6 +1633,8 @@ input, select { font-family: var(--font-body); }
     padding: 6px 8px;
   }
   .cart-btn .cart-label { display: none; }  /* icon + badge only — no room for the word */
+  /* The count overlays the icon's corner: inline it widened the header past 390px once the cart had an item */
+  .cart-btn .cart-count { position: absolute; top: 0; right: 0; transform: translate(30%, -30%); }
   .theme-toggle { border-color: transparent; width: 32px; height: 32px; }
   #nav-menu {
     display: none;

@@ -12,7 +12,7 @@
 .finder-token {
   display: inline-flex; align-items: center; gap: 6px;
   background: var(--bg2); border: 1px solid var(--border); color: var(--text);
-  border-radius: var(--radius-pill); padding: 5px 11px; min-height: 34px;
+  border-radius: var(--radius-pill); padding: 6px 12px; min-height: 36px;
   font-size: 12px; font-weight: 500; font-family: var(--font-body); line-height: 1;
 }
 .finder-token:hover { border-color: var(--gold-dark); color: var(--gold); }
@@ -55,6 +55,8 @@
 }
 .chip:hover { border-color: var(--gold-dark); color: var(--gold); }
 .chip-primary { background: var(--gold-gradient); color: var(--on-gold); border-color: var(--gold-btn-border); font-weight: 600; }
+.chip-example { font-style: italic; color: var(--text-muted); border-style: dashed; }   /* "try: …" prompts on the opening screen */
+.chip-example::before { content: '“'; } .chip-example::after { content: '”'; }
 .chip-primary:hover { background: var(--gold-gradient-hover); color: var(--on-gold); }
 .finder-form { display: flex; gap: 8px; align-items: stretch; background: var(--bg); padding: 10px 0; }
 .finder-form input {

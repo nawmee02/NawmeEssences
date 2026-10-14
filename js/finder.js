@@ -67,6 +67,8 @@
     waIntro: 'Hi! I used Find a Scent on NawmeEssences. My shortlist:',
     waLooking: 'Looking for: ',
     skip: 'Skip', nameChip: 'Alternative to a fragrance I like',
+    // Example prompts on the opening screen (tapping one sends it as typed text).
+    examples: ['Fresh & clean for the office', 'Like Aventus, but cheaper', 'Sweet for winter nights', 'Something that gets compliments'],
     follow: { more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
     tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ' },
@@ -912,7 +914,7 @@
   function chipSet(id) {
     const L = S.lex || {};
     const mk = (c, next) => ({ label: c.label, kind: c.surprise ? 'surprise' : 'chip', data: c, next });
-    if (id === 'opening') return lexChips('occasion').map(c => mk(c, 'vibe')).concat((L.moods || []).map(c => mk(c, 'vibe')), [{ label: T.nameChip, kind: 'name' }, { label: T.skip, kind: 'skip', next: 'vibe' }]);
+    if (id === 'opening') return (T.examples || []).map(x => ({ label: x, kind: 'example', text: x })).concat(lexChips('occasion').map(c => mk(c, 'vibe')), (L.moods || []).map(c => mk(c, 'vibe')), [{ label: T.nameChip, kind: 'name' }, { label: T.skip, kind: 'skip', next: 'vibe' }]);
     if (id === 'vibe') return lexChips('vibe').map(c => mk(c, 'budget')).concat([{ label: T.skip, kind: 'skip', next: 'budget' }]);
     if (id === 'budget') return lexChips('budget').map(c => mk(c, 'who')).concat([{ label: T.skip, kind: 'skip', next: 'who' }]);
     if (id === 'who') return lexChips('who').map(c => mk(c, 'answer')).concat([{ label: T.skip, kind: 'skip', next: 'answer' }]);
@@ -931,7 +933,7 @@
     S.thread.chips = id; S.chips = chipSet(id);
     const box = S.el.chips; if (!box) return;
     box.textContent = '';
-    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'name' ? ' chip-primary' : ''); b.dataset.chip = String(k); b.textContent = c.label; box.appendChild(b); });
+    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'name' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : ''); b.dataset.chip = String(k); b.textContent = c.label; box.appendChild(b); });
     // Screen readers hear the question from the (live) thread; this sr-only status says the buttons changed too.
     if (S.el.status) S.el.status.textContent = S.chips.length ? fill(T.status, { n: S.chips.length }) : '';
   }
@@ -987,6 +989,7 @@
       advance(c.next);
     } else if (c.kind === 'skip') { addUserTurn(T.skip); th.awaitName = false; advance(c.next); }
     else if (c.kind === 'name') { addUserTurn(c.label); th.awaitName = true; botText(T.askName); setChips('name'); prepare(); save(); }
+    else if (c.kind === 'example') onSubmit(c.text);
     else if (c.kind === 'follow') followUp(c.op, c.n);
   }
   function onSubmit(raw) {
