@@ -84,7 +84,8 @@
     cheaper: 'Cheaper than ৳{price}:',
     noCheaper: "I couldn't find a cheaper match, so here are the closest alternatives.",
     // Relational follow-ups: each pick must be fresher / sweeter / stronger than the last #1 overall.
-    axisTitle: { fresh: 'Fresher than {name}:', sweet: 'Sweeter than {name}:', strong: 'Stronger than {name}:' },
+    axisTitle: { fresh: 'Fresher than {name}, and still what you asked for — try these three:', sweet: 'Sweeter than {name}, and still what you asked for — try these three:', strong: 'Stronger than {name}, and still what you asked for — try these three:' },
+    axisTitleBn: { fresh: '{name} er cheye aro fresh, kintu apnar chahida moto — ei tinta dekhen:', sweet: '{name} er cheye aro sweet, kintu apnar chahida moto — ei tinta dekhen:', strong: '{name} er cheye aro strong, kintu apnar chahida moto — ei tinta dekhen:' },
     noAxis: { fresh: "Nothing that still fits is fresher than {name} overall, so here are the closest picks.", sweet: "Nothing that still fits is sweeter than {name} overall, so here are the closest picks.", strong: "Nothing that still fits is stronger than {name} overall, so here are the closest picks." },
     compare: 'Side by side:',
     compareNeed: 'Pick a few answers first, then I can compare the top two.',
@@ -210,6 +211,11 @@
     banglaHelp: "I can read only a little Bangla script so far. Please type in English or Banglish, e.g. 'office er jonno fresh kichu' or 'mishti perfume 500 taka er moddhe'.",
     banglaNote: "Some of the Bangla words were new to me, so these follow the words I understood — English or Banglish works best.",
     modestNote: "We currently stock men's and unisex decants, so these are the unisex ones that stay clean and close to the skin.",
+    sweatNote: 'In heat and sweat, fresh citrus and aquatic scents stay pleasant, while heavy sweet ones can turn cloying. A spray on your shirt as well as your skin helps.',
+    sweatNoteBn: 'Gorome ar ghame fresh, citrus ar aquatic scent bhalo thake; bhari mishti scent ghame ektu cloying lagte pare. Skin er pashapashi shirt eo ekta spray din.',
+    commuteNote: 'For a crowded bus or office, these stay close and easy — pleasant to you without filling the space around you.',
+    commuteNoteBn: 'Bhir bus ba office er jonno egula halka thake — apnar kache bhalo lagbe, ashe pasher manush er kache beshi lagbe na.',
+    skinNoteBn: 'Skin type e perfume khub ekta bodlay na — prottek er skin e ektu alada lage, tai age 3 ml decant diye try korun.',
     skinNote: "Skin type doesn't change which bottle suits you much — scent sits differently on everyone, so start with a 3 ml decant and see how it wears on you.",
     cmpListedAll: '{all} are listed for {occ}.',
     cmpListedSome: '{yes} listed for {occ}; {no} not.',
@@ -1167,6 +1173,30 @@
   const BN_MARK = new Set(['jonno', 'jonne', 'kichu', 'kisu', 'lagbe', 'chai', 'amar', 'amr', 'ami', 'korbo', 'korte', 'ekta', 'akta', 'moddhe', 'valo', 'bhalo', 'onek', 'onk', 'beshi', 'dekhen', 'dekhan', 'dao', 'jeta', 'jeita', 'porbo', 'barite', 'bari', 'theke', 'kemon', 'koto', 'ache', 'ase', 'hobe', 'naki', 'apni', 'tumi', 'amake', 'dite', 'nibo', 'kinbo', 'er', 'r', 'ar']);
   function isBanglish(text) { const tk = tokensOf(text).filter(t => /^[a-z]+$/.test(t)); let n = 0; tk.forEach(t => { if (BN_MARK.has(t)) n++; }); return n >= 2 || (n >= 1 && tk.length <= 3); }
   // q = the composed query; parts = the thread's parts; turnNo picks a variant. Returns { text, folded } (folded: the strength sentence is included).
+  // "aro sweet kichu" / "more fresh" / "sweeter one" / "ektu beshi strong" → { axis, text } for the relational follow-up, else null.
+  const AXIS_WORDS = { sweet: ['sweet', 'mishti', 'misti', 'sweeter', 'মিষ্টি'], fresh: ['fresh', 'fresher', 'freshi', 'ফ্রেশ'], strong: ['strong', 'stronger', 'kora', 'shokto', 'heavier', 'heavy', 'bhari', 'কড়া'] };
+  const AXIS_MORE = new Set(['aro', 'more', 'beshi', 'ektu', 'a', 'bit', 'little', 'even', 'much', 'slightly', 'somewhat', 'onk', 'onek', 'আরো', 'আরও', 'বেশি', 'একটু']);
+  const AXIS_TAIL = new Set(['kichu', 'ta', 'one', 'ones', 'please', 'pls', 'option', 'options', 'dao', 'den', 'dekhan', 'chai', 'hobe', 'koro', 'kichu dekhan', 'কিছু', 'চাই']);
+  function axisFollowUp(text) {
+    const tk = tokensOf(text).filter(t => t !== ',');
+    if (!tk.length || tk.length > 5) return null;
+    let axis = null, comparative = false, more = false;
+    for (const t of tk) {
+      const hit = Object.keys(AXIS_WORDS).find(k => AXIS_WORDS[k].indexOf(t) >= 0);
+      if (hit) { if (axis && axis !== hit) return null; axis = hit; if (/er$/.test(t)) comparative = true; continue; }
+      if (AXIS_MORE.has(t)) { more = true; continue; }
+      if (AXIS_TAIL.has(t)) continue;
+      return null;
+    }
+    return axis && (comparative || more) ? { axis, text: axis } : null;
+  }
+  // A typed message that stands on its own: five or more words, its own occasion / vibe / bottle, and no refinement word.
+  const REFINE_WORDS = new Set(['more', 'also', 'too', 'instead', 'same', 'again', 'another', 'other', 'aro', 'arekta', 'abar', 'eta', 'etar', 'oita', 'ota', 'ektu', 'but', 'kintu', 'than', 'theke', 'similar', 'like', 'moto']);
+  function isNewRequest(text, parsed) {
+    const tk = tokensOf(text).filter(t => t !== ',');
+    if (tk.length < 5 || tk.some(t => REFINE_WORDS.has(t))) return false;
+    return (parsed.parts || []).some(p => p.anchor || (p.primary && ['o', 'a', 'f', 'n'].indexOf(p.primary) >= 0));
+  }
   function chatLine(q, parts, lang, turnNo) {
     const bn = lang === 'bn', C = T.chat[bn ? 'bn' : 'en'], f = q.features || {};
     parts = (parts || []).filter(p => !p.anchor && !p.exclude);
@@ -1184,8 +1214,13 @@
       && /^[a-zঀ-৿]+( [a-zঀ-৿]+)?$/i.test(plain(p.text)) && !/\blike\b/.test(p.text || ''));
     const stressedOwn = own.some(p => /^very /.test(p.text || ''));
     let vibe = '';
+    // context words ("I sweat a lot", "bus e jai") are not vibes; say the character they lead to instead ("fresh and citrusy")
+    const context = parts.filter(p => p.note && ['sweat', 'commute', 'skin', 'modest'].indexOf(p.note) >= 0);
     if (own.length) vibe = own.slice(0, 2).map(p => plain(p.text)).join(bn ? ' ar ' : ' and ');
-    else if (!occs.length) {   // no vibe word and no occasion (a gift, an AI reading): describe the top accords instead
+    else if (context.length) {
+      const cf = {}; context.forEach(p => Object.keys(p.features || {}).forEach(k => { if (/^a:/.test(k) && p.features[k] > 0) cf[k] = (cf[k] || 0) + p.features[k]; }));
+      vibe = Object.keys(cf).sort((a, b) => cf[b] - cf[a]).slice(0, 2).map(k => accWord(k.slice(2))).join(bn ? ' ar ' : ' and ');
+    } else if (!occs.length) {   // no vibe word and no occasion (a gift, an AI reading): describe the top accords instead
       const ks = Object.keys(f).filter(k => /^a:/.test(k) && f[k] > 0).sort((a, b) => f[b] - f[a]);
       vibe = ks.filter(k => f[k] >= 0.6 * f[ks[0]]).slice(0, 2).map(k => accWord(k.slice(2))).join(bn ? ' ar ' : ' and ');
     }
@@ -1356,7 +1391,10 @@
   const clearStored = () => { try { sessionStorage.removeItem(STATE_KEY); } catch (e) {} };
   // Constraint parts: one slot each for anchor / price / gender / strength / collection;
   // feature parts accumulate, an opposite-sign repeat replaces the older one.
-  const slotOf = p => (p.anchor ? 'anchor' : (p.maxPrice != null || p.minPrice != null || p.cheaper) ? 'price' : p.gender ? 'gender' : p.strength ? 'strength' : p.collection ? 'collection' : null);
+  // A part that also carries scent features ("bus diye" = fresh + softer, "office" = office + softer) is a wish, not a slot:
+  // a later strength / gender / price word must not delete its features. Only feature-less parts fill a slot.
+  const slotOf = p => (p.anchor ? 'anchor' : (p.maxPrice != null || p.minPrice != null || p.cheaper) && !Object.keys(p.features || {}).length ? 'price'
+    : Object.keys(p.features || {}).length ? null : p.gender ? 'gender' : p.strength ? 'strength' : p.collection ? 'collection' : null);
   function addParts(parts) {
     const th = S.thread;
     parts.forEach(p => {
@@ -2115,6 +2153,12 @@
   function trySpecial(req, model) {
     if (!req.typed || !req.text) return false;
     const th = S.thread, text = String(req.text).trim();
+    // Typed relational follow-ups ("aro sweet kichu", "more fresh", "sweeter one"): the same as the Fresher / Sweeter / Stronger chips —
+    // each pick must lean that way more than the current #1, not just nudge the ranking.
+    if (th.lastIds.length) {
+      const ax = axisFollowUp(text);
+      if (ax) { if (req.typed) logQuery(req.text, 0); runAnswer({ mode: 'axis', axis: ax.axis, text: ax.text }); return true; }
+    }
     // Skill 2: greetings, meta questions, open-ended asks (the whole message, nothing left over)
     const intent = intentOf(text, S.lex);
     if (intent && chatAnswer(req, intent, model)) return true;
@@ -2186,6 +2230,12 @@
         }
         // A bottle you merely asked about never steers a NEW search: the soft anchor goes once you type scent words or another name.
         if (parsed.parts.some(p => p.anchor || Object.keys(p.features || {}).length)) { const k = th.parts.findIndex(p => p.anchor && p.soft); if (k >= 0) removePart(k); }
+        // A new, complete request ("ami daily bus e jai, onk sweat kori") replaces the earlier scent wishes instead of piling
+        // onto them; a short refinement ("sweeter", "for winter", "under 500") still adds. Budget, gender and exclusions stay.
+        if (req.typed && th.lastIds.length && isNewRequest(req.text, parsed)) {
+          th.parts = th.parts.filter(p => !(p.anchor || Object.keys(p.features || {}).length || p.strength));
+          th.query = compose(th.parts); renderBar();
+        }
         if (parsed.parts.length) addParts(parsed.parts);
         if (!parsed.parts.length) {
           const words = parsed.unknown.join(', ');
@@ -2242,14 +2292,17 @@
       const exBrand = res.picks.find(r => r.item.c === 'e' && q.collection !== 'exclusive');
       if (exBrand && notes.indexOf(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] })) < 0) notes.push(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] }));
       if (req.mode === 'cheaper' && q.cheaper) text = fill(T.cheaper, { price: q.refPrice });
-      else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill(T.axisTitle[req.axis], { name: lastTop.nm });
+      else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill((th.lang === 'bn' ? T.axisTitleBn : T.axisTitle)[req.axis], { name: lastTop.nm });
       else if (req.mode === 'more' && !a) text = T.more;
       else if (a && a.kind === 'catalog') { const ai = model.byId.get(a.id); text = fill(ai && ai.i && th.renderedIds.indexOf(a.id) < 0 ? T.anchorStocked : T.anchorCatalog, { name: a.name }); }
       else if (a && a.kind === 'ref') text = fill(T.anchorRef, { name: a.name });
       // Notes for constraints added since the last answer (never repeated).
       th.pending.forEach(p => {
         if (p.note === 'unisex' && notes.indexOf(T.unisexNote) < 0) notes.push(T.unisexNote);
-        if (p.note === 'skin' && notes.indexOf(T.skinNote) < 0) notes.push(T.skinNote);
+        const noteIn = key => (th.lang === 'bn' && T[key + 'Bn']) || T[key];
+        if (p.note === 'skin' && notes.indexOf(noteIn('skinNote')) < 0) notes.push(noteIn('skinNote'));
+        if (p.note === 'sweat' && notes.indexOf(noteIn('sweatNote')) < 0) notes.push(noteIn('sweatNote'));
+        if (p.note === 'commute' && !th.pending.some(x => x.note === 'sweat') && notes.indexOf(noteIn('commuteNote')) < 0) notes.push(noteIn('commuteNote'));
         if (p.note === 'modest' && notes.indexOf(T.modestNote) < 0) notes.push(T.modestNote);
         if (p.strength === 'stronger' && !(chat && chat.folded && text === chat.text) && notes.indexOf(T.strongerNote) < 0) notes.push(T.strongerNote);
         if (p.strength === 'softer' && !(chat && chat.folded && text === chat.text) && notes.indexOf(T.softerNote) < 0) notes.push(T.softerNote);
@@ -2406,5 +2459,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, chatLine, isBanglish, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, chatLine, isBanglish, axisFollowUp, isNewRequest, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });

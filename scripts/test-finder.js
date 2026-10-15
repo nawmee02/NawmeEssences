@@ -900,6 +900,16 @@ if (engine) {
     cl = CL('amr ekta perfume lagbe jeta onk sweeet and date night e use korbo', 'bn'); assert.ok(/^Date night er jonno onek sweet/.test(cl.text), 'Banglish line, stressed vibe: ' + cl.text);
     assert.ok(/nothing vanilla/.test(CL('winter but no vanilla', 'en').text) && /oud chara/.test(CL('oud chai na', 'bn').text), 'negations are said in words');
     assert.ok(!/kichu kichu/.test(CL('office er jonno fresh kichu 500 taka er moddhe', 'bn').text), 'Banglish filler is not repeated');
+    // round 5: sweat / commute are context (fresh, softer, an honest note), never "dark skin"-style skin notes; typed relational follow-ups; new requests replace old wishes
+    bq = P('ami daily bus diye asahjaoa kori so onk sweat kori'); assert.ok(!bq.unknown.length && bq.strength === 'softer' && bq.parts.some(p => p.note === 'sweat') && bq.parts.some(p => p.note === 'commute'), 'commute + sweat understood: ' + JSON.stringify(bq.parts.map(p => p.label + '/' + p.note)));
+    assert.ok((bq.features['a:Fresh'] || 0) > 0 && !(bq.features['a:Sweet'] > 0), 'sweat → fresh, never sweet');
+    assert.ok(/fresh/.test(F.chatLine(bq, bq.parts, 'bn', 0).text) && !/sweat|bus/.test(F.chatLine(bq, bq.parts, 'bn', 0).text), 'context words are described by their character: ' + F.chatLine(bq, bq.parts, 'bn', 0).text);
+    assert.ok(!P('sweaty').features['a:Animalic'], '"sweaty" is about the wearer, not an animalic note'); assert.ok(F.T.sweatNote && F.T.sweatNoteBn && F.T.commuteNote && F.T.commuteNoteBn && F.T.axisTitleBn.sweet, 'notes + Banglish titles present');
+    bq = P('office strong'); assert.ok(bq.parts.some(p => p.features && p.features['o:Office'] > 0) && bq.strength === 'stronger', 'a strength word no longer deletes the office wish');
+    assert.deepStrictEqual(F.axisFollowUp('aro sweet kichu'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('sweeter one'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('ektu beshi strong'), { axis: 'strong', text: 'strong' });
+    assert.strictEqual(F.axisFollowUp('sweet'), null, 'a bare vibe word is a search'); assert.strictEqual(F.axisFollowUp('fresh and sweet'), null); assert.strictEqual(F.axisFollowUp('sweet for winter'), null);
+    assert.ok(F.isNewRequest('ami daily bus diye asahjaoa kori so onk sweat kori', P('ami daily bus diye asahjaoa kori so onk sweat kori')), 'a full sentence with its own occasion is a new request');
+    assert.ok(!F.isNewRequest('for winter', P('for winter')) && !F.isNewRequest('something sweeter for the same occasion please', P('something sweeter for the same occasion please')), 'short or "same / more" messages refine');
     bq = P('amar ekta perfume lagbe jeta biye barite use korbo ar onk dark type'); assert.ok(!bq.unknownAnchor && !bq.unknown.length && bq.features['o:Wedding'] > 0, '"X type" only names the words right before it: ' + bq.unknownAnchor);
     assert.strictEqual(P('zorblax type').unknownAnchor, 'zorblax'); assert.ok(P('sauvage type').anchor && /sauvage/i.test(P('sauvage type').anchor.name), 'sauvage type still anchors');
     for (const t of ['strong perfume', 'gym', 'something for my wife', 'smells like money', 'under 300', 'i hate sweet perfumes']) for (const lang of ['en', 'bn']) for (const n of [0, 1, 2]) {
