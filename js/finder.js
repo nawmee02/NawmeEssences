@@ -104,6 +104,82 @@
     aiLoadFailed: "The model couldn't be loaded, so I'll keep using the words I understand.",
     aiNoSupport: "This browser can't run the on-device model, so I'll keep using the words I understand.",
     noThanks: 'No thanks',
+    // Skill 1 — facts about a bottle we stock (every value comes from finder.json; nothing invented)
+    factSmell: '{name} by {brand} — {family}: {accords}.',
+    factSmellSelf: '{name} — {family}: {accords}.',
+    factNotes: 'Notes: {notes}.',
+    factPyramid: 'Top, heart and base notes are split out on the product page.',
+    factListed: 'Listed for {occ} · {gender} · {conc}.',
+    factListedNoOcc: '{gender} · {conc}.',
+    factFrom: 'From ৳{price}',
+    factPrice: '{name} starts at ৳{price} for {ml} ml.',
+    factPriceSize: '{name} in {ml} ml is ৳{price}.',
+    factNoSize: "{name} isn't sold in {ml} ml.",
+    factSizes: 'Sizes: {sizes}.',
+    factSale: 'On sale — {pct}% off is already included in these prices.',
+    factUnisex: '{name} is listed as unisex.',
+    factMen: '{name} is listed for men.',
+    factStrength: "We don't track wear time, so I can't quote how long it stays. {name} is {conc}, and its profile leans {lean}.",
+    factStrengthNoConc: "We don't track wear time, so I can't quote how long it stays. {name}'s concentration isn't listed; its profile leans {lean}.",
+    leanStrong: 'stronger — higher concentration and a heavier profile',
+    leanSoft: 'softer — lighter concentration and a fresher profile',
+    leanMid: 'neither heavy nor light',
+    concUnlisted: 'concentration not listed',
+    factHave: 'Yes — we stock {name}.',
+    factHaveOut: '{name} is out of stock right now. Closest alternatives we have:',
+    factBuy: 'Pick a size on the card to add {name} to your cart, or send it to Nawmee on WhatsApp.',
+    factSimilar: 'Similar in our catalogue:',
+    factExclusive: '{name} is in our Exclusive collection (rare bottle, full advance payment).',
+    notStocked: "We don't stock {name}.",
+    haveNoBrand: "We don't carry {brand} right now. Tell me which of their bottles you like and I'll find the closest match we stock.",
+    haveUnknown: "I couldn't find '{name}' in our catalogue or among the fragrances I know. Ask Nawmee on WhatsApp, or tell me what it smells like and I'll match that.",
+    // Skill 2 — conversation (greetings, meta questions, open-ended asks)
+    chatGreet: "Hi! Tell me what you're after — a vibe, an occasion, a budget, or a fragrance you like — or tap a quick reply below.",
+    chatThanks: "You're welcome! Ask me anything else, or send your shortlist to Nawmee on WhatsApp when you're ready.",
+    chatBye: 'Bye for now! Come back any time.',
+    chatByeList: 'Bye for now! Your shortlist stays on this page until you close the tab.',
+    chatAck: 'Anything else? Try a vibe, an occasion, a budget, or a fragrance name.',
+    chatBot: "I'm Nawmee's scent finder — a rule-based helper that runs in your browser, not a chat AI. For a human, message Nawmee on WhatsApp.",
+    chatMaker: 'NawmeEssences built me for this shop. I only know our catalogue and our policies.',
+    chatLang: "I understand English and Banglish (Bangla in English letters), e.g. 'office er jonno fresh kichu'. Bangla script isn't supported yet.",
+    chatHelp: 'Here is what I can do:',
+    chatHelpLines: [
+      'Find decants by vibe, occasion, budget or who it is for — "fresh for office under 500"',
+      'Find alternatives to a fragrance you like — "like Aventus but cheaper"',
+      'Compare two bottles we stock — "Hawas Ice vs Sanaya"',
+      'Tell you about a bottle: notes, sizes and price — "what does 9PM smell like", "price of Khamrah Qahwa"',
+      'Answer delivery, payment, pickup and ordering questions',
+      'English or Banglish, typed or with the quick replies below',
+    ],
+    chatGuide: "Let's narrow it down with four quick questions.",
+    chatWhy: 'The grey line under each card is the reason: the notes and occasions that matched your words (or the ones it shares with the bottle you named), then the price. Owner-verified alternatives say so. Nothing here is sponsored.',
+    chatWhyNone: "Once you have picks, the grey line under each card shows why it was chosen — the notes and occasions that matched. Nothing is sponsored.",
+    chatMemory: "I only remember this tab — nothing is kept once you close it. Tell me again what you liked and I'll pick it up from there.",
+    chatMemoryList: 'Your current shortlist is above. Tap "More like this" under a card to continue from it, or tell me what to change.',
+    chatNew: "I can't list new arrivals yet. Tell me a vibe, an occasion or a budget and I'll pick from everything in stock, or browse the shop.",
+    // Skill 3 — shop questions (policies from the About page; delivery amounts from the live settings)
+    faqDelivery: 'Delivery is ৳{dhaka} inside Dhaka, ৳{suburb} in the Dhaka suburbs and ৳{outside} anywhere else in Bangladesh.',
+    faqDeliveryTime: 'Orders are typically delivered within 1–2 business days in Dhaka and 2–3 business days outside Dhaka.',
+    faqDeliveryAdvance: 'To confirm an order, at least the delivery charge is paid in advance.',
+    faqAbroad: 'We deliver across Bangladesh. For anywhere else, ask Nawmee on WhatsApp first.',
+    faqPayment: 'To confirm an order, pay at least the delivery charge in advance — 30% for orders above ৳2,000, and the full amount for Exclusive bottles. Advance via bKash, Nagad or bank transfer.',
+    faqPaymentFixed: 'Prices are fixed; there is no bargaining.',
+    faqOrder: 'Pick a size on any card and add it to the cart, then check out with your contact and delivery details. Or send your shortlist to Nawmee on WhatsApp and confirm there.',
+    faqOrderAdvance: 'The order is confirmed once the advance is paid (at least the delivery charge).',
+    faqAuthentic: 'Yes. Every decant is taken directly from authentic original bottles. We never dilute, mix, or alter the fragrance.',
+    faqAuthenticHow: "Decanted with a syringe from the owner's own bottles — what you smell in store is what you get in your decant.",
+    faqSizes: 'Decant sizes: 3 ml (about 40–45 sprays), 5 ml (70–75), 10 ml (140–150), 15 ml (210–225) and 30 ml on selected bottles (420–450).',
+    faqSizesStart: 'Prices start from ৳{min} for 3 ml and differ per bottle — ask "price of <name>". Start with 3 ml to try; 5 ml is the most popular.',
+    faqDecant: 'A perfume decant is a smaller quantity of fragrance transferred from an authentic original bottle into a travel-sized atomizer.',
+    faqDecantWhy: 'It lets you try premium fragrances at a fraction of a full bottle\'s price before committing.',
+    faqType: 'We sell decants only — measured amounts of the original alcohol-based spray in a glass atomizer. No attars, perfume oils, roll-ons or body sprays.',
+    faqTypeSizes: 'Sizes run from 3 ml to 30 ml; ask "sizes" for the spray counts.',
+    faqReturns: 'Opened or used decants cannot be returned. If you receive a damaged, missing or incorrect item, contact us within one day with a continuous unboxing video — verified claims get a replacement or refund.',
+    faqReturnsCancel: 'Orders cannot be cancelled after confirmation.',
+    faqPickup: 'Self-pickup is available from {points} (Dhaka) by prior arrangement on WhatsApp.',
+    faqContact: 'Fastest on WhatsApp — tap the link below. You can also reach Nawmee via Facebook Messenger or Instagram.',
+    faqOffers: 'Prices are fixed. When a bottle is on sale, its card shows the reduced price. For bulk or gift orders, message Nawmee on WhatsApp.',
+    faqMore: 'All policies',
   };
 
   // ── tuning (vector weights MUST stay identical to js/recs.js) ──
@@ -335,6 +411,9 @@
     DIFF_BRANDS.forEach(w => add(w, { kind: 'diffbrands' })); UNISEX.forEach(w => add(w, { kind: 'unisex' }));
     if (model) {
       model.vocab.b.forEach((name, i) => add(name, { kind: 'brand', data: { name, i } }));
+      // Lexicon brand aliases ("armani" → Giorgio Armani); aliases for brands we do not stock are ignored here.
+      const aliases = L.brandAliases || {};
+      Object.keys(aliases).forEach(alias => { const i = model.vocab.b.findIndex(b => String(b).toLowerCase() === String(aliases[alias]).toLowerCase()); if (i >= 0) add(alias, { kind: 'brand', data: { name: model.vocab.b[i], i } }); });
       ['f', 'a', 'n', 'o', 'k'].forEach(p => model.vocab[p].forEach(label => add(label, { kind: 'vocab', data: { p, label, w: 1 } })));
       model.vocab.w.forEach(label => add(label, { kind: 'vocab', data: { p: 'w', label, w: 0.7 } }));
     }
@@ -1135,6 +1214,7 @@
     const cards = S.thread.cards || {};
     let html = '<p>' + esc(turn.text) + '</p>';
     (turn.notes || []).forEach(n => { html += '<p class="finder-sub">' + esc(n) + '</p>'; });
+    if (turn.link && turn.link.href) html += '<p class="finder-sub"><a href="' + esc(turn.link.href) + '"' + (turn.link.external ? ' target="_blank" rel="noopener"' : '') + '>' + esc(turn.link.label || turn.link.href) + ' →</a></p>';
     if (turn.table) html += compareTable(turn.table);
     const node = appendMsg(msgEl('bot', html));
     const ids = (turn.ids || []).filter(id => cards[id] && cards[id].c);
@@ -1149,7 +1229,7 @@
       });
       a += '</div>';
       if (turn.also && turn.also.items && turn.also.items.length) {
-        a += '<p class="finder-also">' + esc(fill(T.also, { name: turn.also.name })) + ' ' +
+        a += '<p class="finder-also">' + esc(turn.also.label || fill(T.also, { name: turn.also.name })) + ' ' +
           turn.also.items.map(x => '<a href="/product/' + esc(x.id) + '/">' + esc(x.nm) + '</a>').join(', ') + '</p>';
       }
       a += '<p class="finder-links">' + (ids.length >= 2 ? '<button type="button" class="finder-link" data-op="compare">' + esc(T.compareLink) + '</button>' : '') + '<button type="button" class="finder-link" data-op="brands">' + esc(T.brandsLink) + '</button></p>';
@@ -1220,7 +1300,7 @@
     if (S.el.status) S.el.status.textContent = S.chips.length ? fill(T.status, { n: S.chips.length }) : '';
   }
   function waHref() {
-    const th = S.thread, model = S.model;
+    const th = S.thread || { lastIds: [], parts: [] }, model = S.model;
     let num = WA_FALLBACK;
     try { const s = window.__SETTINGS__; const n = s && s.contact && s.contact.whatsapp; if (n) num = String(n).replace(/[^0-9]/g, '') || WA_FALLBACK; } catch (e) {}
     const lines = [T.waIntro];
@@ -1392,9 +1472,255 @@
     const V = model.vocab; const acc = (it.a || []).slice(0, 3).map(i => V.a[i]).filter(Boolean);
     return lowerList(acc) + (it.k >= 0 && V.k[it.k] ? ', ' + V.k[it.k] : '');
   }
+  // ── Skills 1–3 (2026-10-15): product facts · conversation · shop questions ──
+  // Closure rule (intents and shop questions): the WHOLE message must be covered by known
+  // phrases plus filler / question words. Anything left over means "search for that".
+  const QWORDS = new Set(('how much many what whats which where when why who is are was were do does did can could will would should there here your you u ur the a an it its this that in to of for on at with about koto ki kivabe kemne kemon naki ache ase achhe hoy hobe kore koren korte dao den diben parben parbo pari paren paro jay jabe i me my we our please pls plz bro bhai vai apni tumi tomra apnara apnader tomader ami amra amar amader ekta kichu ek one vs versus or and also too ta er r e ke te ji na hmm tell say bolo bolen bolun janao janan jante chai chacchi want need like sell sells selling accept take taken have has got give gives available provide provides possible info information details detail question ask asking kina koi kothay kothai kon konta hole now today ekhon akhon currently still again abar ok okay so then um uh eh hi hello hey thanks thank bhaiya apu dear sir madam mam').split(' '));
+  let CHAT = null;
+  function chatIndex(L) {
+    if (CHAT && CHAT.L === L) return CHAT;
+    L = L || {};
+    const intents = new Map(), faq = new Map(); let maxLen = 1;
+    const add = (map, phrase, key) => { const p = normalize(phrase); if (!p || p === ',') return; const n = p.split(' ').length; if (n > maxLen) maxLen = n; if (!map.has(p)) map.set(p, key); };
+    Object.keys(L.intents || {}).forEach(k => (L.intents[k] || []).forEach(m => add(intents, m, k)));
+    (L.faq || []).forEach(f => (f.m || []).forEach(m => add(faq, m, f.key)));
+    const skip = new Set(STOP); QWORDS.forEach(w => skip.add(w)); (L.stop || []).forEach(w => skip.add(normalize(w)));
+    CHAT = { L, intents, faq, skip, maxLen };
+    return CHAT;
+  }
+  // Longest-phrase walk: the keys hit (in order) and the tokens nothing covered.
+  function closure(tokens, map, cx) {
+    const hits = [], rest = [];
+    for (let i = 0; i < tokens.length;) {
+      let hit = null;
+      for (let n = Math.min(cx.maxLen, tokens.length - i); n >= 1 && !hit; n--) { const k = map.get(tokens.slice(i, i + n).join(' ')); if (k) hit = { k, n }; }
+      if (hit) { hits.push(hit.k); i += hit.n; continue; }
+      const t = tokens[i];
+      if (t === ',' || cx.skip.has(t) || (isNum(t) && tokens[i + 1] === 'ml')) { i++; continue; }
+      rest.push(t); i++;
+    }
+    return { hits, rest };
+  }
+  const INTENT_ORDER = ['reset', 'guide', 'help', 'random', 'why', 'memory', 'new', 'lang', 'maker', 'bot', 'bye', 'thanks', 'greet', 'ack'];
+  function intentOf(text, L) {
+    L = L || S.lex || {};
+    const cx = chatIndex(L), tk = tokensOf(text);
+    if (!tk.length) return null;
+    const r = closure(tk, cx.intents, cx);
+    if (!r.hits.length || r.rest.length) return null;
+    return INTENT_ORDER.find(k => r.hits.indexOf(k) >= 0) || r.hits[0];
+  }
+  function faqOf(text, L) {
+    L = L || S.lex || {};
+    const cx = chatIndex(L), tk = tokensOf(text);
+    if (!tk.length) return null;
+    const r = closure(tk, cx.faq, cx);
+    if (!r.hits.length || r.rest.length) return null;
+    const keys = (L.faq || []).map(f => f.key), count = new Map();
+    r.hits.forEach(k => count.set(k, (count.get(k) || 0) + 1));
+    if (count.has('abroad')) return 'abroad';   // "do you ship to India": the place decides, not the verb
+    let best = null; count.forEach((c, k) => { if (!best || c > best.c || (c === best.c && keys.indexOf(k) < keys.indexOf(best.k))) best = { k, c }; });
+    return best ? best.k : null;
+  }
+  // Question frames around a product name. Matched on the normalised, punctuation-free text;
+  // group 1 is the name. A frame only counts when the name resolves (see resolveFact).
+  const ML_RE = /\b(\d+(?:\.\d+)?) ml\b/;
+  const FRAMES = [
+    ['smell', /^(?:what|how) (?:does|do|is|would|will|dose) (.+?) (?:smell|smells|smell like|smells like)$/],
+    ['smell', /^(?:what|how) (?:does|do|is) the (?:smell|scent|vibe|character|dna) of (.+)$/],
+    ['smell', /^(.+?) (?:smells? like what|smell kemon|er smell kemon|kemon smell|kemon ghran|er ghran kemon|gondho kemon|er gondho kemon|kemon lage|kemon|kemon hoy|smell ki rokom|ki rokom)$/],
+    ['notes', /^(?:what (?:are|is) |whats |what |)(?:the |its |)(?:top |heart |middle |base |main |key |)notes? (?:of|in|for|on) (.+)$/],
+    ['notes', /^(.+?) (?:er |)(?:top |heart |middle |base |main |)notes?$/],
+    ['notes', /^(?:notes? |ingredients? |accords? |composition |pyramid )(?:of |in |for |)(.+)$/],
+    ['notes', /^(?:what (?:are|is) |)(?:the |)(?:ingredients|accords|composition|pyramid|note breakdown) (?:of|in|for) (.+)$/],
+    ['about', /^(?:tell me about|tell me more about|tell about|tell me|describe|about|info on|info about|information about|information on|details of|details about|details on|detail of|review of|review|reviews of|explain|what is|whats|what about|how is|how good is|hows|how about|thoughts on|opinion on|your opinion on|is it good|rate|rating of|how would you rate|how do you rate) (.+)$/],
+    ['about', /^(.+?) (?:er |)(?:details|detail|review|reviews|info|information|bapare bolo|bapare bolen|bapare bolun|somporke bolo|somporke bolen|bapare|somporke|kemon hobe|niye bolo|niye bolen|niye bolun|ki rokom|rating|ratings)$/],
+    ['family', /^(?:what|which) (?:family|type|kind|category|genre|style) (?:is|does|of|do|has) (.+?)(?: belong to| fall under| fall in| have| has| come under)?$/],
+    ['family', /^(.+?) (?:er |)(?:family|type|category|genre|style)(?: ki| kon| koto| what)?$/],
+    ['gender', /^(?:is|does|can) (.+?) (?:unisex|for men|for women|for ladies|for girls|for guys|for boys|for a man|for a woman|masculine|feminine|a mens|a womens|mens|womens|men|women|for both|for male|for female|male|female|for her|for him|wearable by women|good for women|good for ladies|ok for women|ok for ladies|for everyone|for anyone|only for men|only for women|manly|girly)(?: or (?:men|women|unisex|for men|for women|female|male))?$/],
+    ['gender', /^(.+?) (?:ki |)(?:unisex|meyeder jonno|cheleder jonno|meyera porte parbe|meye ra porte parbe|chele ra porte parbe|mens|womens|for men|for women|male|female|masculine|feminine|unisex naki|unisex ki)$/],
+    ['strength', /^(?:is|does) (.+?) (?:strong|powerful|heavy|loud|light|soft|subtle|weak|long lasting|longlasting|a beast|beast mode|beastly|intense|mild|gentle|strong enough|too strong|too heavy|too loud|office safe|a skin scent|skin scent)(?: or (?:light|soft|weak|strong|heavy|mild))?$/],
+    ['strength', /^how (?:long|many hours) (?:does|do|will|can|would) (.+?) (?:last|lasts|stay|stays|lasting|last on skin|stay on skin|last for|go|last on clothes)$/],
+    ['strength', /^(?:how|whats|what is|how is|hows|rate the|rate|what about the|how about the) (?:the |)(?:longevity|performance|projection|sillage|strength|power|lasting power|staying power|longevity and projection|projection and longevity) (?:of|for|on|is) (.+)$/],
+    ['strength', /^(.+?) (?:er |)(?:longevity|performance|projection|sillage|strength|lasting power|staying power|longevity kemon|performance kemon|projection kemon)(?: kemon| koto| ki| how is it| how much| how long)?$/],
+    ['strength', /^(.+?) (?:koto khon|kotokkhon|kotokhon|koto time|koto ghonta|koto somoy|kotokkhon porjonto|koto der|kotokhon porjonto) (?:thake|thakbe|lasts?|lasting|stay|stays|jay|jabe|thakbe skin e|skin e thake)$/],
+    ['strength', /^(.+?) (?:ki |)(?:strong|kora|shokto|halka|light|soft|heavy|bhari|vari|beast|long lasting|longlasting)(?: naki| ki| hoy| perfume)?$/],
+    ['strength', /^(?:does|is|will|can) (.+?) (?:last long|last all day|last the whole day|last whole day|stay long|stay all day|last for long|last for hours|last hours|last \d+ hours|last \d+ hour|last \d+ hrs|project well|project|perform well|perform|have good longevity|have good projection|have good sillage|last till evening|last till night|survive the heat|survive summer)$/],
+    ['price', /^(?:price|prices|cost|dam|rate|rates|how much|how much is|how much for|how much does|how much do|how much are|how much will|koto|koto taka|koto dam|dam koto|price koto|what is the price|whats the price|what the price|what is the cost|whats the cost|what the cost|cheapest size|cheapest price|lowest price|smallest size|biggest size|largest size|price list|price range|pricing|price check|how much money) (?:of |for |is |does |the |a |will |)(.+?)(?: cost| costs| price| dam| koto| taka| tk| cost in taka| in taka| be)?$/],
+    ['price', /^(.+?) (?:er |r |)(?:price|prices|cost|rate|koto|koto taka|dam|dam koto|price koto|price ki|price list|koto kore|koto tk|koto taka kore|dam ki|kinte koto|price range|pricing)(?: koto| ki| kemon| lagbe| hobe| porbe| what| taka| tk| please| pls)?$/],
+    ['have', /^(?:do you|do u|du|you|u|does nawmee|does the shop|does this shop|do they|does your shop|do you guys|you guys|do you people|does nawme|ki|apnader kache|apnader|tomader kache|tomader|apnar kache|tomar kache|apni|tumi|do you still|do u still) (?:have|has|sell|sells|stock|carry|got|keep|offer|provide|still have|still sell|still stock|also have|also sell|ache|ase|achhe|rakhen|rakho|rakhe|bikri koren|bikri koro|bikroy koren|bikri kore|kinte pabo|pabo|paoa jabe|pawa jabe|got any|have any|have got|have the|sell the|stock the)(?: any| the| some| a| an| this| that| ei| oi)? (.+?)(?: in stock| available| instock| in your stock| in your shop| in the shop| ache| ase| achhe| naki| now| right now| currently| ekhon| or not)?$/],
+    ['have', /^(?:is|are|was|has|have) (?:the |)(.+?) (?:in stock|available|instock|in-stock|still available|still in stock|back in stock|restocked|sold out|out of stock|ache|ase|achhe|paoa jay|pawa jay|paoa jabe|pawa jabe|stock e ache|stock e ase|stock ache|stock ase|stock a ase|ekhon ache|ekhon ase|there|here|on the site|on your site|on your website|listed)(?: now| right now| currently| ekhon| naki| ki| or not)?$/],
+    ['have', /^(.+?) (?:ache|ase|achhe|ache ki|ase ki|achhe ki|ki ache|ki ase|in stock|available|instock|available ki|is available|is in stock|paoa jabe|pawa jabe|paoa jay|pawa jay|paoa jabe ki|pawa jabe ki|stock e ache|stock e ase|stock ache|stock ase|stock a ase|stock a ache|ekhon ache|ekhon ase|stock|availability|available naki|ache naki|ase naki)(?: ki| naki| now| right now| ekhon| apnader kache| tomader kache)?$/],
+    ['have', /^(?:have|got|sell|stock|availability of|availability|stock of|do u have|any stock of|got any|looking for|searching for|searching|i am looking for|im looking for|i m looking for|where can i find|where can i get|where to get|where to buy|where can i buy|khujtesi|khujchi|khujtechi) (?:any |the |some |a |an |)(.+)$/],
+    ['have', /^(?:any|anything|something|some|bottles|perfumes|decants|kichu|other|others|more|all|everything) (?:from|by|of|er|r) (.+)$/],
+    ['buy', /^(?:i want to |i wanna |want to |wanna |i would like to |id like to |i d like to |i will |ill |i ll |lets |let s |let me |i want |can i |could i |how to |how do i |how can i |i need to |need to |)(?:buy|order|purchase|get|take|book|reserve|nibo|kinbo|kinte chai|nite chai|order korbo|order korte chai|order dibo|order dite chai|kinte chacchi|nite chacchi|add|confirm) (?:the |a |one |ekta |this |that |me |)(.+?)(?: please| pls| plz| now| today| for me| to cart| to my cart| to the cart)?$/],
+    ['buy', /^(.+?) (?:ta |ekta |)(?:kinbo|nibo|kinte chai|nite chai|order korbo|order korte chai|order dibo|order dite chai|kinte chacchi|nite chacchi|lagbe|chai|order koro|order korun|order dao|order den|book koro|book korun|nite chacchi|kinte chaci|nite chaci)$/],
+  ];
+  const NAME_LEAD = /^(?:(?:any|anything|something|some|the|a|an|this|that|ei|oi|kono|ekta|all|every|other|others|more|new|good|nice|best|your|ur|from|by|of|in|about|on|for|to|is|does|do|please|pls|plz|me|us|one|called|named|name|this one|that one) )+/;
+  const NAME_TAIL = /(?: (?:perfume|perfumes|fragrance|fragrances|decant|decants|bottle|bottles|scent|ta|ti|one|er|r|ki|naki|please|pls|plz|bhai|bro|vai|at your shop|here|on your site|in your shop|in your store|in bangladesh|in bd|in dhaka|now|right now|currently|ekhon|today|for me|cost|price|dam|koto|taka|tk|at all|or not))+$/;
+  function cleanName(name) {
+    let n = String(name || '').replace(/\s+/g, ' ').trim();
+    for (let k = 0; k < 3; k++) n = n.replace(NAME_LEAD, '').replace(NAME_TAIL, '').trim();
+    return n;
+  }
+  function matchFrame(text) {
+    const s = tokensOf(text).filter(t => t !== ',').join(' ');
+    if (!s) return null;
+    const mm = ML_RE.exec(s), ml = mm ? Number(mm[1]) : null;
+    for (const [kind, re] of FRAMES) {
+      const m = re.exec(s); if (!m) continue;
+      let name = String(m[1] || '').trim();
+      if (ml != null) name = name.replace(ML_RE, ' ').replace(/\s+/g, ' ').trim();
+      name = cleanName(name);
+      return { kind, name, ml, pyramid: kind === 'notes' && /\b(?:top|heart|middle|base)\b/.test(s) };
+    }
+    return null;
+  }
+  // What the name refers to: a stocked bottle, a famous reference, a brand we carry, a
+  // brand we know but do not carry, a vibe word (→ null: normal search) or nothing known.
+  function resolveFact(name, model, L) {
+    if (!name || !model) return null;
+    L = L || S.lex || {};
+    const q = parse(hasTrigger(name, L, model) ? name : 'like ' + name, L, model, {});
+    if (q.anchor && q.anchor.kind === 'catalog') { const it = model.byId.get(q.anchor.id); if (it) return { kind: 'catalog', item: it, anchor: q.anchor }; }
+    if (q.anchor && q.anchor.kind === 'ref') return { kind: 'ref', name: q.anchor.name, anchor: q.anchor };
+    const alias = (L.brandAliases || {})[normalize(name)];
+    if (alias && !model.vocab.b.some(b => String(b).toLowerCase() === String(alias).toLowerCase())) return { kind: 'nobrand', name: alias };
+    const bq = parse(name, L, model, {});
+    const feats = Object.keys(bq.features || {});
+    const brand = feats.find(k => /^b:/.test(k) && bq.features[k] > 0);
+    const scent = feats.some(k => !/^b:/.test(k)) || bq.maxPrice != null || bq.minPrice != null || !!bq.strength || !!bq.gender || !!bq.collection || !!bq.cheaper;
+    if (scent) return null;
+    if (brand) return { kind: 'brand', name: brand.slice(2) };
+    return { kind: 'unknown', name };
+  }
+  const CONC_LONG = { EDP: 'an Eau de Parfum (EDP)', EDT: 'an Eau de Toilette (EDT)', EDC: 'an Eau de Cologne (EDC)', Extrait: 'an Extrait de Parfum', Parfum: 'a Parfum', 'EDP Intense': 'an EDP Intense', Elixir: 'an Elixir' };
+  // The fact reply (text + sub lines) for one stocked bottle; pure, so the tests can read it.
+  function factLines(kind, it, model, x) {
+    x = x || {}; const V = model.vocab, labels = (p, idxs) => idxs.map(i => V[p][i]).filter(Boolean);
+    const name = it.nm, brand = V.b[it.b] || '';
+    const fam = labels('f', it.f || []), acc = labels('a', (it.a || []).slice(0, 5)), notes = labels('n', (it.n || []).slice(0, kind === 'notes' ? 12 : 6)), occ = labels('o', it.o || []);
+    const conc = it.k >= 0 && V.k[it.k] ? V.k[it.k] : null, gender = it.g === 3 ? 'Unisex' : 'For men';
+    const sizes = (it.s || []).map(p => p[0] + ' ml ৳' + effectivePrice(p[1], it.sp)).join(' · ');
+    const smell = fill(normalize(name).indexOf(normalize(brand)) === 0 && brand ? T.factSmellSelf : T.factSmell, { name, brand, family: fam.length ? lowerList(fam) : 'family not listed', accords: acc.length ? acc.map(a => String(a).toLowerCase()).join(', ') : '—' });
+    const listed = occ.length ? fill(T.factListed, { occ: occ.join(', '), gender, conc: conc || T.concUnlisted }) : fill(T.factListedNoOcc, { gender, conc: conc || T.concUnlisted });
+    const priceLine = fill(T.factFrom, { price: it.p }) + (sizes ? ' — ' + sizes : '');
+    const noteLine = notes.length ? fill(T.factNotes, { notes: notes.map(n => String(n).toLowerCase()).join(', ') }) : null;
+    let text, lines;
+    if (kind === 'price') {
+      if (x.ml != null) { const sz = (it.s || []).find(p => Number(p[0]) === x.ml); text = sz ? fill(T.factPriceSize, { name, ml: x.ml, price: effectivePrice(sz[1], it.sp) }) : fill(T.factNoSize, { name, ml: x.ml }); }
+      else text = fill(T.factPrice, { name, price: it.p, ml: (it.s && it.s[0] && it.s[0][0]) || 3 });
+      lines = [sizes ? fill(T.factSizes, { sizes }) : null, it.sp > 0 ? fill(T.factSale, { pct: it.sp }) : null, smell, listed];
+    } else if (kind === 'gender') { text = fill(it.g === 3 ? T.factUnisex : T.factMen, { name }); lines = [smell, listed, priceLine]; }
+    else if (kind === 'strength') {
+      const a = axisScore(it, 'strong', model), lean = a > 0.15 ? T.leanStrong : a < -0.15 ? T.leanSoft : T.leanMid;
+      text = conc ? fill(T.factStrength, { name, conc: CONC_LONG[conc] || conc, lean }) : fill(T.factStrengthNoConc, { name, lean }); lines = [smell, listed, priceLine];
+    } else if (kind === 'have') { text = fill(T.factHave, { name }); lines = [smell, listed, priceLine]; }
+    else if (kind === 'buy') { text = fill(T.factBuy, { name }); lines = [smell, priceLine]; }
+    else { text = smell; lines = [noteLine, x.pyramid ? T.factPyramid : null, listed, priceLine]; }   // smell · notes · about · family
+    if (it.c === 'e') lines.push(fill(T.factExclusive, { name }));
+    return { text, notes: lines.filter(Boolean) };
+  }
+  function similarTo(it, model, excludeIds, limit) {
+    const q = compose([anchorPart({ kind: 'catalog', id: it.id, name: it.nm })]);
+    return rank(model, q, { exclude: excludeIds, limit: limit || 3 }).map(r => r.item);
+  }
+  const minFrom = model => { let m = null; model.items.forEach(it => { if (it.i && it.c === 'r' && it.p > 0 && (m == null || it.p < m)) m = it.p; }); return m == null ? 170 : m; };
+  const FAQ_RATES = { dhaka: 70, suburb: 90, outside: 120 }, FAQ_POINTS = ['Aftabnagar', 'Banasree'];
+  const siteSettings = () => { try { return (typeof window !== 'undefined' && window.__SETTINGS__) || null; } catch (e) { return null; } };
+  // The owner's homepage FAQ (site settings) answers first when it has the question.
+  function ownerFaq(re) { const s = siteSettings(); const list = s && s.homeSections && Array.isArray(s.homeSections.faq) ? s.homeSections.faq : []; const hit = list.find(f => f && re.test(String(f.q || ''))); return hit && hit.a ? String(hit.a).trim() : null; }
+  const waLink = () => ({ href: waHref(), label: T.whatsapp, external: true });
+  function faqLines(key, model) {
+    const s = siteSettings() || {}, d = s.delivery || {};
+    const rate = k => { const n = Number(d[k]); return Number.isFinite(n) && n >= 0 ? n : FAQ_RATES[k]; };
+    const pts = Array.isArray(d.pickupPoints) && d.pickupPoints.length ? d.pickupPoints.map(String) : FAQ_POINTS;
+    const about = { href: 'about.html', label: T.faqMore };
+    switch (key) {
+      case 'delivery': return { text: fill(T.faqDelivery, { dhaka: rate('dhaka'), suburb: rate('suburb'), outside: rate('outside') }), notes: [ownerFaq(/deliver/i) || T.faqDeliveryTime, T.faqDeliveryAdvance], link: about };
+      case 'abroad': return { text: T.faqAbroad, notes: [], link: waLink() };
+      case 'payment': return { text: T.faqPayment, notes: [T.faqPaymentFixed], link: about };
+      case 'order': return { text: T.faqOrder, notes: [T.faqOrderAdvance, T.faqReturnsCancel], link: about };
+      case 'authentic': return { text: ownerFaq(/authentic/i) || T.faqAuthentic, notes: [T.faqAuthenticHow], link: about };
+      case 'sizes': return { text: T.faqSizes, notes: [fill(T.faqSizesStart, { min: minFrom(model) })], link: about };
+      case 'decant': return { text: ownerFaq(/what is a .*decant/i) || T.faqDecant, notes: [ownerFaq(/why buy a decant/i) || T.faqDecantWhy, T.faqType], link: about };
+      case 'type': return { text: T.faqType, notes: [T.faqTypeSizes], link: about };
+      case 'returns': return { text: ownerFaq(/return|exchange/i) || T.faqReturns, notes: [T.faqReturnsCancel], link: about };
+      case 'pickup': return { text: fill(T.faqPickup, { points: joinAnd(pts) }), notes: [], link: waLink() };
+      case 'contact': return { text: T.faqContact, notes: [], link: waLink() };
+      case 'offers': return { text: T.faqOffers, notes: [], link: waLink() };
+    }
+    return null;
+  }
+  // A plain reply turn (no cards); the chip row stays where it was.
+  function sayTurn(req, text, notes, link, logged) {
+    const th = S.thread, t = { role: 'bot', text, notes: notes || [], link: link || null };
+    th.turns.push(t); renderTurn(t, true);
+    if (th.wizard) setChips(th.chips); else setChips(th.lastIds.length ? 'follow' : 'opening');
+    save();
+    if (req.typed && logged !== false) logQuery(req.text, 0);
+    return true;
+  }
+  function chatAnswer(req, kind, model) {
+    const th = S.thread;
+    switch (kind) {
+      case 'reset': reset(); return true;
+      case 'guide': { const t = { role: 'bot', text: T.chatGuide }; th.turns.push(t); renderTurn(t, true); startGuide(); if (req.typed) logQuery(req.text, 0); return true; }
+      case 'random': { const part = surprisePart(th.turns.length, S.lex, model); if (part) addParts([part]); if (req.typed) logQuery(req.text, 0); runAnswer({ mode: 'answer', retry: true }); return true; }
+      case 'help': return sayTurn(req, T.chatHelp, T.chatHelpLines);
+      case 'greet': return sayTurn(req, T.chatGreet, null, null, false);
+      case 'thanks': return sayTurn(req, T.chatThanks, null, null, false);
+      case 'bye': return sayTurn(req, th.lastIds.length ? T.chatByeList : T.chatBye, null, null, false);
+      case 'ack': return sayTurn(req, T.chatAck, null, null, false);
+      case 'bot': return sayTurn(req, T.chatBot, null, waLink());
+      case 'maker': return sayTurn(req, T.chatMaker);
+      case 'lang': return sayTurn(req, T.chatLang);
+      case 'why': return sayTurn(req, th.lastIds.length ? T.chatWhy : T.chatWhyNone);
+      case 'memory': return sayTurn(req, th.lastIds.length ? T.chatMemoryList : T.chatMemory);
+      case 'new': return sayTurn(req, T.chatNew, null, { href: 'shop.html', label: T.browseAll.replace(/\s*→\s*$/, '') });
+    }
+    return false;
+  }
+  // One bottle we stock: its card (never twice in a thread), the facts, and three similar links.
+  function factAnswer(req, model, f, it) {
+    const th = S.thread;
+    if (!it.i) { req.text = 'like ' + String(it.nm).toLowerCase(); req.preNote = fill(T.factHaveOut, { name: it.nm }); return false; }
+    const x = factLines(f.kind, it, model, f);
+    addParts([anchorPart({ kind: 'catalog', id: it.id, name: it.nm })]);
+    th.pending = [];
+    const fresh = th.renderedIds.indexOf(it.id) < 0;
+    if (fresh) th.cards[it.id] = { c: toCard(it, model), e: it.c === 'e' };
+    const sim = similarTo(it, model, th.renderedIds.concat([it.id]), 3);
+    const turn = { role: 'bot', text: x.text, notes: x.notes, ids: fresh ? [it.id] : [], reasons: fresh ? [reasons({ item: it, matched: [] }, th.query, model, null)] : [], mode: 'fact' };
+    if (sim.length) turn.also = { label: T.factSimilar, items: sim.map(s => ({ id: s.id, nm: s.nm })) };
+    th.turns.push(turn);
+    if (fresh) th.renderedIds.push(it.id);
+    th.lastIds = [it.id];
+    renderTurn(turn, true); setChips('follow'); renderFoot(); shareUrl(); save();
+    if (req.typed) logQuery(req.text, 1);
+    return true;
+  }
   function trySpecial(req, model) {
     if (!req.typed || !req.text) return false;
     const th = S.thread, text = String(req.text).trim();
+    // Skill 2: greetings, meta questions, open-ended asks (the whole message, nothing left over)
+    const intent = intentOf(text, S.lex);
+    if (intent && chatAnswer(req, intent, model)) return true;
+    // Skill 1: a question about one bottle ("what does X smell like", "price of X", "do you have X")
+    const f = matchFrame(text);
+    if (f) {
+      const cur = th.query && th.query.anchor && th.query.anchor.kind === 'catalog' ? model.byId.get(th.query.anchor.id) : null;
+      if (!f.name && f.ml != null && cur) { f.kind = 'price'; return factAnswer(req, model, f, cur); }
+      const r = f.name ? resolveFact(f.name, model, S.lex) : null;
+      if (r && r.kind === 'catalog') return factAnswer(req, model, f, r.item);
+      if (r && r.kind === 'ref') { req.text = 'like ' + f.name; req.preNote = fill(T.notStocked, { name: r.name }); return false; }
+      if (r && r.kind === 'brand') { req.text = f.name; return false; }
+      if (r && r.kind === 'nobrand') return sayTurn(req, fill(T.haveNoBrand, { brand: r.name }), null, waLink());
+      if (r && r.kind === 'unknown' && !faqOf(text, S.lex)) return sayTurn(req, fill(T.haveUnknown, { name: f.name }), null, waLink());
+    }
+    // Skill 3: shop questions (delivery, payment, sizes, authenticity …)
+    const fk = faqOf(text, S.lex);
+    if (fk) { const a = faqLines(fk, model); if (a) return sayTurn(req, a.text, a.notes, a.link); }
     let m = VS_RE.exec(text);
     if (m) {
       const a = catalogOf(m[1], model), b = catalogOf(m[2], model);
@@ -1666,5 +1992,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });

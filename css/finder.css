@@ -39,7 +39,7 @@
 }
 .finder-reason .finder-like { display: inline; min-height: 0; margin-left: 4px; white-space: nowrap; }
 .finder-also { font-size: 13px; color: var(--text-muted); margin: 2px 0 6px; }
-.finder-also a { color: var(--gold); text-decoration: underline; }
+.finder-also a, .finder-sub a { color: var(--gold); text-decoration: underline; }
 .finder-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
 .finder-note { font-size: 12px; color: var(--text-muted); font-style: italic; margin: 0 0 4px; }
 .finder-foot { margin: 2px 0 0; padding-top: 10px; border-top: 1px solid var(--border); }

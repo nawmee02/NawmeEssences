@@ -747,6 +747,73 @@ if (engine) {
   assert.ok(/nothing new/i.test(F.T.nothingNew) && /\{n\}/.test(F.T.status), 'no-op reply and sr status templates present');
   if (lexicon) assert.strictEqual(P('bhai fresh kichu dekhan').gender, null, '"bhai"/"vai" are address words, not a gender');
 
+  // ── skills 1–3 (2026-10-15): product facts · conversation · shop questions ──
+  // Intents and shop questions use the closure rule: the whole message must be covered by
+  // known phrases plus filler words; any scent word left over means "search for that".
+  if (lexicon) {
+    const I = t => F.intentOf(t, L), FQ = t => F.faqOf(t, L);
+    assert.strictEqual(I('hello'), 'greet'); assert.strictEqual(I('thank you'), 'thanks'); assert.strictEqual(I('bye'), 'bye'); assert.strictEqual(I('ok'), 'ack');
+    assert.strictEqual(I('recommend me something'), 'guide'); assert.strictEqual(I('help me choose'), 'guide'); assert.strictEqual(I('i dont know what i want'), 'guide');
+    assert.strictEqual(I('recommend something fresh'), null, 'a scent word left over → a search, not an intent');
+    assert.strictEqual(I('what can you do'), 'help'); assert.strictEqual(I('random'), 'random'); assert.strictEqual(I('start over'), 'reset');
+    assert.strictEqual(I('why did you recommend this'), 'why'); assert.strictEqual(I('same as last time'), 'memory'); assert.strictEqual(I('are you a bot'), 'bot');
+    assert.strictEqual(I('can you speak bangla'), 'lang'); assert.strictEqual(I("what's new"), 'new'); assert.strictEqual(I('hi, help me choose'), 'guide', 'greeting + ask → the ask wins');
+    assert.strictEqual(I('evening'), null, 'an occasion word is never small talk'); assert.strictEqual(I('how do i order'), null); assert.strictEqual(I('fresh for office'), null);
+    assert.strictEqual(FQ('do you deliver outside dhaka'), 'delivery'); assert.strictEqual(FQ('how much is delivery'), 'delivery'); assert.strictEqual(FQ('can i pay with bkash'), 'payment');
+    assert.strictEqual(FQ('cash on delivery'), 'payment', 'tie → the earlier key (payment rules)'); assert.strictEqual(FQ('what sizes do you sell'), 'sizes'); assert.strictEqual(FQ('3ml vs 5ml'), 'sizes');
+    assert.strictEqual(FQ('which size should i start with'), 'sizes'); assert.strictEqual(FQ('halal perfume'), 'type'); assert.strictEqual(FQ('alcohol free'), 'type'); assert.strictEqual(FQ('oil based attar'), 'type');
+    assert.strictEqual(FQ('is it original'), 'authentic'); assert.strictEqual(FQ('how do i order'), 'order'); assert.strictEqual(FQ('what is a decant'), 'decant'); assert.strictEqual(FQ("what's on sale"), 'offers');
+    assert.strictEqual(FQ('do you ship to india'), 'abroad'); assert.strictEqual(FQ('where are you located'), 'pickup'); assert.strictEqual(FQ('whatsapp number'), 'contact'); assert.strictEqual(FQ('return policy'), 'returns');
+    assert.strictEqual(FQ('edp under 500'), null, 'a number that is not a size is never covered'); assert.strictEqual(FQ('perfume for cold weather in sylhet'), null, 'a place name inside a scent request stays a search');
+    assert.strictEqual(FQ('fresh for office'), null); assert.strictEqual(FQ('do you have asad'), null, 'a product question is not a shop question');
+    // frames around a product name
+    const MF = t => F.matchFrame(t);
+    assert.deepStrictEqual([MF('what does hawas ice smell like').kind, MF('what does hawas ice smell like').name], ['smell', 'hawas ice']);
+    assert.deepStrictEqual([MF('how much is 5ml of 9pm').kind, MF('how much is 5ml of 9pm').name, MF('how much is 5ml of 9pm').ml], ['price', '9pm', 5]);
+    assert.deepStrictEqual([MF('do you have anything from parfums de marly').kind, MF('do you have anything from parfums de marly').name], ['have', 'parfums de marly']);
+    assert.deepStrictEqual([MF('is sanaya unisex').kind, MF('is sanaya unisex').name], ['gender', 'sanaya']);
+    assert.ok(MF('what are the top notes of 9pm').kind === 'notes' && MF('what are the top notes of 9pm').pyramid, 'top notes → notes frame + pyramid flag');
+    assert.deepStrictEqual([MF('cheapest size of khamrah qahwa').kind, MF('cheapest size of khamrah qahwa').name], ['price', 'khamrah qahwa']);
+    assert.deepStrictEqual([MF('30ml price').kind, MF('30ml price').name, MF('30ml price').ml], ['price', '', 30], 'size-only price question (answered for the current bottle)');
+    assert.deepStrictEqual([MF('tell me about lattafa angham').kind, MF('tell me about lattafa angham').name], ['about', 'lattafa angham']);
+    assert.deepStrictEqual([MF('is club de nuit intense man strong').kind, MF('is club de nuit intense man strong').name], ['strength', 'club de nuit intense man']);
+    assert.deepStrictEqual([MF('i want to order 9pm').kind, MF('i want to order 9pm').name], ['buy', '9pm']);
+    assert.strictEqual(MF('fresh for office'), null); assert.strictEqual(MF('like sauvage but cheaper'), null);
+    assert.strictEqual(F.cleanName('anything from the lattafa perfume'), 'lattafa');
+    // what the name refers to (synthetic catalogue: "Dior Sauvage EDP" is stocked)
+    const RF = t => F.resolveFact(t, model, L);
+    assert.strictEqual(RF('dior sauvage').kind, 'catalog'); assert.strictEqual(RF('dior sauvage').item.id, 'e');
+    assert.strictEqual(RF('fresh'), null, 'a vibe word is a search, not a fact question'); assert.strictEqual(RF('mens perfume'), null);
+    assert.strictEqual(RF('rasasi').kind, 'brand'); assert.strictEqual(RF('rasasi').name, 'Rasasi');
+    assert.strictEqual(RF('parfums de marly').kind, 'nobrand'); assert.strictEqual(RF('parfums de marly').name, 'Parfums de Marly');
+    assert.strictEqual(RF('aventus').kind, 'ref', 'a famous name we do not stock → reference'); assert.strictEqual(RF('zzqqxx').kind, 'unknown');
+    // fact lines: every kind, every stocked item, claims-free; sizes and sale handled
+    const E = model.byId.get('e'), A = model.byId.get('a'), B = model.byId.get('b');
+    for (const it of [E, A, B]) for (const kind of ['smell', 'notes', 'about', 'family', 'gender', 'strength', 'price', 'have', 'buy']) {
+      const x = F.factLines(kind, it, model, { ml: 5, pyramid: true });
+      assert.ok(typeof x.text === 'string' && x.text.length > 10 && Array.isArray(x.notes), kind + ' lines for ' + it.id);
+      for (const s of [x.text].concat(x.notes)) assert.ok(!BANNED.test(s), 'fact line makes a banned claim: ' + s);
+    }
+    assert.strictEqual(F.factLines('price', E, model, { ml: 5 }).text, 'Dior Sauvage EDP in 5 ml is ৳480.');
+    assert.strictEqual(F.factLines('price', E, model, { ml: 10 }).text, "Dior Sauvage EDP isn't sold in 10 ml.");
+    assert.strictEqual(F.factLines('price', E, model, {}).text, 'Dior Sauvage EDP starts at ৳300 for 3 ml.');
+    assert.ok(/On sale — 10% off/.test(F.factLines('price', B, model, {}).notes.join(' | ')), 'sale note when sale_percent > 0');
+    assert.ok(/Sizes: 3 ml ৳180/.test(F.factLines('price', B, model, {}).notes.join(' | ')), 'size prices show the sale price');
+    assert.strictEqual(F.factLines('gender', E, model, {}).text, 'Dior Sauvage EDP is listed for men.');
+    assert.ok(/don't track wear time/.test(F.factLines('strength', E, model, {}).text) && /Eau de Parfum/.test(F.factLines('strength', E, model, {}).text), 'strength answer is honest + names the concentration');
+    assert.ok(/^Notes: bergamot, pepper/.test(F.factLines('notes', E, model, { pyramid: true }).notes[0]) && F.factLines('notes', E, model, { pyramid: true }).notes.indexOf(F.T.factPyramid) === 1, 'notes + pyramid pointer');
+    assert.ok(/Listed for Office, Everyday, Summer · For men · EDP\./.test(F.factLines('about', E, model, {}).notes.join(' | ')), 'listed line: ' + F.factLines('about', E, model, {}).notes.join(' | '));
+    // shop answers: baked fallbacks match the site settings defaults (lib/settings.js), every key answers
+    const SD = require('./lib/settings').DEFAULTS.delivery;
+    assert.deepStrictEqual(F.FAQ_RATES, { dhaka: SD.dhaka, suburb: SD.suburb, outside: SD.outside }, 'finder delivery fallback = settings defaults');
+    assert.deepStrictEqual(F.FAQ_POINTS, SD.pickupPoints, 'finder pickup fallback = settings defaults');
+    for (const f of lexicon.faq) { const a = F.faqLines(f.key, model); assert.ok(a && a.text && Array.isArray(a.notes) && a.link && a.link.href, 'faq answer for ' + f.key); for (const s of [a.text].concat(a.notes)) assert.ok(!BANNED.test(s), 'faq line makes a banned claim: ' + s); }
+    assert.ok(/৳70 inside Dhaka, ৳90 in the Dhaka suburbs and ৳120/.test(F.faqLines('delivery', model).text), 'delivery amounts in the answer');
+    assert.ok(/from ৳170 for 3 ml/.test(F.faqLines('sizes', model).notes[0]), 'sizes answer quotes the cheapest in-stock regular decant');
+    assert.ok(/decants only/.test(F.faqLines('type', model).text) && !/full bottles/.test(F.faqLines('type', model).text), 'product-type answer: decants only, no claim about full bottles');
+    assert.strictEqual(lexicon.brandAliases.armani, 'Giorgio Armani'); assert.ok(Object.keys(lexicon.intents).length >= 10 && lexicon.faq.length >= 10, 'intent / faq blocks present');
+  }
+
   console.log('test-finder: engine checks passed' + (lexicon ? '' : ' (stand-in lexicon)'));
 }
 
