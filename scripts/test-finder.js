@@ -825,7 +825,14 @@ if (engine) {
     assert.ok(P('sweet but not too sweet').features['a:Sweet'] > 0, 'a mild "not too sweet" is still a wish');
     bq = P('i want a perfume that my wife will love on me'); assert.strictEqual(bq.gender, null, '"on me": the wearer is the visitor, a woman in the sentence does not switch to unisex'); assert.ok(bq.features['o:Date Night'] > 0);
     assert.strictEqual(P('something for my wife').gender, 'unisex', 'without a self-wearer phrase the women note still applies');
-    assert.strictEqual(F.normalize('৫০০ টাকার মধ্যে'), '500 টাকার মধ্যে', 'Bengali numerals become digits'); assert.strictEqual(P('৫০০ টাকার মধ্যে').maxPrice, 500, 'Bangla "within 500 taka"');
+    assert.strictEqual(F.normalize('৫০০ টাকার মধ্যে'), '500 টাকার মধ্যে', 'Bengali numerals become digits');
+    // number words → digits (English and Banglish), so prices typed in words parse and "eight" is never typo-fixed into "night"
+    assert.strictEqual(F.normalize('under eight hundred'), 'under 800'); assert.strictEqual(F.normalize('max eight hundred fifty taka'), 'max 850 taka'); assert.strictEqual(F.normalize('twenty five hundred'), '2500');
+    assert.strictEqual(F.normalize('pach sho taka er moddhe'), '500 taka er moddhe'); assert.strictEqual(F.normalize('ek hajar er niche'), '1000 er niche'); assert.strictEqual(F.normalize('a hundred'), 'a 100');
+    assert.strictEqual(F.normalize('the ten milliliter one'), 'the 10 ml one', 'a lone "one" stays a word'); assert.strictEqual(F.normalize('one hundred'), '100'); assert.strictEqual(F.normalize('twenty one'), '21'); assert.strictEqual(F.normalize('one two three'), 'one 2 3', 'separate number words stay separate, a lone one stays a word'); assert.strictEqual(F.normalize('which one lasts longer'), 'which one lasts longer');
+    assert.strictEqual(P('under eight hundred').maxPrice, 800); assert.strictEqual(P('pach sho taka er moddhe').maxPrice, 500); assert.strictEqual(P('two perfumes for 500').maxPrice, 500);
+    assert.ok(!P('max eight hundred').parts.some(p => p.features && p.features['o:Evening']), '"eight" is a number, not "night"');
+    assert.strictEqual(F.ordinalIn('the first one price', 3), 0); assert.strictEqual(F.ordinalIn('more like the second one', 3), 1); assert.strictEqual(P('৫০০ টাকার মধ্যে').maxPrice, 500, 'Bangla "within 500 taka"');
     bq = P('অফিসের জন্য ফ্রেশ কিছু'); assert.ok(bq.features['o:Office'] > 0 && (bq.features['a:Fresh'] > 0 || bq.features['f:Fresh'] > 0), 'Bangla office + fresh: ' + JSON.stringify(bq.features));
     assert.ok(P('মিষ্টি পারফিউম চাই').features['a:Sweet'] > 0 && P('মিষ্টি পারফিউম চাই').unknown.length === 0, 'Bangla sweet, filler words ignored');
     assert.strictEqual(P('শীতের জন্য কড়া পারফিউম').strength, 'stronger'); assert.strictEqual(P('মেয়েদের জন্য গিফট').gender, 'unisex');
@@ -884,6 +891,28 @@ if (engine) {
     const cs = F.resolveSides(['hawas ice', 'elixir'], fm, L); assert.strictEqual(cs[1].r.kind, 'catalog'); assert.strictEqual(cs[1].r.item.id, 'hx', 'the second name resolves in the first one\'s context');
     assert.strictEqual(F.ordinalIn('the first one price', 3), 0); assert.strictEqual(F.ordinalIn('more like the second one', 3), 1); assert.strictEqual(F.ordinalIn('the last one', 3), 2); assert.strictEqual(F.ordinalIn('fresh for office', 3), null);
     assert.ok(F.faqLines('tracking', model).text && F.faqLines('tracking', model).link.href.indexOf('wa.me') >= 0, 'tracking answer points to WhatsApp');
+
+    // ── Layer C (server understanding): the contract is re-validated, the gate is loose but never fires on a confident parse ──
+    const VS = raw => F.validateServer(raw, model, L);
+    const baseOut = { language: 'en', features: [], strength: 'none', gender: 'none', maxPrice: 0, minPrice: 0, anchor: '', exclude: [], fact: null, compare: null, faq: 'none', glossary: [], chat: 'none' };
+    let so = VS({ ...baseOut, intent: 'faq', faq: 'delivery' }); assert.strictEqual(so.intent, 'faq'); assert.strictEqual(so.faq, 'delivery');
+    so = VS({ ...baseOut, intent: 'faq', faq: 'root' }); assert.strictEqual(so.intent, 'unclear', 'an unknown faq key is dropped and the intent falls to unclear');
+    so = VS({ ...baseOut, intent: 'glossary', glossary: ['projection', 'bogus', 'projection'] }); assert.deepStrictEqual(so.glossary, ['projection']);
+    so = VS({ ...baseOut, intent: 'chat', chat: 'shell' }); assert.strictEqual(so.intent, 'unclear'); assert.strictEqual(VS({ ...baseOut, intent: 'chat', chat: 'greet' }).chat, 'greet');
+    so = VS({ ...baseOut, intent: 'fact', fact: { kind: 'price', name: '  Rasasi Hawas Ice ', ml: 10 } }); assert.deepStrictEqual(so.fact, { kind: 'price', name: 'Rasasi Hawas Ice', ml: 10 });
+    assert.strictEqual(VS({ ...baseOut, intent: 'fact', fact: { kind: 'explode', name: 'x' } }).intent, 'unclear', 'a fact without a valid kind falls back (and an empty search is unclear)');
+    so = VS({ ...baseOut, intent: 'compare', compare: { names: ['a', 'b', 'c', 'd', 'e', 'f'], criterion: 'summer' } }); assert.deepStrictEqual(so.compare, { names: ['a', 'b', 'c', 'd'], crit: 'summer' });
+    assert.strictEqual(VS({ ...baseOut, intent: 'compare', compare: { names: ['only one'] } }).intent, 'unclear', 'one name is no comparison, and with nothing else it is unclear');
+    so = VS({ ...baseOut, intent: 'search', features: [{ key: 'a:Citrus', weight: 1 }, { key: 'a:Nonsense', weight: 1 }, { key: 'x:Evil', weight: 1 }, { key: 'o:Office', weight: -0.5 }], gender: 'women', maxPrice: 800, minPrice: 7, anchor: ' Dior Sauvage ', exclude: ['Rasasi', 'brand:Nope'] });
+    assert.deepStrictEqual(Object.keys(so.frag.features).sort(), ['a:Citrus', 'o:Office'], 'only catalogue labels survive: ' + JSON.stringify(so.frag.features));
+    assert.strictEqual(so.frag.gender, 'unisex'); assert.ok(so.women, '"women" → unisex + the women note'); assert.strictEqual(so.maxPrice, 800); assert.strictEqual(so.minPrice, null, 'a price under ৳50 is noise'); assert.strictEqual(so.anchor, 'Dior Sauvage'); assert.deepStrictEqual(so.frag.exclude, ['brand:Rasasi']);
+    assert.strictEqual(VS({ ...baseOut, intent: 'search' }).intent, 'unclear', 'an empty search is unclear'); assert.strictEqual(VS(null), null); assert.strictEqual(VS('garbage'), null);
+    assert.strictEqual(VS({ ...baseOut, intent: 'search', maxPrice: 500 }).intent, 'search', 'a price alone is a search');
+    const NS = t => F.needsServer(t, P(t));
+    assert.ok(!NS('fresh for office under 500'), 'a confident parse never asks the server'); assert.ok(!NS('hello'), 'a one-word message does not either');
+    assert.ok(NS('blorptastic gizmo sprocket flavour'), 'nothing parsed → server'); assert.ok(NS('something fresh for the zorblax'), 'one unknown content word in a 3+ word sentence → server');
+    assert.ok(NS('কালকে ট্রেনের টিকিট'), 'unread Bangla → server'); assert.ok(!NS('অফিসের জন্য ফ্রেশ কিছু'), 'understood Bangla does not');
+    assert.ok(F.SERVER_NLU === true && /^\/functions\/v1\//.test(F.SERVER_NLU_PATH), 'server layer on, path under /functions/v1/');
   }
 
   console.log('test-finder: engine checks passed' + (lexicon ? '' : ' (stand-in lexicon)'));
@@ -1057,6 +1086,21 @@ if (engine) {
   const stamped = versionHtml(tag, emap);
   assert.ok(stamped.includes('src="js/finder-nlu.js?v=aaaaaaaa"') && stamped.includes('data-emb="data/finder-emb.json?v=bbbbbbbb"') && stamped.includes('data-embbin="/data/finder-emb.bin?v=cccccccc"') && stamped.includes('data-model-mb="24"'), stamped);
   assert.strictEqual(versionHtml(tag, { 'js/finder-nlu.js': 'aaaaaaaa' }), tag.replace('src="js/finder-nlu.js"', 'src="js/finder-nlu.js?v=aaaaaaaa"'), 'data files missing from the map are left alone');
+
+  // ── Layer C: the Edge Function's prompt module agrees with the lexicon, the schema is self-consistent ──
+  // the Edge Function's prompt module agrees with the lexicon (keys) and the schema is self-consistent
+  const lexicon = require('../js/finder-lexicon.js');
+  const PM = await import(require('url').pathToFileURL(path.join(ROOT, 'supabase', 'functions', 'finder-understand', 'prompt.mjs')).href);
+  assert.deepStrictEqual(PM.FAQ_KEYS, lexicon.faq.map(f => f.key), 'prompt.mjs FAQ_KEYS = lexicon faq keys');
+  assert.deepStrictEqual(PM.GLOSS_KEYS, lexicon.glossary.map(g => g.key), 'prompt.mjs GLOSS_KEYS = lexicon glossary keys');
+  assert.deepStrictEqual(PM.CHAT_KINDS, Object.keys(lexicon.intents), 'prompt.mjs CHAT_KINDS = lexicon intents');
+  assert.deepStrictEqual(PM.RESPONSE_SCHEMA.properties.faq.enum, PM.FAQ_KEYS.concat(['none'])); assert.deepStrictEqual(PM.RESPONSE_SCHEMA.properties.fact.properties.kind.enum, PM.FACT_KINDS);
+  const sp = PM.buildSystemPrompt(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'finder.json'), 'utf8')));
+  assert.ok(/Rasasi Hawas Ice/.test(sp) && /accords: /.test(sp) && /occasions: /.test(sp) && PM.FAQ_KEYS.every(k => sp.indexOf(k + ' = ') >= 0), 'system prompt carries the catalogue names, labels and FAQ meanings');
+  assert.ok(sp.length < 12000, 'system prompt stays small (' + sp.length + ' chars)'); assert.strictEqual(PM.MODEL, 'gemini-2.5-flash-lite');
+  const fnSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'finder-understand', 'index.ts'), 'utf8');
+  assert.ok(/from '\.\/prompt\.mjs'/.test(fnSrc) && /GEMINI_API_KEY/.test(fnSrc) && /Access-Control-Allow-Origin/.test(fnSrc) && /429/.test(fnSrc), 'edge function: shared prompt, secret, CORS, rate limit');
+  assert.ok(fs.existsSync(path.join(ROOT, 'scripts', 'eval-finder-server.js')) && /Gemini AI/.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8')), 'eval script present, privacy line names the AI');
 
   console.log('test-finder: NLU checks passed' + (pkg ? '' : ' (package absent)'));
 })().catch(e => { console.error(e); process.exit(1); });

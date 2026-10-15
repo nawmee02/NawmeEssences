@@ -95,6 +95,8 @@
     also: 'People who chose {name} also considered:',
     // Phase 2 — on-device understanding (nothing leaves the browser; nothing loads until asked)
     aiRead: 'On-device AI read that as: {what}.',
+    serverRead: 'AI read that as: {what}.',
+    serverWait: 'Thinking…',
     aiNothing: "On-device AI couldn't add anything, so these follow the words I understood.",
     aiConsent: "Use Chrome's built-in AI to understand your words? It runs on your device and may download a large model once.",
     aiConsentChip: "Yes, use Chrome's built-in AI",
@@ -230,6 +232,8 @@
   const LOG_QUERIES = true, LOG_TABLE = 'finder_queries';
   // Phase 2: on-device understanding is tried only when the deterministic parser is lost
   // (≥ 4 words and ≥ 2 unknown content words, or nothing parsed at all).
+  // Layer C: server-side understanding (Gemini via supabase/functions/finder-understand), asked only when the parser is unsure.
+  const SERVER_NLU = true, SERVER_NLU_PATH = '/functions/v1/finder-understand', SERVER_TIMEOUT_MS = 6000;
   const NLU_MIN_WORDS = 4, NLU_MIN_UNKNOWN = 2, NLU_TIMEOUT_MS = 4000, NLU_CONSENT_KEY = 'nawme_finder_ai';
   const WA_FALLBACK = '8801988536843', CDN = 'https://cdn.nawmeessences.com';
 
@@ -276,8 +280,32 @@
   // token (negation / intensifier / anchor windows never cross it), split glued
   // units ("500tk", "5ml", "1k"), collapse spaces. Lexicon phrases go through the
   // same function, so both sides always agree.
+  // Number words → digits ("eight hundred" → 800, "pach sho" → 500, "ek hajar" → 1000), so prices typed in words parse
+  // and a word like "eight" is never typo-corrected into a vibe word ("night").
+  const NUM_UNIT = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+  const NUM_BN = { ek: 1, dui: 2, tin: 3, char: 4, pach: 5, panch: 5, choy: 6, chhoy: 6, sat: 7, at: 8, noy: 9, dosh: 10, dos: 10, egaro: 11, baro: 12, ponero: 15, bish: 20, pochish: 25, trish: 30, chollish: 40, ponchash: 50, shat: 60, sottor: 70, ashi: 80, nobboi: 90 };
+  const NUM_SCALE = { hundred: 100, thousand: 1000, sho: 100, shoto: 100, hajar: 1000, hazar: 1000, lakh: 100000, lac: 100000 };
+  function numberWords(text) {
+    const tk = text.split(' '), out = []; let cur = 0, has = false, lone = '';
+    // a lone "one" is an idiom ("which one", "the first one"), never a number; anything else in a group becomes digits
+    const flush = () => { if (has) out.push(lone === 'one' ? 'one' : String(cur)); cur = 0; has = false; lone = ''; };
+    for (let i = 0; i < tk.length; i++) {
+      const w = tk[i], nxt = tk[i + 1];
+      if (w === 'and' && has && NUM_UNIT[nxt] != null) continue;
+      if (NUM_UNIT[w] != null) {
+        // "twenty five" and "eight hundred fifty" continue a number; "five five" or "one two" do not
+        const continues = has && ((cur >= 100 && cur % 100 === 0) || (cur >= 20 && cur % 10 === 0 && NUM_UNIT[w] < 10));
+        if (!continues) flush();
+        lone = has ? '' : w; cur += NUM_UNIT[w]; has = true; continue;
+      }
+      if (NUM_BN[w] != null && NUM_SCALE[nxt] != null) { flush(); cur = NUM_BN[w]; has = true; continue; }   // "pach sho", "ek hajar"
+      if (NUM_SCALE[w] != null && (has || NUM_SCALE[w] <= 1000)) { cur = (has ? cur : 1) * NUM_SCALE[w]; has = true; lone = ''; continue; }
+      flush(); out.push(w);
+    }
+    flush(); return out.join(' ');
+  }
   function normalize(text) {
-    return String(text == null ? '' : text).toLowerCase()
+    return numberWords(String(text == null ? '' : text).toLowerCase()
       .replace(/[০-৯]/g, d => String('০১২৩৪৫৬৭৮৯'.indexOf(d)))   // Bengali numerals → digits (৫০০ → 500)
       .replace(/([a-z])[‘’']s\b/g, '$1')   // women's → women, dad's → dad
       .replace(/[‘’']/g, '')
@@ -288,7 +316,8 @@
       .replace(/৳/g, ' ৳ ')
       .replace(/(\d)(k|ml|tk|taka|bdt)\b/g, '$1 $2')
       .replace(/[^a-z0-9৳,À-ɏঀ-৿\s]+/g, ' ')
-      .replace(/\s+/g, ' ').trim();
+      .replace(/\b(?:millilit(?:er|re)s?|mls)\b/g, 'ml')
+      .replace(/\s+/g, ' ').trim());
   }
   const tokensOf = text => normalize(text).split(' ').filter(Boolean);
 
@@ -1196,6 +1225,7 @@
   // Phase 1c — anonymous query log row (text + match count only).
   const queryLogBody = (text, matched) => ({ q: String(text || '').trim().slice(0, 200), matched: clamp(Number(matched) || 0, 0, 99) });
   const wordCount = text => tokensOf(text).filter(t => t !== ',').length;
+  const needsServer = (text, parsed) => { const w = wordCount(text), u = (parsed.unknown || []).length, none = !(parsed.parts || []).length; return (none && w >= 2) || (w >= 3 && u >= 1) || (/[ঀ-৿]/.test(String(text)) && (u > 0 || none)); };
   const needsNLU = (text, parsed) => wordCount(text) >= NLU_MIN_WORDS && ((parsed.unknown || []).length >= NLU_MIN_UNKNOWN || !(parsed.parts || []).length);
 
   // ── browser integration ──
@@ -1528,13 +1558,94 @@
     const raw = await withTimeout(m.understand(text), NLU_TIMEOUT_MS);
     return validateFragment(raw, model);
   }
-  // Escalation: Layer A first, then an already-loaded Layer B; otherwise the chips offer one.
+  // ── Phase 2: Layer C — the server (Gemini) reads the sentence into the same contract; the engine answers ──
+  // Everything is re-validated here: unknown labels, keys, kinds and intents are dropped, names are trimmed.
+  function validateServer(raw, model, L) {
+    if (!raw || typeof raw !== 'object' || !model) return null;
+    L = L || S.lex || {};
+    const str = v => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
+    const has = (list, v) => Array.isArray(list) && list.indexOf(v) >= 0;
+    const intents = ['search', 'fact', 'compare', 'faq', 'glossary', 'chat', 'unclear'];
+    const out = { intent: has(intents, raw.intent) ? raw.intent : 'unclear', language: str(raw.language) || 'other', frag: null, anchor: '', maxPrice: null, minPrice: null, women: false, fact: null, compare: null, faq: null, glossary: [], chat: null };
+    const fmap = {}; (Array.isArray(raw.features) ? raw.features : []).forEach(f => { if (f && typeof f.key === 'string') fmap[f.key] = Number(f.weight); });
+    out.frag = validateFragment({ features: fmap, strength: raw.strength, gender: raw.gender === 'women' ? 'unisex' : raw.gender, exclude_brands: Array.isArray(raw.exclude) ? raw.exclude : [] }, model);
+    out.women = raw.gender === 'women';
+    out.anchor = str(raw.anchor);
+    const px = v => { const n = Number(v); return isFinite(n) && n >= 50 && n <= 100000 ? Math.round(n) : null; };
+    out.maxPrice = px(raw.maxPrice); out.minPrice = px(raw.minPrice);
+    if (raw.fact && typeof raw.fact === 'object' && has(['smell', 'notes', 'about', 'family', 'gender', 'strength', 'price', 'have', 'buy'], raw.fact.kind) && str(raw.fact.name)) {
+      const ml = Number(raw.fact.ml); out.fact = { kind: raw.fact.kind, name: str(raw.fact.name), ml: isFinite(ml) && ml > 0 && ml <= 100 ? ml : null };
+    }
+    if (raw.compare && typeof raw.compare === 'object' && Array.isArray(raw.compare.names)) {
+      const names = raw.compare.names.map(str).filter(Boolean).slice(0, 4);
+      if (names.length >= 2) out.compare = { names, crit: str(raw.compare.criterion) || null };
+    }
+    const faqKeys = (L.faq || []).map(f => f.key); if (has(faqKeys, raw.faq)) out.faq = raw.faq;
+    const glossKeys = (L.glossary || []).map(g => g.key); (Array.isArray(raw.glossary) ? raw.glossary : []).forEach(k => { if (has(glossKeys, k) && out.glossary.indexOf(k) < 0) out.glossary.push(k); });
+    if (L.intents && typeof raw.chat === 'string' && raw.chat !== 'none' && L.intents[raw.chat]) out.chat = raw.chat;
+    // an intent that lacks its payload falls back to what IS there
+    if (out.intent === 'fact' && !out.fact) out.intent = 'search';
+    if (out.intent === 'compare' && !out.compare) out.intent = 'search';
+    if (out.intent === 'faq' && !out.faq) out.intent = 'unclear';
+    if (out.intent === 'glossary' && !out.glossary.length) out.intent = 'unclear';
+    if (out.intent === 'chat' && !out.chat) out.intent = 'unclear';
+    if (out.intent === 'search' && !out.frag && !out.anchor && out.maxPrice == null && out.minPrice == null) out.intent = 'unclear';
+    return out;
+  }
+  const serverEnabled = () => SERVER_NLU && typeof fetch === 'function' && typeof SUPABASE_URL !== 'undefined' && !!SUPABASE_URL
+    && !(typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true));
+  async function serverUnderstand(text, model) {
+    if (!serverEnabled()) return null;
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), SERVER_TIMEOUT_MS) : null;
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY) { headers.apikey = SUPABASE_ANON_KEY; headers.Authorization = 'Bearer ' + SUPABASE_ANON_KEY; }
+      const res = await fetch(SUPABASE_URL + SERVER_NLU_PATH, { method: 'POST', headers, credentials: 'omit', signal: ctrl ? ctrl.signal : undefined, body: JSON.stringify({ q: String(text).slice(0, 200) }) });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data && data.ok ? validateServer(data.out, model, S.lex) : null;
+    } catch (e) { return null; } finally { if (timer) clearTimeout(timer); }
+  }
+  // Non-search intents from the server go straight to the matching skill; "search" is merged by the caller.
+  function dispatchServer(req, model, out, parsed) {
+    if (!out) return false;
+    const again = r => { runAnswer(Object.assign({ mode: 'text', typed: false }, r)); return true; };
+    if (out.intent === 'faq') { const a = faqLines(out.faq, model); return a ? sayTurn(req, a.text, a.notes, a.link) : false; }
+    if (out.intent === 'glossary') { const defs = out.glossary.map(k => T.gloss[k]).filter(Boolean); return defs.length ? sayTurn(req, defs[0], defs.slice(1).concat(out.glossary.some(k => GLOSS_CONC.has(k)) ? [T.glossConc] : [])) : false; }
+    if (out.intent === 'chat') return chatAnswer(req, out.chat, model);
+    if (out.intent === 'fact') {
+      const r = resolveFact(out.fact.name, model, S.lex);
+      if (r && r.kind === 'catalog') return factAnswer(req, model, { kind: out.fact.kind, name: out.fact.name, ml: out.fact.ml }, r.item);
+      if (r && r.kind === 'ref') return again({ text: 'like ' + out.fact.name, preNote: fill(T.notStocked, { name: r.name }) });
+      if (r && r.kind === 'brand') return again({ text: out.fact.name });
+      if (r && r.kind === 'nobrand') return sayTurn(req, fill(T.haveNoBrand, { brand: r.name }), null, waLink());
+      return false;
+    }
+    if (out.intent === 'compare') {
+      const sides = resolveSides(out.compare.names, model, S.lex);
+      if (sides.some(x => x.r === null || (x.r.kind === 'unknown' && !cleanName(x.n)))) return false;
+      const r = { text: req.text, typed: req.typed };
+      if (compareSides(r, model, sides, out.compare.crit, out.compare.crit || '')) return true;
+      if (r.text !== req.text) return again({ text: r.text, vsNote: r.vsNote, preNote: r.preNote });
+      return false;
+    }
+    if (out.intent === 'search') {   // the caller merges the fragment; prices and a "like" name are added here when the parser found none
+      if (out.anchor && !parsed.anchor) { const r = resolveFact(out.anchor, model, S.lex); if (r && (r.kind === 'catalog' || r.kind === 'ref')) parsed.parts.push(anchorPart(r.kind === 'catalog' ? { kind: 'catalog', id: r.item.id, name: r.item.nm } : r.anchor)); }
+      if (out.maxPrice != null && parsed.maxPrice == null && !parsed.parts.some(p => p.maxPrice != null)) parsed.parts.push(Object.assign({ maxPrice: out.maxPrice }, priceText(null, out.maxPrice)));
+      if (out.minPrice != null && parsed.minPrice == null && !parsed.parts.some(p => p.minPrice != null)) parsed.parts.push(Object.assign({ minPrice: out.minPrice }, priceText(out.minPrice, null)));
+      if (out.women && !parsed.gender && !parsed.parts.some(p => p.gender)) parsed.parts.push({ gender: 'unisex', note: 'unisex', label: T.tokenPrefix.gift, text: 'unisex' });
+    }
+    return false;
+  }
+  // Escalation: Layer A (on-device) first, then the server, then an already-loaded Layer B; otherwise the chips offer one.
   async function understand(text, parsed, model) {
-    let frag = null, offer = null;
+    let frag = null, offer = null, server = null, source = 'device';
     try { const a = await promptApiUnderstand(text, model); if (a && a.needConsent) offer = 'consent'; else frag = a; } catch (e) { frag = null; }
-    if (!frag && !offer) { try { frag = await embeddingUnderstand(text, model); } catch (e) { frag = null; } }
-    if (!frag && !offer && !nluModule() && nluCarrier() && nluSupported()) offer = 'load';
-    return { part: mergeNLU(parsed, frag, model), offer, tried: !!(frag || offer === null) };
+    if (!frag && needsServer(text, parsed)) { server = await serverUnderstand(text, model); if (server) { offer = null; source = 'server'; if (server.intent === 'search') frag = server.frag; } }
+    if (!frag && !server && !offer) { try { frag = await embeddingUnderstand(text, model); } catch (e) { frag = null; } }
+    if (!frag && !server && !offer && !nluModule() && nluCarrier() && nluSupported()) offer = 'load';
+    return { part: mergeNLU(parsed, frag, model), offer, tried: !!(frag || server || offer === null), server, source };
   }
   const lastBrands = model => { const out = []; S.thread.renderedIds.forEach(id => { const it = model.byId.get(id); const b = it && model.vocab.b[it.b]; if (b && out.indexOf(b) < 0) out.push(b); }); return out; };
   const median = arr => { const a = arr.slice().sort((x, y) => x - y); return a.length ? a[Math.floor((a.length - 1) / 2)] : null; };
@@ -1625,13 +1736,17 @@
     }
     // a vibe word on one side ("fresh or sweet"), or only filler ("hawas ice and something"): a search, not a comparison
     if (sides.some(x => x.r === null || (x.r.kind === 'unknown' && !cleanName(x.n)))) return false;
-    const seen = new Set(), stocked = [];
-    sides.forEach(x => { if (x.r.kind === 'catalog' && !seen.has(x.r.item.id)) { seen.add(x.r.item.id); stocked.push(x.r.item); } });
-    const others = sides.filter(x => x.r.kind !== 'catalog').map(x => x.r.name || x.n);
+    return compareSides(req, model, sides, c.crit, c.pre);
+  }
+  // Two or more stocked bottles → the table (+ verdict); one → anchor on it (req.text / notes changed for the caller); none → false.
+  function compareSides(req, model, sides, crit, pre) {
+    const th = S.thread, seen = new Set(), stocked = [];
+    sides.forEach(x => { if (x.r && x.r.kind === 'catalog' && !seen.has(x.r.item.id)) { seen.add(x.r.item.id); stocked.push(x.r.item); } });
+    const others = sides.filter(x => !x.r || x.r.kind !== 'catalog').map(x => (x.r && x.r.name) || x.n);
     if (stocked.length >= 2) {
       const ids = stocked.map(it => it.id), notes = [];
       if (others.length) notes.push(fill(T.vsNote, { other: others.join(', ') }));
-      compareVerdict(stocked, c.crit, c.pre, model).forEach(l => notes.push(l));
+      compareVerdict(stocked, crit, pre, model).forEach(l => notes.push(l));
       const turn = { role: 'bot', text: T.compare, notes, table: compareRows(ids, model), mode: 'compare' };
       th.turns.push(turn); renderTurn(turn, true); th.lastIds = ids; setChips('follow'); renderFoot(); save();
       if (req.typed) logQuery(req.text, ids.length);
@@ -1639,7 +1754,7 @@
     }
     if (stocked.length === 1) {   // one stocked bottle: anchor on it, explain the other
       req.text = 'like ' + String(stocked[0].nm).toLowerCase(); req.vsNote = fill(T.vsNote, { other: others.join(', ') });
-      if (CMP_WEAR_RE.test(c.pre)) req.preNote = T.cmpWearOne;
+      if (CMP_WEAR_RE.test(pre || '')) req.preNote = T.cmpWearOne;
     }
     return false;
   }
@@ -1726,6 +1841,7 @@
     ['notes', /^(.+?) (?:er |)(?:top |heart |middle |base |main |)notes?$/],
     ['notes', /^(?:notes? |ingredients? |accords? |composition |pyramid )(?:of |in |for |)(.+)$/],
     ['notes', /^(?:what (?:are|is) |)(?:the |)(?:ingredients|accords|composition|pyramid|note breakdown) (?:of|in|for) (.+)$/],
+    ['price', /^(?:tell me |)(?:how much|what) (?:(?:does|is|do|would|will) )?(?:the |a |an |)(.+?) (?:cost|costs|price|priced at|sell for|go for)(?: please| pls| plz)?$/],
     ['about', /^(?:tell me about|tell me more about|tell about|tell me|describe|about|info on|info about|information about|information on|details of|details about|details on|detail of|review of|review|reviews of|explain|what is|whats|what about|how is|how good is|hows|how about|thoughts on|opinion on|your opinion on|is it good|rate|rating of|how would you rate|how do you rate) (.+)$/],
     ['about', /^(.+?) (?:er |)(?:details|detail|review|reviews|info|information|bapare bolo|bapare bolen|bapare bolun|somporke bolo|somporke bolen|bapare|somporke|kemon hobe|niye bolo|niye bolen|niye bolun|ki rokom|rating|ratings)$/],
     ['family', /^(?:what|which) (?:family|type|kind|category|genre|style) (?:is|does|of|do|has) (.+?)(?: belong to| fall under| fall in| have| has| come under)?$/],
@@ -1861,7 +1977,7 @@
     if (req.typed && logged !== false) logQuery(req.text, 0);
     return true;
   }
-  const ORDINALS = [['second', 1], ['2nd', 1], ['two', 1], ['ditio', 1], ['দ্বিতীয়', 1], ['third', 2], ['3rd', 2], ['three', 2], ['tritio', 2], ['তৃতীয়', 2], ['first', 0], ['1st', 0], ['top', 0], ['prothom', 0], ['প্রথম', 0], ['one', 0]];
+  const ORDINALS = [['second', 1], ['2nd', 1], ['two', 1], ['ditio', 1], ['দ্বিতীয়', 1], ['third', 2], ['3rd', 2], ['three', 2], ['tritio', 2], ['তৃতীয়', 2], ['first', 0], ['1st', 0], ['top', 0], ['prothom', 0], ['প্রথম', 0], ['one', 0], ['1', 0]];
   function ordinalIn(text, count) {
     const s = ' ' + tokensOf(text).join(' ') + ' ';
     if (/ (?:last|shesh|শেষ) (?:one|ta|টা)? ?/.test(s) && count) return count - 1;
@@ -1979,14 +2095,19 @@
       if (req.text != null) {
         parsed = parse(req.text, S.lex, model, { lastBrands: lastBrands(model), refPrice: null });
         // Phase 2: only typed sentences the parser is lost on go to an on-device layer.
-        if (req.typed && needsNLU(req.text, parsed)) {
+        if (req.typed && (needsNLU(req.text, parsed) || (serverEnabled() && needsServer(req.text, parsed)))) {
           S.ai.lastText = req.text;
+          const wait = serverEnabled() && needsServer(req.text, parsed) ? appendMsg(msgEl('bot', '<p class="finder-sub">' + esc(T.serverWait) + '</p>')) : null;
           const u = await understand(req.text, parsed, model);
+          if (wait && wait.parentNode) wait.parentNode.removeChild(wait);
+          if (u.server && u.server.intent !== 'search' && dispatchServer(req, model, u.server, parsed)) return;
+          if (u.server && u.server.intent === 'search') dispatchServer(req, model, u.server, parsed);
           if (u.part) {
             parsed.parts.push(u.part);
-            notes.push(fill(T.aiRead, { what: u.part.text }));
+            notes.push(fill(u.source === 'server' ? T.serverRead : T.aiRead, { what: u.part.text }));
             parsed.unknown = parsed.unknown.filter(w => u.part.text.toLowerCase().indexOf(w) < 0);
-          } else if (u.tried) notes.push(T.aiNothing);
+          } else if (u.server && u.server.intent === 'search' && parsed.parts.length) parsed.unknown = [];
+          else if (u.tried) notes.push(T.aiNothing);
           aiOffer = u.offer;
         }
         // A bottle you merely asked about never steers a NEW search: the soft anchor goes once you type scent words or another name.
@@ -2209,5 +2330,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });
