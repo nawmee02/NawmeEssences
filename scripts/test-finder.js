@@ -215,6 +215,30 @@ withCp.items.forEach((it, i) => {
 assert.ok(cpLogs.some(m => m === 'co-purchase pairs on 4/4 products'), cpLogs.join(' | '));
 assert.strictEqual(JSON.stringify(buildFinder(recs, details, { coPurchase: cpMap })), JSON.stringify(withCp), 'deterministic with cp');
 assert.deepStrictEqual(withoutCoPurchase(withCp), data, 'cp is the only difference from the plain build');
+
+// ── Fragrantica "reminds me of" → sim (catalogue pairs) + cref (famous references) ──
+{
+  const reminds = { v: 1, items: {
+    a: { page: '/perfume/Rasasi/Alpha-1.html', reminds: [
+      { h: '/perfume/Dior/Dior-Sauvage-EDP-5.html', label: 'DIOR Sauvage Eau de Parfum', up: 300, down: 30 },   // our product e → catalogue pair
+      { h: '/perfume/Creed/Aventus-9.html', label: 'CREED Aventus', up: 100, down: 10 },                      // famous reference → cref
+      { h: '/perfume/Lattafa/Asad-7.html', label: 'LATTAFA PERFUMES Asad', up: 500, down: 10 },               // clone house → never a reference
+      { h: '/perfume/Zara/Thing-3.html', label: 'ZARA Thing', up: 3, down: 0 },                               // too few votes
+      { h: '/perfume/Chanel/Bleu-2.html', label: 'CHANEL Bleu de Chanel', up: 40, down: 30 } ] },             // ratio < 2 → no cref, but the pair rule is for catalogue pages only
+    e: { page: '/perfume/Dior/Dior-Sauvage-EDP-5.html', reminds: [] },
+  } };
+  const withSim = buildFinder(recs, details, { reminds });
+  const idx = id => withSim.items.findIndex(it => it.id === id);
+  const a = withSim.items[idx('a')], e = withSim.items[idx('e')];
+  assert.deepStrictEqual(a.sim, [[idx('e'), a.sim[0][1]]], 'a → e catalogue pair from the vote');
+  assert.ok(a.sim[0][1] > 0.5 && a.sim[0][1] <= 1, 'pair weight from votes: ' + a.sim[0][1]);
+  assert.deepStrictEqual(e.sim, [[idx('a'), a.sim[0][1]]], 'the pair is symmetric');
+  assert.ok(a.cref && a.cref.length === 1 && withSim.vocab.r[a.cref[0][0]].toLowerCase() === 'creed aventus', 'only the famous, well-voted reference becomes cref (shares the inspired_by name, case-insensitively): ' + JSON.stringify(a.cref) + ' ' + withSim.vocab.r[a.cref[0][0]]);
+  assert.ok(!withSim.items.some(it => it.id !== 'a' && it.cref), 'no other cref');
+  assert.strictEqual(JSON.stringify(buildFinder(recs, details, { reminds })), JSON.stringify(withSim), 'deterministic with reminds');
+  const noSim = buildFinder(recs, details, { reminds: false });
+  assert.ok(!noSim.items.some(it => it.sim || it.cref) && noSim.vocab.r.length === data.vocab.r.length, 'reminds:false → no community fields');
+}
 assert.ok(!('cp' in buildFinder(recs, details, { coPurchase: null }).items[0]), 'coPurchase null → cp omitted');
 assert.ok(!('cp' in data.items[0]), 'coPurchase absent → cp omitted');
 assert.strictEqual(JSON.stringify(buildFinder(recs, details, { coPurchase: null })), JSON.stringify(data));
@@ -618,6 +642,28 @@ if (engine) {
     assert.ok(/JSON/.test(F.aiSystemPrompt(model)) && F.NLU_SCHEMA.required[0] === 'features', 'prompt + schema present');
     for (const s of ['aiRead', 'aiOffer', 'aiConsent', 'aiLoading', 'aiLoadFailed']) assert.ok(F.T[s], 'template ' + s);
   }
+  // ── profile similarity + community (Fragrantica) boosts ──
+  {
+    const a = model.byId.get('a'), e = model.byId.get('e'), b = model.byId.get('b');
+    assert.ok(Math.abs(F.profileSim(e, e, model) - 1) < 1e-9 && Math.abs(F.profileSim(a, b, model) - F.profileSim(b, a, model)) < 1e-9, 'profileSim is 1 on itself and symmetric');
+    assert.ok(F.profileSim(a, b, model) > F.profileSim(a, e, model), 'the two woody musky ones are closer than woody vs fresh citrus');
+    // community pair: a says "reminds me of e" → "more like e" lifts a above its vector rank
+    const simData = JSON.parse(JSON.stringify(data)); const ia = simData.items.findIndex(it => it.id === 'a'), ie = simData.items.findIndex(it => it.id === 'e');
+    simData.items[ie].sim = [[ia, 0.9]]; simData.items[ia].sim = [[ie, 0.9]];
+    simData.vocab.r = ['DIOR Sauvage Eau de Parfum']; simData.items[ia].cref = [[0, 0.8]];
+    const sm = F.prepareData(simData);
+    const qa = Object.assign(F.emptyQuery(), { anchor: { kind: 'catalog', id: 'e', name: 'Dior Sauvage EDP' } });
+    const withVotes = F.rank(sm, qa, { limit: 3 }), without = F.rank(sm, qa, { limit: 3, noCommunity: true });
+    assert.ok(withVotes[0].id === 'a' && withVotes[0].community === true, 'voted partner first: ' + withVotes.map(p => p.id));
+    assert.ok(without.every(p => !p.community), 'noCommunity disables the boost');
+    const qr = F.parse('like sauvage', L, sm, {});
+    if (qr.anchor && qr.anchor.kind === 'ref') {
+      const r = F.rank(sm, qr, { limit: 3 });
+      assert.ok(r[0].id === 'a' && r[0].community, 'a product voters compare to the typed reference ranks first');
+      assert.ok(/often compared to .* by Fragrantica users/.test(F.reasons(r[0], qr, sm, qr.anchor)), 'community wording in the reason');
+    }
+  }
+
   // ── Phase 3: "also considered" (display only) + Phase 1c log row ──
   {
     const idx = id => model.items.findIndex(it => it.id === id);

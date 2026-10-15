@@ -46,6 +46,7 @@
     anchorCatalog: 'Closest to {name} in our catalogue:',
     anchorStocked: 'We stock {name} itself — these are the closest alternatives:',
     anchorRef: 'Closest matches to {name} by scent profile:',
+    communityRef: 'often compared to {name} by Fragrantica users',
     unknownAnchor: "I couldn't find that one, so here are matches based on what you've told me so far.",
     unknownAnchorOnly: "I couldn't find that one. Try another name, or tell me what you like — fresh, sweet, office, a budget.",
     notUnderstood: "I didn't understand: {words}. Try words like fresh, sweet, office, or a fragrance name.",
@@ -66,6 +67,11 @@
     noAxis: { fresh: "Nothing that still fits is fresher than {name} overall, so here are the closest picks.", sweet: "Nothing that still fits is sweeter than {name} overall, so here are the closest picks.", strong: "Nothing that still fits is stronger than {name} overall, so here are the closest picks." },
     compare: 'Side by side:',
     compareNeed: 'Pick a few answers first, then I can compare the top two.',
+    vsNote: "I can only compare bottles we stock side by side. For {other}, type 'like {other}'.",
+    suitYes: '{name} is listed for {occ} — a good fit. Its character: {profile}.',
+    suitNo: "{name} is not usually worn for {occ} (it is listed for {listed}). Its character: {profile}. These fit {occ} better:",
+    suitUnknown: '{name}: {profile}. Listed for {listed}.',
+    suitPartial: "{name} is not listed for {occ} specifically, but it is for {hit} — workable. Its character: {profile}.",
     honesty: 'Scent sits differently on everyone — start with a 3 ml decant before a bigger size.',
     unavailable: 'The finder is unavailable right now.',
     browseAll: 'Browse all fragrances →',
@@ -794,6 +800,29 @@
     return clamp(s / 2.2, -1, 1);
   }
 
+  // ── profile similarity for "like X": what a nose compares, not every feature ──
+  // Accords in dominance order (first ones weigh most), shared notes, family, and the
+  // three character axes. Brand, occasion, concentration and description keywords are
+  // left out on purpose: "more like Hawas Ice" should not favour other Rasasi bottles.
+  const SIM_W = { a: 0.45, n: 0.25, f: 0.15, x: 0.15 };
+  function accordSim(aIdx, bIdx) {
+    const w = i => Math.max(0.3, 1 - 0.12 * i); let s = 0, na = 0, nb = 0;
+    aIdx.forEach((x, i) => { na += w(i); const j = bIdx.indexOf(x); if (j >= 0) s += Math.min(w(i), w(j)); });
+    bIdx.forEach((x, j) => { nb += w(j); });
+    return s ? s / Math.sqrt(na * nb) : 0;
+  }
+  const jaccard = (A, B) => { if (!A.length || !B.length) return 0; const b = new Set(B); let s = 0; A.forEach(x => { if (b.has(x)) s++; }); return s / (A.length + B.length - s); };
+  function profileSim(a, b, model) {
+    const ax = ['fresh', 'sweet', 'strong'].reduce((s, k) => s + Math.abs(axisScore(a, k, model) - axisScore(b, k, model)), 0) / 3;
+    return SIM_W.a * accordSim(a.a || [], b.a || []) + SIM_W.n * jaccard(a.n || [], b.n || []) + SIM_W.f * jaccard(a.f || [], b.f || []) + SIM_W.x * (1 - ax);
+  }
+  // A reference fragrance (lexicon) as a pseudo item in the catalogue's index space.
+  function refItem(ref, model) {
+    const idx = (p, labels) => (labels || []).map(l => model.lookup[p].get(String(l).toLowerCase())).filter(x => x != null);
+    return { a: idx('a', ref.a), n: idx('n', ref.n), f: idx('f', ref.f), k: -1, g: 0 };
+  }
+  const SIM_BOOST = 0.35, CREF_BOOST = 0.45;   // Fragrantica "reminds me of" votes: catalogue pairs / famous references
+
   // ── ranking ──
   const brandOf = (it, model) => model.vocab.b[it.b] || '';
   // Continuous: a "stronger" request rewards the whole heavy profile (oud, amber,
@@ -823,6 +852,12 @@
     const minCos = opts.minCos == null ? MIN_COS : opts.minCos;
     const collection = opts.anyCollection ? null : (query.collection === 'exclusive' ? 'e' : 'r');
     const refAnchor = query.anchor && query.anchor.kind === 'ref' && model.vocab.r && model.vocab.r.length ? normalize(query.anchor.name) : null;
+    // Anchor profile for profileSim: the catalogue product itself, or the reference's lists.
+    const anchorItem = query.anchor ? (query.anchor.kind === 'catalog' ? model.byId.get(query.anchor.id) : refItem(query.anchor.ref || refFor(query.anchor.name, model) || {}, model)) : null;
+    const anchorSim = anchorItem && query.anchor.kind === 'catalog' && Array.isArray(anchorItem.sim) ? new Map(anchorItem.sim.map(p => [Number(p[0]), Number(p[1])])) : null;
+    const community = !opts.noCommunity;
+    // Does a community reference name match the typed reference? ("dior sauvage" ~ "DIOR Sauvage Eau de Parfum")
+    const refMatches = n => { if (!refAnchor) return false; const x = normalize(n); return x === refAnchor || x.indexOf(refAnchor) >= 0 || refAnchor.indexOf(x) >= 0; };
     const axes = opts.axes || queryAxes(query), axisKeys = Object.keys(axes).filter(k => axes[k]);
     const axisMin = !opts.ignoreAxis && opts.axisMin && AXES[opts.axisMin.axis] ? opts.axisMin : null;   // relational "fresher than #1"
     const out = [];
@@ -839,19 +874,27 @@
       if (exBrands.size && exBrands.has(brandOf(it, model).toLowerCase())) continue;
       if (!opts.ignoreCheaper && query.cheaper && refPrice != null && !(it.p < refPrice)) continue;
       if (axisMin && !(axisScore(it, axisMin.axis, model) > axisMin.min)) continue;
-      const cq = qv.size ? (query.anchor ? ANCHOR_COS_SHARE * cosine(qv, it.vec) + (1 - ANCHOR_COS_SHARE) * coverage(qv, it.vec) : cosine(qv, it.vec)) : 0;
+      let cq = qv.size ? (query.anchor ? ANCHOR_COS_SHARE * cosine(qv, it.vec) + (1 - ANCHOR_COS_SHARE) * coverage(qv, it.vec) : cosine(qv, it.vec)) : 0;
+      // Measured against Fragrantica's "reminds me of" votes (42 products with voted partners, 2026-10-15):
+      // the full vector blend predicts voters better (top-5 64%) than a nose-only profile (57%), so the
+      // profile similarity is opt-in (opts.simMode === 'profile') and the votes themselves do the lifting.
+      if (anchorItem && opts.simMode === 'profile') cq = 0.5 * cq + 0.5 * profileSim(anchorItem, it, model);
       // An owner-entered inspired_by match (migration 018) is a VERIFIED alternative:
       // it passes the threshold and outranks any scent-profile similarity.
       const verified = refAnchor != null && (it.ref || []).some(ri => normalize(model.vocab.r[ri]) === refAnchor);
-      if (hasQ && cq <= minCos && !verified) continue;
+      // Fragrantica community votes: this product reminds people of the anchor (catalogue pair),
+      // or of the famous reference the visitor named.
+      let simW = community && anchorSim && anchorSim.has(it.idx) ? anchorSim.get(it.idx) : 0;
+      let crefW = 0; if (community && refAnchor && Array.isArray(it.cref)) it.cref.forEach(p => { if (refMatches(model.vocab.r[Number(p[0])] || '')) crefW = Math.max(crefW, Number(p[1]) || 0); });
+      if (hasQ && cq <= minCos && !verified && !simW && !crefW) continue;
       const cp = prof && prof.weight ? cosine(prof.vec, it.vec) : 0;
-      let score = QUERY_SHARE * cq + PROFILE_SHARE * cp + BS_BONUS * (it.bs || 0) + strengthBonus(it, query.strength, model) + (verified ? VERIFIED_BONUS : 0);
+      let score = QUERY_SHARE * cq + PROFILE_SHARE * cp + BS_BONUS * (it.bs || 0) + strengthBonus(it, query.strength, model) + (verified ? VERIFIED_BONUS : 0) + SIM_BOOST * simW + CREF_BOOST * crefW;
       // Overall character: "fresh" ranks genuinely fresh fragrances above a sweet one with a citrus top note.
       let ax = 0; axisKeys.forEach(k => { ax += axes[k] * axisScore(it, k, model); });
       score += AXIS_W * ax;
       if (refPrice != null) score -= PRICE_PEN * Math.min(1, Math.abs(Math.log(it.p) - Math.log(refPrice)) / Math.log(3));
       const matched = []; qv.forEach((w, k) => { if (w > 0 && it.vec.has(k)) matched.push(k); });
-      out.push({ id: it.id, item: it, score, cos: cq, matched, verified, axis: ax });
+      out.push({ id: it.id, item: it, score, cos: cq, matched, verified, axis: ax, community: crefW > 0 || simW > 0 });
     }
     out.sort((x, y) => (y.score - x.score) || (x.item.p - y.item.p) || (x.item.idx - y.item.idx));
     const cap_ = opts.brandCap == null ? BRAND_CAP : opts.brandCap, limit = opts.limit == null ? ANSWER_SIZE : opts.limit;
@@ -882,6 +925,15 @@
       if (s === 'axis') o.ignoreAxis = true; else if (s === 'cheaper') o.ignoreCheaper = true; else if (s === 'price') o.ignorePrice = true; else if (s === 'gender') o.ignoreGender = true; else if (s === 'collection') o.anyCollection = true; else o.minCos = -1;
       picks = rank(model, query, o);
     }
+    // A strong "without X" can leave one or two picks ("sweet but without vanilla"): soften the
+    // avoided features to half weight so the answer still has three cards (nothing else changes).
+    const limit = o.limit == null ? ANSWER_SIZE : o.limit;
+    if (picks.length && picks.length < limit && Object.keys(query.features || {}).some(k => query.features[k] < 0)) {
+      const soft = Object.assign({}, query, { features: {} });
+      Object.keys(query.features).forEach(k => { soft.features[k] = query.features[k] < 0 ? query.features[k] * 0.5 : query.features[k]; });
+      const more = rank(model, soft, o);
+      if (more.length > picks.length) picks = more;
+    }
     return { picks, relaxed };
   }
 
@@ -901,6 +953,7 @@
       if (!notes.length) notes = labelsOf('a', (it.a || []).slice(0, 2));
       const verified = anchor.kind === 'ref' && (it.ref || []).some(ri => normalize(V.r[ri]) === normalize(anchor.name));
       if (verified) return 'Verified alternative to ' + anchor.name + (notes.length ? ' · ' + notes.map(l => String(l).toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' & $1') : '') + ' · ' + price;
+      if (cand.community) return (notes.length ? lowerList(notes) + ' · ' : '') + fill(T.communityRef, { name: anchor.name }) + ' · ' + price;
       return (notes.length ? lowerList(notes) + ' · ' : '') + 'closest match to ' + anchor.name + ' · ' + price;
     }
     const m = cand.matched || [];
@@ -1048,6 +1101,7 @@
       const slot = slotOf(p);
       th.parts = th.parts.filter(old => {
         if (slot && slotOf(old) === slot) return false;
+        if (old.label && p.label && old.label === p.label && !old.anchor) return false;   // the same wish twice ("sweet, not too sweet") stays one token
         const keys = Object.keys(old.features || {});
         if (keys.length && p.features && keys.every(k => p.features[k] != null && Math.sign(p.features[k]) !== Math.sign(old.features[k]))) return false;
         return true;
@@ -1329,11 +1383,61 @@
     if (!last.length) return null;
     return forCheaper ? median(last) : last[0];
   }
+  // "X vs Y" / "which is better, X or Y": two stocked bottles → side by side; otherwise anchor on X.
+  const VS_RE = /^(?:which (?:one )?is better[,:]?\s*|compare\s+)?(.+?)\s+(?:vs\.?|versus|or)\s+(.+?)\s*\??$/i;
+  // "is X good for Y" / "does X work for Y": suitability of a stocked bottle for an occasion.
+  const SUIT_RE = /^(?:is|does|will|can)\s+(.+?)\s+(?:good|ok|okay|suitable|fine|work|nice|right|wearable)\s+(?:for|in|at|on|during)\s+(.+?)\s*\??$/i;
+  const catalogOf = (text, model) => { const q = parse('like ' + text, S.lex, model, {}); return q.anchor && q.anchor.kind === 'catalog' ? model.byId.get(q.anchor.id) : null; };
+  function profileLine(it, model) {
+    const V = model.vocab; const acc = (it.a || []).slice(0, 3).map(i => V.a[i]).filter(Boolean);
+    return lowerList(acc) + (it.k >= 0 && V.k[it.k] ? ', ' + V.k[it.k] : '');
+  }
+  function trySpecial(req, model) {
+    if (!req.typed || !req.text) return false;
+    const th = S.thread, text = String(req.text).trim();
+    let m = VS_RE.exec(text);
+    if (m) {
+      const a = catalogOf(m[1], model), b = catalogOf(m[2], model);
+      if (a && b && a.id !== b.id) {
+        const turn = { role: 'bot', text: T.compare, table: compareRows([a.id, b.id], model), mode: 'compare' };
+        th.turns.push(turn); renderTurn(turn, true); th.lastIds = [a.id, b.id]; setChips('follow'); renderFoot(); save();
+        if (req.typed) logQuery(req.text, 2);
+        return true;
+      }
+      if (a || b) {   // one stocked bottle: anchor on it, explain the other
+        const other = a ? m[2] : m[1];
+        req.text = 'like ' + (a ? m[1] : m[2]); req.vsNote = fill(T.vsNote, { other: other.trim() });
+      }
+      return false;
+    }
+    m = SUIT_RE.exec(text);
+    if (m) {
+      const it = catalogOf(m[1], model); if (!it) return false;
+      const occQ = parse(m[2], S.lex, model, {});
+      const V = model.vocab, listed = (it.o || []).map(i => V.o[i]).filter(Boolean);
+      const wanted = Object.keys(occQ.features || {}).filter(k => /^o:/.test(k) && occQ.features[k] > 0).sort((x, y) => occQ.features[y] - occQ.features[x]).map(k => k.slice(2));
+      const isListed = w => listed.some(l => l.toLowerCase() === w.toLowerCase());
+      const hit = wanted.filter(isListed);
+      const profile = profileLine(it, model);   // (the user turn was already added by onSubmit)
+      if (!wanted.length) { botText(fill(T.suitUnknown, { name: it.nm, profile, listed: listed.join(', ') || '—' })); setChips(th.lastIds.length ? 'follow' : 'opening'); save(); if (req.typed) logQuery(req.text, 0); return true; }
+      // The occasion they named (first) must be listed; a secondary one ("office" also implies Everyday) is only "workable".
+      if (hit.length && isListed(wanted[0])) { botText(fill(T.suitYes, { name: it.nm, occ: wanted[0], profile })); setChips(th.lastIds.length ? 'follow' : 'opening'); save(); if (req.typed) logQuery(req.text, 1); return true; }
+      if (hit.length) { botText(fill(T.suitPartial, { name: it.nm, occ: wanted[0], hit: hit.join(', '), profile })); setChips(th.lastIds.length ? 'follow' : 'opening'); save(); if (req.typed) logQuery(req.text, 1); return true; }
+      // not listed for it: say so, then answer the occasion itself (the bottle excluded)
+      addParts(occQ.parts || []); addParts([{ exclude: ['id:' + it.id], label: T.tokenPrefix.not + it.nm, text: 'not ' + String(it.nm).toLowerCase() }]);
+      req.text = null; req.mode = 'answer'; req.preNote = fill(T.suitNo, { name: it.nm, occ: wanted.join(', '), listed: listed.join(', ') || '—', profile });
+      return false;
+    }
+    return false;
+  }
   function runAnswer(req) {
     const th = S.thread;
     return prepare().then(async model => {
       if (!model) { renderUnavailable(); return; }
+      if (trySpecial(req, model)) return;
       const notes = [];
+      if (req.preNote) notes.push(req.preNote);
+      if (req.vsNote) notes.push(req.vsNote);
       let parsed = null, aiOffer = null;
       if (req.text != null) {
         parsed = parse(req.text, S.lex, model, { lastBrands: lastBrands(model), refPrice: null });
@@ -1562,5 +1666,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, _state: S, _init };
 });

@@ -168,6 +168,42 @@ function coPurchaseOf(coPurchase, id, self, n) {
   return out;
 }
 
+// Fragrantica "This perfume reminds me of" votes (scripts/reference/fragrantica-reminds.json, crawled
+// by the owner's tooling): a community similarity signal. Two fields come out of it:
+//   sim:  [[idx, w], …]  other CATALOGUE products voters compare this one to (both directions)
+//   cref: [[rIdx, w], …] famous references voters compare it to (names in vocab.r, like inspired_by)
+// w ∈ (0, 1] from the vote count and the up/down ratio; counts are never shipped.
+const REMINDS_PATH = path.join(__dirname, '..', 'reference', 'fragrantica-reminds.json');   // not under a data/ dir: .gitignore ignores those
+const CLONE_HOUSE_RE = /^(armaf|lattafa|afnan|rasasi|maison alhambra|french avenue|ajmal|la rive|sapil|arabiyat|al haramain|rayhaan|fragrance world|riiffs|gulf orchid|junaid|paris corner|zimaya|bharara|ard al zaafaran|swiss arabian|milestone|rave|emper|dumont|khadlaj|kindi|atralia|maison asrar|rue broca|le falcon|toskovat|mykonos|nuancielo|in the box|michael malul|zara|bath & body|rare beauty|o botic|aromatix|imrasasi|alhambra|cuba|milton lloyd|alrehab|al rehab|nusuk|my perfumes|dorall|jo milano|adyan|anfar|asdaaf|naseem|ahmed al maghribi|bentley|nautica)\b/i;
+function loadReminds(opts) {
+  if (opts.reminds === false) return null;
+  if (opts.reminds && typeof opts.reminds === 'object') return opts.reminds;
+  try { if (fs.existsSync(REMINDS_PATH)) return JSON.parse(fs.readFileSync(REMINDS_PATH, 'utf8')); } catch (e) { /* optional */ }
+  return null;
+}
+const voteWeight = (up, down) => { const u = Number(up) || 0, d = Number(down) || 0; if (u < 5) return 0; return Math.round(Math.min(1, Math.log1p(u) / Math.log1p(400)) * (u / (u + d)) * 100) / 100; };
+function communityOf(reminds, items) {
+  const out = { sim: new Map(), cref: new Map() };
+  if (!reminds || !reminds.items) return out;
+  const idxById = new Map(items.map((it, i) => [it.id, i]));
+  const idByPage = new Map(); Object.keys(reminds.items).forEach(id => { const p = reminds.items[id] && reminds.items[id].page; if (p && idxById.has(id)) idByPage.set(p, id); });
+  const addSim = (a, b, w) => { if (!out.sim.has(a)) out.sim.set(a, new Map()); const m = out.sim.get(a); m.set(b, Math.max(m.get(b) || 0, w)); };
+  Object.keys(reminds.items).forEach(id => {
+    if (!idxById.has(id)) return;
+    const list = Array.isArray(reminds.items[id].reminds) ? reminds.items[id].reminds : [];
+    const crefs = [];
+    list.forEach(q => {
+      const w = voteWeight(q.up, q.down); if (!w) return;
+      const other = idByPage.get(q.h);
+      if (other && other !== id) { addSim(id, other, w); addSim(other, id, w); return; }
+      const label = String(q.label || '').trim(); const ratio = (Number(q.up) || 0) / Math.max(1, Number(q.down) || 0);
+      if (!other && label && (Number(q.up) || 0) >= 30 && ratio >= 2 && !CLONE_HOUSE_RE.test(label)) crefs.push([label, w]);
+    });
+    if (crefs.length) out.cref.set(id, crefs.sort((x, y) => y[1] - x[1]).slice(0, 3));
+  });
+  return out;
+}
+
 // recsData = buildRecs(...) output; productDetails[id] = { description, inspiredBy?, longevity?, projection?, … }
 // opts.log(message) receives the coverage lines (default: silent); opts.maxKeywords for tests;
 // opts.coPurchase (optional, see coPurchaseOf) adds `cp: [[idx, w], …]` to the items that have pairs.
@@ -180,7 +216,9 @@ function buildFinder(recsData, productDetails, opts = {}) {
   const W = vocabList(), R = vocabList();
   const coPurchase = opts.coPurchase && typeof opts.coPurchase === 'object' ? opts.coPurchase : null;
   const n = recsData.items.length;
-  let withRef = 0, withLg = 0, withPj = 0, withKw = 0, withCp = 0;
+  const community = communityOf(loadReminds(opts), recsData.items);
+  const idxById = new Map(recsData.items.map((it, i) => [it.id, i]));
+  let withRef = 0, withLg = 0, withPj = 0, withKw = 0, withCp = 0, withSim = 0, withCref = 0;
   const items = recsData.items.map((it, i) => {
     const d = details[it.id] || {};
     const kw = kwPerItem[i].map(t => W.add(t));
@@ -188,6 +226,10 @@ function buildFinder(recsData, productDetails, opts = {}) {
     const ref = [];
     for (const name of refs) { const r = R.add(name); if (r >= 0 && !ref.includes(r)) ref.push(r); }
     const out = Object.assign({}, it, { kw, ref });
+    const simMap = community.sim.get(it.id);
+    if (simMap && simMap.size) { out.sim = [...simMap.entries()].map(([id, w]) => [idxById.get(id), w]).filter(p => p[0] != null).sort((a, b) => b[1] - a[1] || a[0] - b[0]).slice(0, 6); withSim++; }
+    const crefs = community.cref.get(it.id);
+    if (crefs && crefs.length) { out.cref = crefs.map(([name, w]) => [R.add(name), w]).filter(p => p[0] >= 0); withCref++; }
     const lg = numberOrNull(d.longevity), pj = numberOrNull(d.projection);
     if (lg !== null) { out.lg = lg; withLg++; }
     if (pj !== null) { out.pj = pj; withPj++; }
@@ -199,6 +241,7 @@ function buildFinder(recsData, productDetails, opts = {}) {
   });
   log(`keywords on ${withKw}/${n} products (${W.list.length} tokens); inspired_by on ${withRef}/${n} (${R.list.length} names); longevity set on ${withLg}/${n}; projection set on ${withPj}/${n}`);
   if (coPurchase) log(`co-purchase pairs on ${withCp}/${n} products`);
+  if (withSim || withCref) log(`fragrantica reminds-of: catalogue pairs on ${withSim}/${n} products, famous references on ${withCref}/${n}`);
   return {
     v: FORMAT,
     src: recsData.src,
