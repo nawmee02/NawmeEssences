@@ -1592,7 +1592,10 @@
     if (out.intent === 'search' && !out.frag && !out.anchor && out.maxPrice == null && out.minPrice == null) out.intent = 'unclear';
     return out;
   }
-  const serverEnabled = () => SERVER_NLU && typeof fetch === 'function' && typeof SUPABASE_URL !== 'undefined' && !!SUPABASE_URL
+  // A local dev server may point the finder at its own stand-in (window.__FINDER_NLU_URL__); otherwise the Supabase function.
+  const devNluUrl = () => { try { return typeof window !== 'undefined' && typeof window.__FINDER_NLU_URL__ === 'string' ? window.__FINDER_NLU_URL__ : ''; } catch (e) { return ''; } };
+  const serverUrl = () => devNluUrl() || (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL ? SUPABASE_URL + SERVER_NLU_PATH : '');
+  const serverEnabled = () => SERVER_NLU && typeof fetch === 'function' && !!serverUrl()
     && !(typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl === true));
   async function serverUnderstand(text, model) {
     if (!serverEnabled()) return null;
@@ -1601,7 +1604,7 @@
     try {
       const headers = { 'Content-Type': 'application/json' };
       if (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY) { headers.apikey = SUPABASE_ANON_KEY; headers.Authorization = 'Bearer ' + SUPABASE_ANON_KEY; }
-      const res = await fetch(SUPABASE_URL + SERVER_NLU_PATH, { method: 'POST', headers, credentials: 'omit', signal: ctrl ? ctrl.signal : undefined, body: JSON.stringify({ q: String(text).slice(0, 200) }) });
+      const res = await fetch(serverUrl(), { method: 'POST', headers, credentials: 'omit', signal: ctrl ? ctrl.signal : undefined, body: JSON.stringify({ q: String(text).slice(0, 200) }) });
       if (!res.ok) return null;
       const data = await res.json();
       return data && data.ok ? validateServer(data.out, model, S.lex) : null;
