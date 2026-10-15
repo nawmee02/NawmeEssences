@@ -180,6 +180,39 @@
     faqContact: 'Fastest on WhatsApp — tap the link below. You can also reach Nawmee via Facebook Messenger or Instagram.',
     faqOffers: 'Prices are fixed. When a bottle is on sale, its card shows the reduced price. For bulk or gift orders, message Nawmee on WhatsApp.',
     faqMore: 'All policies',
+    // bugs round (2026-10-15): bottle looks, Bangla script, skin type, comparisons, glossary
+    chatBottle: "I can't see bottles. Tell me the name or the brand, or what it smells like, and I'll find it.",
+    banglaHelp: "I can read only a little Bangla script so far. Please type in English or Banglish, e.g. 'office er jonno fresh kichu' or 'mishti perfume 500 taka er moddhe'.",
+    banglaNote: "Some of the Bangla words were new to me, so these follow the words I understood — English or Banglish works best.",
+    modestNote: "We currently stock men's and unisex decants, so these are the unisex ones that stay clean and close to the skin.",
+    skinNote: "Skin type doesn't change which bottle suits you much — scent sits differently on everyone, so start with a 3 ml decant and see how it wears on you.",
+    cmpListedAll: '{all} are listed for {occ}.',
+    cmpListedSome: '{yes} listed for {occ}; {no} not.',
+    cmpListedNone: '{none} is listed for {occ}.',
+    cmpAxis: '{name} leans {word} overall.',
+    cmpAxisTie: 'They are about even on {axis}.',
+    cmpWear: "We don't track wear time; by concentration and profile, {name} leans {word}.",
+    cmpWearOne: "We don't track wear time, so I can't rank them on it — concentration and profile are what I can show.",
+    gloss: {
+      edp: 'EDP (Eau de Parfum) is the common strong concentration — roughly 15–20% perfume oil — and most of our catalogue.',
+      edt: 'EDT (Eau de Toilette) is lighter — roughly 5–15% perfume oil — fresher on the open and usually softer than the EDP of the same name.',
+      edc: 'EDC (Eau de Cologne) is the lightest — around 2–5% oil — a splash-and-refresh concentration.',
+      extrait: 'Extrait de Parfum is the richest concentration — roughly 20–40% oil — denser and closer to the skin; Sanaya 40 is our 40% example.',
+      parfum: 'Parfum (or pure parfum) is a high concentration, typically 20% oil or more, denser than an EDP.',
+      intense: '"Intense" is a flanker name: usually a denser, darker or heavier version of the original EDP, not a fixed concentration.',
+      elixir: '"Elixir" is a flanker name for richer, heavier versions of a line (for example Hawas Elixir) — often extrait strength, but it varies by house.',
+      concentration: 'Concentration is the share of perfume oil in the bottle: EDC < EDT < EDP < Extrait. Higher usually means denser and heavier, but the actual profile matters more than the label.',
+      notes: 'Notes are the ingredients you smell over time: top notes open in the first minutes, heart notes follow, base notes stay longest. Our product pages list all three.',
+      accords: 'Accords are the overall character several notes create together — fresh, sweet, woody, amber — the words the finder matches on.',
+      clone: 'A clone (or dupe) is a budget fragrance made to smell like a famous one. Here, "Verified alternative" means the owner lists that reference; "often compared to X by Fragrantica users" is community votes.',
+      longevity: 'Longevity is how long a fragrance stays noticeable on skin. We do not publish figures — it depends on skin, weather and dose — so start with a 3 ml decant.',
+      projection: 'Projection (or sillage) is how far a fragrance radiates from the skin; "beast mode" is slang for very far. We do not rate it; the finder only describes concentration and profile.',
+      niche: 'Designer houses (Dior, YSL, Armani) sell widely; niche houses (Xerjoff, Amouage, Mancera) are smaller, pricier and less common; clone houses (Lattafa, Armaf, Afnan) make affordable takes on both.',
+      unisex: "Unisex means the house markets it to anyone; in practice it is about the scent, not the label. Our catalogue is men's and unisex.",
+      flanker: 'A flanker is a spin-off of an existing fragrance under the same name (Hawas → Hawas Ice), sharing the bottle shape and part of the DNA.',
+      decant: 'A decant is a measured amount of the original fragrance transferred into a smaller atomizer — what we sell, in 3 ml to 30 ml.',
+    },
+    glossConc: 'Higher concentration generally means a denser, heavier scent; the finder uses it together with the profile when you ask for "stronger" or "lighter".',
   };
 
   // ── tuning (vector weights MUST stay identical to js/recs.js) ──
@@ -209,19 +242,20 @@
   const STRENGTH = { stronger: ['strong', 'stronger', 'powerful', 'heavy', 'intense', 'shokto', 'kora'], softer: ['soft', 'softer', 'subtle', 'light', 'not loud', 'quiet', 'close to skin', 'halka', 'office safe'] };
   const EXCL = ['rare', 'vintage', 'discontinued', 'exclusive', 'collector'];
   const PMAX = ['under', 'below', 'upto', 'up to', 'max', 'maximum', 'within', 'less than', 'cheaper than', 'at most', 'not more than', 'no more than', 'around', 'about', 'budget of', 'max budget', 'under budget'];
-  const PMAX_POST = ['er moddhe', 'moddhe', 'er modhe', 'modhe', 'er niche', 'niche', 'r moddhe', 'er bhitor', 'bhitor', 'er bhitore'];
+  const PMAX_POST = ['মধ্যে', 'এর মধ্যে', 'নিচে', 'এর নিচে', 'ভিতরে', 'er moddhe', 'moddhe', 'er modhe', 'modhe', 'er niche', 'niche', 'r moddhe', 'er bhitor', 'bhitor', 'er bhitore'];
   const PMIN = ['over', 'above', 'more than', 'at least', 'minimum', 'from', 'starting', 'starting from'];
-  const PMIN_POST = ['er upore', 'upore', 'er beshi', 'r upore'];
+  const PMIN_POST = ['উপরে', 'এর উপরে', 'এর বেশি', 'er upore', 'upore', 'er beshi', 'r upore'];
   const CHEAP = ['cheap', 'cheapest', 'budget', 'sasta', 'shosta', 'sosta', 'dam kom', 'kom dam', 'kom dame', 'kom damer', 'affordable', 'inexpensive', 'low price', 'lowest price', 'low budget'];
-  const CUR = ['taka', 'tk', 'bdt', '৳', 'tak'];
+  const CUR = ['taka', 'tk', 'bdt', '৳', 'tak', 'টাকা', 'টাকার', 'টাকায়', 'টক'];
   const TRIGGERS = ['like', 'similar to', 'smells like', 'smell like', 'smelling like', 'alternative to', 'alternatives to', 'alternative of', 'alternative for', 'dupe of', 'dupe for', 'dupes of', 'clone of', 'clones of', 'same as', 'instead of', 'close to', 'reminds me of', 'version of', 'inspired by', 'copy of', 'moto'];
   const POST_TRIGGERS = ['type', 'er moto', 'r moto', 'er mto', 'er moton'];
   const DIFF_BRANDS = ['different brand', 'different brands', 'other brand', 'other brands', 'another brand', 'new brands', 'onno brand', 'onno brands'];
-  const UNISEX = ['unisex', 'anyone', 'for anyone', 'both'];
+  const UNISEX = ['ইউনিসেক্স', 'unisex', 'anyone', 'for anyone', 'both'];
   const CONJ = ['to', 'and', 'theke'];
+  const SELF_WEAR = ['on me', 'for me', 'for myself', 'on myself', 'i wear', 'i will wear', 'ill wear', 'i would wear', 'when i wear', 'i can wear', 'i want to wear', 'i wanna wear', 'me to wear', 'amar gaye', 'ami porle', 'ami dile', 'ami porbo', 'ami use korbo', 'nije porbo', 'amar jonno', 'nijer jonno'];
   const HARD_STOP = new Set(['but', 'and', 'under', 'over', 'below', 'above', 'within', 'upto', 'max', 'min', 'cheaper', 'cheap', 'budget', 'not', 'no', 'na', 'chai', 'jonno', 'jonne', 'kichu', 'with', 'without', 'that', 'which', 'something', 'anything', 'please', ',', '৳', 'or', 'kintu']);
-  const GENERIC = new Set(['eau', 'de', 'la', 'le', 'les', 'du', 'des', 'pour', 'homme', 'femme', 'man', 'men', 'woman', 'women', 'for', 'the', 'and', 'of', 'edp', 'edt', 'edc', 'parfum', 'extrait', 'intense', 'elixir', 'cologne', 'toilette', 'concentree', 'absolu', 'by', 'a', 'an', 'no', 'new']);
-  const STOP = new Set(('a an the and or but for with without to of in on at by from as is are am be was were it its this that these those i me my we our you your he she they them his her their what which who whom when where why how do does did dont want wants wanted need needs like likes love loves looking look find show give get suggest recommend recommendation please pls plz thanks thank something anything some any thing things kind type sort one ones more less most very too really quite just also only all each every both few many much lot lots good nice best better great perfect ideal maybe would could should can will shall may might must have has had having if then than so such own same other another different new old use used using wear wearing wears smell smells smelling scent scents perfume perfumes fragrance fragrances decant decants bottle bottles ml size sizes taka tk bdt price prices budget under over below above between within around about upto up max min guys bro bhai apu ami amar amake ache achhe hoy hobe hole korar kore korte korbo kori koro ekta akta lagbe dorkar dekhan dekhao dekhte dao din deben ta ti gula gulo er e te r ki kono keu kew jeta jei je jonno jonne jonnoe chai chaii kichu kisu valo bhalo parbo parben amra tumi apni apnar tomar help wanna gonna kinda idea ideas option options suggestion suggestions tell know think feel').split(' '));
+  const GENERIC = new Set(['eau', 'de', 'la', 'le', 'les', 'du', 'des', 'pour', 'homme', 'femme', 'man', 'men', 'woman', 'women', 'him', 'her', 'for', 'the', 'and', 'of', 'edp', 'edt', 'edc', 'parfum', 'extrait', 'intense', 'elixir', 'cologne', 'toilette', 'concentree', 'absolu', 'by', 'a', 'an', 'no', 'new']);
+  const STOP = new Set(('করা যায় যাবে পারব পারবো পারবেন দিয়ে থেকে সাথে কাছে কে কেউ সব সবাই কোনো কোনও যদি তাহলে তো পারফিউম পারফিউমের জন্য জন্যে চাই চাচ্ছি একটা একটি কিছু আমার আমি আমাকে আমাদের কোনটা কোন কি কী কেমন কত কিভাবে টা টি এর দিন দেন দাও দিবেন লাগবে লাগে আছে হবে হয় করে করেন করো করার কেনার কিনতে কিনব কিনবো নিব নিবো নেব দরকার একটু এমন যেটা যা তা ও এ এই সেই ওই এটা ওটা আর এবং বা নাকি মত মতো দেখান দেখাও বলুন বলো আপনি আপনার আপনারা তুমি তোমার a an the and or but for with without to of in on at by from as is are am be was were it its this that these those i me my we our you your he she they them his her their what which who whom when where why how do does did dont want wants wanted need needs like likes love loves looking look find show give get suggest recommend recommendation please pls plz thanks thank something anything some any thing things kind type sort one ones more less most very too really quite just also only all each every both few many much lot lots good nice best better great perfect ideal maybe would could should can will shall may might must have has had having if then than so such own same other another different new old use used using wear wearing wears smell smells smelling scent scents perfume perfumes fragrance fragrances decant decants bottle bottles ml size sizes taka tk bdt price prices budget under over below above between within around about upto up max min guys bro bhai apu ami amar amake ache achhe hoy hobe hole korar kore korte korbo kori koro ekta akta lagbe dorkar dekhan dekhao dekhte dao din deben ta ti gula gulo er e te r ki kono keu kew jeta jei je jonno jonne jonnoe chai chaii kichu kisu valo bhalo parbo parben amra tumi apni apnar tomar help wanna gonna kinda idea ideas option options suggestion suggestions tell know think feel').split(' '));
 
   // ── small helpers ───────────────────────────────────────────
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -240,6 +274,7 @@
   // same function, so both sides always agree.
   function normalize(text) {
     return String(text == null ? '' : text).toLowerCase()
+      .replace(/[০-৯]/g, d => String('০১২৩৪৫৬৭৮৯'.indexOf(d)))   // Bengali numerals → digits (৫০০ → 500)
       .replace(/([a-z])[‘’']s\b/g, '$1')   // women's → women, dad's → dad
       .replace(/[‘’']/g, '')
       .replace(/(\d)[,.](?=\d{3}\b)/g, '$1')
@@ -340,6 +375,7 @@
     if (sign > 0) {
       if (e.g === 'men' || e.g === 'unisex') part.gender = e.g;
       if (e.gift) part.note = 'unisex';
+      if (typeof e.note === 'string' && e.note !== 'unisex') part.note = e.note;   // e.g. 'skin' → an honest note, no gender
       if (e.strength === 'stronger' || e.strength === 'softer') part.strength = e.strength;
       if (e.collection === 'exclusive') part.collection = 'exclusive';
       if (e.price && typeof e.price === 'object') { if (e.price.max != null) part.maxPrice = Number(e.price.max); if (e.price.min != null) part.minPrice = Number(e.price.min); }
@@ -454,6 +490,9 @@
     return it;
   }
   // Generic name words ("le", "homme", "intense", numbers) match exactly; everything else allows typos.
+  // Name words that cost nothing when left untyped (articles, prepositions, gender words); flanker markers
+  // like 'intense' / 'elixir' / 'edp' are NOT free, so a bare 'hawas' is Hawas for Him, not Hawas Elixir.
+  const FREE_WORDS = new Set(['eau', 'de', 'la', 'le', 'les', 'du', 'des', 'pour', 'homme', 'femme', 'man', 'men', 'woman', 'women', 'him', 'her', 'for', 'the', 'and', 'of', 'by', 'a', 'an']);
   const tokEq = (c, t, strict) => ((GENERIC.has(c) || isNum(c)) ? c === t : fuzzyEq(c, t, strict));
   // lex: indices of C that are lexicon words (bare runs only) — they may complete a name
   // ("dior homme SPORT 2017") but never carry a match on their own ("lattafa sweet" is a brand + a vibe).
@@ -485,7 +524,10 @@
         const prefix = it._st.length > 0 && !GENERIC.has(first) && !firstIsWord && fuzzyEq(first, it._st[0], strict);
         if (!(real >= 2 || prefix || run.len >= 2)) continue;
         let cover = 0; it._nt.forEach(t => { if (C.some(c => tokEq(c, t, strict))) cover++; });
-        const score = real + 0.3 * generic + 0.5 * cover / Math.max(1, it._nt.length) + (prefix ? 0.2 : 0) + 0.2 * run.len + 0.01 * (it.bs || 0) - 0.3 * edits;
+        // Each of the name's own words (not generic like 'for him' / 'pour homme', not a number) left
+        // untyped costs a little, so a bare 'hawas' is Hawas for Him rather than the flanker Hawas Ice.
+        const own = it._nt.filter(t => !FREE_WORDS.has(t) && !isNum(t)), ownCovered = own.filter(t => C.some(c => tokEq(c, t, strict))).length;
+        const score = real + 0.3 * generic + 0.5 * cover / Math.max(1, it._nt.length) - 0.1 * (own.length - ownCovered) + (prefix ? 0.2 : 0) + 0.2 * run.len + 0.01 * (it.bs || 0) - 0.3 * edits;
         if (!best || score > best.score || (score === best.score && it.idx < best.item.idx)) best = { score, item: it, used, edits };
       }
       // The catalogue wins unless a reference-lexicon name is clearly closer (two edits fewer), or the
@@ -662,6 +704,10 @@
       Object.assign(part, priceText(part.minPrice != null ? part.minPrice : null, part.maxPrice != null ? part.maxPrice : null));
       parts.push(part);
     });
+    // "my wife will love it ON ME" / "for myself": the wearer is the visitor, so a woman mentioned
+    // in the sentence is not the wearer and must not switch the answer to unisex.
+    const joined = ' ' + tokens.join(' ') + ' ';
+    const selfWear = SELF_WEAR.some(p => joined.indexOf(' ' + p + ' ') >= 0);
     // 3b. everything else
     units.forEach(u => {
       if (consumed[u.pos]) return;   // part of a resolved product name
@@ -676,10 +722,12 @@
         const sign = neg ? -1 : 1, f = neg && factor > 1 ? 0.5 : factor;
         const merged = compose(entries.map(k => entryPart(k.data, sign, f, u.raw, model)));
         const part = { features: merged.features, label: (neg ? T.tokenPrefix.not : '') + u.raw, text: (neg ? 'no ' : f > 1 ? 'very ' : f < 1 ? 'a bit ' : '') + u.raw };
-        if (merged.gender) {
+        if (merged.gender && !(selfWear && merged.gender === 'unisex' && womenIn(u.raw))) {
           part.gender = entryGender = merged.gender; part.note = merged.note || (merged.gender === 'unisex' && womenIn(u.raw) ? 'unisex' : null);
           part.label = T.tokenPrefix[part.note === 'unisex' ? 'gift' : merged.gender];   // the spec label; `text` keeps the phrase so the share link re-parses
         }
+        const noted = entries.find(k => typeof k.data.note === 'string' && k.data.note !== 'unisex');
+        if (noted && !neg) part.note = noted.data.note;   // e.g. skin type → an honest note with the answer
         if (merged.strength) part.strength = merged.strength;
         if (merged.collection) part.collection = merged.collection;
         if (merged.maxPrice != null && !sawPrice) part.maxPrice = merged.maxPrice;
@@ -701,7 +749,7 @@
         const span = []; for (let k = 0; k < u.len; k++) span.push(u.pos + k);
         if (!settle(span, true, true)) { anchor = anchorFrom({ kind: 'ref', ref: ref.data }); parts.push(anchorPart(anchor)); }
       }
-      if (gender && !neg && !entryGender) parts.push(gender.data === 'women' ? { gender: 'unisex', note: 'unisex', label: T.tokenPrefix.gift, text: 'unisex' } : { gender: 'men', label: T.tokenPrefix.men, text: 'for men' });
+      if (gender && !neg && !entryGender && !(selfWear && gender.data === 'women')) parts.push(gender.data === 'women' ? { gender: 'unisex', note: 'unisex', label: T.tokenPrefix.gift, text: 'unisex' } : { gender: 'men', label: T.tokenPrefix.men, text: 'for men' });
       if (kindOf(u, 'unisex') && !neg && !gender && !entryGender) parts.push({ gender: 'unisex', label: T.tokenPrefix.unisex, text: 'unisex' });
       if (strength && !entries.length) { const s = neg ? (strength.data === 'stronger' ? 'softer' : 'stronger') : strength.data; parts.push({ strength: s, label: T.tokenPrefix[s], text: s }); }
       if (kindOf(u, 'excl') && !neg) parts.push({ collection: 'exclusive', label: T.tokenPrefix.exclusive, text: 'exclusive' });
@@ -709,6 +757,16 @@
       if (kindOf(u, 'cheaper') && !sawPrice) { const r = ctx.refPrice != null ? ctx.refPrice : null; parts.push({ cheaper: true, refPrice: r, label: r != null ? T.tokenPrefix.cheaper + r : T.follow.cheaper, text: r != null ? 'under ' + r : 'cheaper' }); }
       if (kindOf(u, 'cheap') && !sawPrice && !units.some(x => kindOf(x, 'num') && !consumed[x.pos])) { if (!parts.some(p => p.maxPrice != null)) parts.push(Object.assign({ maxPrice: CHEAP_DEFAULT }, priceText(null, CHEAP_DEFAULT))); }
     });
+    // The same feature rejected and wished for in one message ("i hate sweet… everything is too
+    // sweet these days"): the rejection wins; a wish that loses all its features is dropped.
+    const negKeys = new Set();
+    parts.forEach(p => { const ks = Object.keys(p.features || {}); if (ks.length && ks.every(k => p.features[k] < 0)) ks.forEach(k => negKeys.add(k)); });
+    if (negKeys.size) for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i], ks = Object.keys(p.features || {});
+      if (!ks.length || ks.every(k => p.features[k] < 0)) continue;
+      ks.forEach(k => { if (p.features[k] > 0 && negKeys.has(k)) delete p.features[k]; });
+      if (!hasEffect(p)) parts.splice(i, 1);
+    }
     // 4. unknown words (alphabetic, ≥ 4 letters, not a stop-word, not consumed)
     const unknown = [];
     units.forEach(u => { if (u.kinds[0].kind === 'word' && !consumed[u.pos] && isWord(u.raw) && u.raw.length >= 4 && !STOP.has(u.raw) && unknown.indexOf(u.raw) < 0 && unknown.length < 6) unknown.push(u.raw); });
@@ -1463,11 +1521,91 @@
     if (!last.length) return null;
     return forCheaper ? median(last) : last[0];
   }
-  // "X vs Y" / "which is better, X or Y": two stocked bottles → side by side; otherwise anchor on X.
-  const VS_RE = /^(?:which (?:one )?is better[,:]?\s*|compare\s+)?(.+?)\s+(?:vs\.?|versus|or)\s+(.+?)\s*\??$/i;
+  // Comparisons: "X vs Y", "which is better for summer, X or Y", "difference between X and Y",
+  // "compare / rank A, B and C". Two or more stocked bottles → side by side (+ a verdict on the
+  // criterion); one stocked → anchor on it and explain the other; none → the normal path.
+  const CMP_PRE = 'which (?:one |of (?:them|these|the two|the 2) )?(?:is better|is best|is the best|is stronger|is fresher|is sweeter|is lighter|is softer|lasts longer|lasts more|lasts the longest|last longer|last the longest|is more [a-z]+|should i (?:get|buy|pick|choose|take|go for)|would you (?:recommend|suggest|pick|choose)|do you (?:recommend|suggest|prefer)|is good|is nicer|is more popular|is cheaper|is more expensive|is better value|is best value|smells better|performs better|projects more|wins)|what is better|whats better|what s better|whats the difference between|what is the difference between|what s the difference between|difference between|differences between|parthokko|kon ta valo|konta valo|kon ta bhalo|konta bhalo|kon ta better|konta better|kon ta nibo|konta nibo|kon ta kinbo|konta kinbo|kon ta beshi valo|konta beshi valo|kon ta beshi strong|konta beshi strong|better|best';
+  const CMP_SUF = 'which (?:one )?is better|which is better|which one|which|kon ta valo|konta valo|kon ta bhalo|konta bhalo|kon ta|konta|difference|differences|er difference|moddhe difference|er moddhe difference|parthokko|er parthokko|compare|comparison|which should i get|which should i buy|which to get|which to buy|which is stronger|which lasts longer|which one lasts longer|kon ta beshi strong|konta beshi strong|which is fresher|which is sweeter';
+  const CMP_PAIR_RE = new RegExp('^(?:(?<pre>' + CMP_PRE + ')(?: (?:for|in|on|at|during) (?<c1>.+?))? )?(?<x>.+?) (?:vs|versus|or|and|naki|&) (?<y>.+?)(?: (?<suf>' + CMP_SUF + '))?(?: (?:for|in|on|at|during) (?<c2>.+?))?$');
+  const CMP_LIST_RE = /^(?:compare|comparison of|comparison between|compare between|compare these|compare all|rank|rank these|order|sort|rate) (.+)$/;
+  const CMP_WEAR_RE = /lasts? (?:longer|more|the longest)|last long|longevity|performs? better|projects? more|stronger|beshi strong|beshi thake|koto khon|kotokkhon/;
+  const AXIS_WORD = { fresh: 'fresher', sweet: 'sweeter', strong: 'stronger' }, AXIS_NOUN = { fresh: 'freshness', sweet: 'sweetness', strong: 'strength' };
+  // Pure: the names, the criterion ("for summer") and the question words around a comparison, or null.
+  function parseCompare(text) {
+    const withCommas = tokensOf(text).join(' '), s = tokensOf(text).filter(t => t !== ',').join(' ');
+    if (!s) return null;
+    let m = CMP_LIST_RE.exec(withCommas);
+    if (m) {
+      let rest = m[1].replace(/ , /g, ', ').replace(/^, |, $/g, ''), crit = null;
+      const fm = /^(.+?) (?:for|in|on|at|during) (.+)$/.exec(rest);
+      if (fm) { rest = fm[1]; crit = fm[2]; }
+      const names = rest.split(/, | and | vs | versus | or | naki | & /).map(x => x.trim()).filter(Boolean);
+      return { names, crit, pre: 'compare', list: true, rest: m[1].replace(/ , /g, ' ') };
+    }
+    m = CMP_PAIR_RE.exec(s);
+    if (!m) return null;
+    const g = m.groups;
+    return { names: [g.x, g.y], crit: g.c1 || g.c2 || null, pre: ((g.pre || '') + ' ' + (g.suf || '')).trim(), list: false };
+  }
+  // Verdict lines for the criterion: listed occasions, and the fresh / sweet / strong axes.
+  function compareVerdict(items, crit, pre, model) {
+    const out = [], V = model.vocab, cq = crit ? parse(crit, S.lex, model, {}) : null;
+    const wantOcc = cq ? Object.keys(cq.features || {}).filter(k => /^o:/.test(k) && cq.features[k] > 0).sort((a, b) => cq.features[b] - cq.features[a]).map(k => k.slice(2)) : [];
+    const axes = cq ? queryAxes(cq) : {};
+    if (cq && cq.strength) axes.strong = cq.strength === 'stronger' ? 1 : -1;
+    const p = ' ' + (pre || '') + ' ';
+    if (/ (?:is )?fresher /.test(p)) axes.fresh = 1;
+    if (/ (?:is )?sweeter /.test(p)) axes.sweet = 1;
+    if (/ (?:is )?(?:lighter|softer) /.test(p)) axes.strong = -1;
+    const wear = CMP_WEAR_RE.test((pre || '') + ' ' + (crit || ''));
+    if (wear && !axes.strong) axes.strong = 1;
+    const many = items.length > 2;
+    wantOcc.slice(0, 2).forEach(occ => {
+      const yes = items.filter(it => (it.o || []).some(i => String(V.o[i]).toLowerCase() === occ.toLowerCase())).map(it => it.nm);
+      const no = items.filter(it => yes.indexOf(it.nm) < 0).map(it => it.nm);
+      out.push(!no.length ? fill(T.cmpListedAll, { all: many ? 'All' : 'Both', occ }) : !yes.length ? fill(T.cmpListedNone, { none: many ? 'None' : 'Neither', occ }) : fill(T.cmpListedSome, { yes: joinAnd(yes), occ, no: joinAnd(no) }));
+    });
+    Object.keys(axes).filter(k => axes[k] && AXES[k]).slice(0, 2).forEach(k => {
+      const dir = Math.sign(axes[k]), scored = items.map(it => ({ it, s: axisScore(it, k, model) * dir })).sort((a, b) => b.s - a.s);
+      const word = dir > 0 ? AXIS_WORD[k] : (k === 'strong' ? 'softer' : 'less ' + AXIS_NOUN[k].replace(/ness$/, ''));
+      if (scored[0].s - scored[1].s < 0.05) out.push(fill(T.cmpAxisTie, { axis: AXIS_NOUN[k] }));
+      else out.push(fill(k === 'strong' && wear ? T.cmpWear : T.cmpAxis, { name: scored[0].it.nm, word }));
+    });
+    return out;
+  }
+  function tryCompare(req, model) {
+    const th = S.thread, c = parseCompare(req.text);
+    if (!c) return false;
+    const sides = c.names.map(n => ({ n, r: resolveFact(n, model, S.lex) }));
+    const named = sides.filter(x => x.r && (x.r.kind === 'catalog' || x.r.kind === 'ref'));
+    if (c.list && (c.names.length < 2 || !named.length)) {
+      // "compare your top 3 fresh ones": answer the words, then put the picks side by side
+      if (parse(c.rest, S.lex, model, {}).parts.length) { req.text = c.rest; req.compareAfter = true; }
+      return false;
+    }
+    // a vibe word on one side ("fresh or sweet"), or only filler ("hawas ice and something"): a search, not a comparison
+    if (sides.some(x => x.r === null || (x.r.kind === 'unknown' && !cleanName(x.n)))) return false;
+    const seen = new Set(), stocked = [];
+    sides.forEach(x => { if (x.r.kind === 'catalog' && !seen.has(x.r.item.id)) { seen.add(x.r.item.id); stocked.push(x.r.item); } });
+    const others = sides.filter(x => x.r.kind !== 'catalog').map(x => x.r.name || x.n);
+    if (stocked.length >= 2) {
+      const ids = stocked.map(it => it.id), notes = [];
+      if (others.length) notes.push(fill(T.vsNote, { other: others.join(', ') }));
+      compareVerdict(stocked, c.crit, c.pre, model).forEach(l => notes.push(l));
+      const turn = { role: 'bot', text: T.compare, notes, table: compareRows(ids, model), mode: 'compare' };
+      th.turns.push(turn); renderTurn(turn, true); th.lastIds = ids; setChips('follow'); renderFoot(); save();
+      if (req.typed) logQuery(req.text, ids.length);
+      return true;
+    }
+    if (stocked.length === 1) {   // one stocked bottle: anchor on it, explain the other
+      req.text = 'like ' + String(stocked[0].nm).toLowerCase(); req.vsNote = fill(T.vsNote, { other: others.join(', ') });
+      if (CMP_WEAR_RE.test(c.pre)) req.preNote = T.cmpWearOne;
+    }
+    return false;
+  }
   // "is X good for Y" / "does X work for Y": suitability of a stocked bottle for an occasion.
   const SUIT_RE = /^(?:is|does|will|can)\s+(.+?)\s+(?:good|ok|okay|suitable|fine|work|nice|right|wearable)\s+(?:for|in|at|on|during)\s+(.+?)\s*\??$/i;
-  const catalogOf = (text, model) => { const q = parse('like ' + text, S.lex, model, {}); return q.anchor && q.anchor.kind === 'catalog' ? model.byId.get(q.anchor.id) : null; };
+  const catalogOf = (text, model) => { const q = parse(hasTrigger(text, S.lex, model) ? text : 'like ' + text, S.lex, model, {}); return q.anchor && q.anchor.kind === 'catalog' ? model.byId.get(q.anchor.id) : null; };
   function profileLine(it, model) {
     const V = model.vocab; const acc = (it.a || []).slice(0, 3).map(i => V.a[i]).filter(Boolean);
     return lowerList(acc) + (it.k >= 0 && V.k[it.k] ? ', ' + V.k[it.k] : '');
@@ -1484,9 +1622,22 @@
     const add = (map, phrase, key) => { const p = normalize(phrase); if (!p || p === ',') return; const n = p.split(' ').length; if (n > maxLen) maxLen = n; if (!map.has(p)) map.set(p, key); };
     Object.keys(L.intents || {}).forEach(k => (L.intents[k] || []).forEach(m => add(intents, m, k)));
     (L.faq || []).forEach(f => (f.m || []).forEach(m => add(faq, m, f.key)));
+    const gloss = new Map(); (L.glossary || []).forEach(g => (g.m || []).forEach(m => add(gloss, m, g.key)));
     const skip = new Set(STOP); QWORDS.forEach(w => skip.add(w)); (L.stop || []).forEach(w => skip.add(normalize(w)));
-    CHAT = { L, intents, faq, skip, maxLen };
+    const glossSkip = new Set(skip); GLOSS_MARK.forEach(w => glossSkip.add(w)); ['between', 'means', 'mean', 'meaning', 'stand', 'stands', 'full', 'form', 'term', 'terms', 'word', 'words', 'perfume', 'perfumes', 'fragrance', 'fragrances'].forEach(w => glossSkip.add(w));
+    CHAT = { L, intents, faq, gloss, skip, glossSkip, maxLen };
     return CHAT;
+  }
+  // Glossary ("what is the difference between edp and edt"): needs a question marker, so "edp" alone stays a search.
+  const GLOSS_MARK = new Set(['what', 'whats', 'ki', 'mane', 'means', 'mean', 'meaning', 'difference', 'different', 'differences', 'vs', 'versus', 'explain', 'define', 'definition', 'stand', 'stands', 'full', 'kake', 'bujhay', 'bolte', 'jinis', 'better', 'bujhi', 'bujhlam', 'মানে', 'কাকে', 'পার্থক্য']);
+  const GLOSS_CONC = new Set(['edp', 'edt', 'edc', 'extrait', 'parfum', 'intense', 'elixir', 'concentration']);
+  function glossOf(text, L) {
+    L = L || S.lex || {};
+    const cx = chatIndex(L); if (!cx.gloss.size) return null;
+    const tk = tokensOf(text); if (!tk.length || !tk.some(t => GLOSS_MARK.has(t))) return null;
+    const r = closure(tk, cx.gloss, Object.assign({}, cx, { skip: cx.glossSkip }));
+    if (!r.hits.length || r.rest.length) return null;
+    return r.hits.filter((k, i) => r.hits.indexOf(k) === i);
   }
   // Longest-phrase walk: the keys hit (in order) and the tokens nothing covered.
   function closure(tokens, map, cx) {
@@ -1678,6 +1829,7 @@
       case 'why': return sayTurn(req, th.lastIds.length ? T.chatWhy : T.chatWhyNone);
       case 'memory': return sayTurn(req, th.lastIds.length ? T.chatMemoryList : T.chatMemory);
       case 'new': return sayTurn(req, T.chatNew, null, { href: 'shop.html', label: T.browseAll.replace(/\s*→\s*$/, '') });
+      case 'bottle': return sayTurn(req, T.chatBottle);
     }
     return false;
   }
@@ -1721,22 +1873,12 @@
     // Skill 3: shop questions (delivery, payment, sizes, authenticity …)
     const fk = faqOf(text, S.lex);
     if (fk) { const a = faqLines(fk, model); if (a) return sayTurn(req, a.text, a.notes, a.link); }
-    let m = VS_RE.exec(text);
-    if (m) {
-      const a = catalogOf(m[1], model), b = catalogOf(m[2], model);
-      if (a && b && a.id !== b.id) {
-        const turn = { role: 'bot', text: T.compare, table: compareRows([a.id, b.id], model), mode: 'compare' };
-        th.turns.push(turn); renderTurn(turn, true); th.lastIds = [a.id, b.id]; setChips('follow'); renderFoot(); save();
-        if (req.typed) logQuery(req.text, 2);
-        return true;
-      }
-      if (a || b) {   // one stocked bottle: anchor on it, explain the other
-        const other = a ? m[2] : m[1];
-        req.text = 'like ' + (a ? m[1] : m[2]); req.vsNote = fill(T.vsNote, { other: other.trim() });
-      }
-      return false;
-    }
-    m = SUIT_RE.exec(text);
+    // Glossary ("what does extrait mean", "edp vs edt")
+    const gk = glossOf(text, S.lex);
+    if (gk) { const defs = gk.map(k => T.gloss[k]).filter(Boolean); if (defs.length) return sayTurn(req, defs[0], defs.slice(1).concat(gk.some(k => GLOSS_CONC.has(k)) ? [T.glossConc] : [])); }
+    // Comparisons (two or more stocked bottles side by side, with a verdict on the criterion)
+    if (tryCompare(req, model)) return true;
+    let m = SUIT_RE.exec(text);
     if (m) {
       const it = catalogOf(m[1], model); if (!it) return false;
       const occQ = parse(m[2], S.lex, model, {});
@@ -1781,14 +1923,15 @@
         if (parsed.parts.length) addParts(parsed.parts);
         if (!parsed.parts.length) {
           const words = parsed.unknown.join(', ');
+          const bangla = parsed.unknown.some(w => /[ঀ-৿]/.test(w)) || /[ঀ-৿]/.test(String(req.text || ''));   // Bangla script we could not read: say so instead of echoing the words
           if (req.typed) logQuery(req.text, 0);
           if (parsed.unknownAnchor && !th.parts.length) { botText(T.unknownAnchorOnly); offerAi(aiOffer); save(); return; }
           // Nothing usable yet: echo the unknown words, or (only stop-words: "thanks", "different brands" before any answer) say so.
-          if (!parsed.unknownAnchor && !th.parts.length) { botText(words ? fill(T.notUnderstood, { words }) : T.nothingNew); offerAi(aiOffer); save(); return; }
+          if (!parsed.unknownAnchor && !th.parts.length) { botText(bangla ? T.banglaHelp : words ? fill(T.notUnderstood, { words }) : T.nothingNew); offerAi(aiOffer); save(); return; }
           // After an answer, a message with no new constraint and no unknown words changes nothing: no re-answer.
           if (!parsed.unknownAnchor && !words && th.lastIds.length) { botText(T.nothingNew); setChips('follow'); save(); return; }
           // Chips so far + a throw-away text → answer from the chips (with the honest note when words were unknown).
-          if (parsed.unknownAnchor) notes.push(T.unknownAnchor); else if (words) notes.push(fill(T.notUnderstoodAnswer, { words }));
+          if (parsed.unknownAnchor) notes.push(T.unknownAnchor); else if (words) notes.push(bangla ? T.banglaNote : fill(T.notUnderstoodAnswer, { words }));
         } else if (parsed.unknownAnchor) notes.push(T.unknownAnchor);
       }
       let q = th.query = compose(th.parts);
@@ -1838,6 +1981,8 @@
       // Notes for constraints added since the last answer (never repeated).
       th.pending.forEach(p => {
         if (p.note === 'unisex' && notes.indexOf(T.unisexNote) < 0) notes.push(T.unisexNote);
+        if (p.note === 'skin' && notes.indexOf(T.skinNote) < 0) notes.push(T.skinNote);
+        if (p.note === 'modest' && notes.indexOf(T.modestNote) < 0) notes.push(T.modestNote);
         if (p.strength === 'stronger' && notes.indexOf(T.strongerNote) < 0) notes.push(T.strongerNote);
         if (p.strength === 'softer' && notes.indexOf(T.softerNote) < 0) notes.push(T.softerNote);
         if (p.collection === 'exclusive' && notes.indexOf(T.exclusiveNote) < 0) notes.push(T.exclusiveNote);
@@ -1846,6 +1991,7 @@
       const ids = res.picks.map(r => r.id);
       res.picks.forEach(r => { th.cards[r.id] = { c: toCard(r.item, model), e: r.item.c === 'e' }; });
       const turn = { role: 'bot', text, notes, ids, reasons: res.picks.map(r => reasons(r, q, model, a)), mode: req.mode || 'answer' };
+      if (req.compareAfter && ids.length >= 2) turn.table = compareRows(ids, model);   // "compare your top 3 fresh ones"
       // Phase 3: co-purchase row for #1 (display only; never a card, never in the score)
       const also = alsoConsidered(res.picks[0], model, th.renderedIds.concat(ids), 3);
       if (also.length) turn.also = { name: res.picks[0].item.nm, items: also };
@@ -1992,5 +2138,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });

@@ -677,7 +677,12 @@ if (engine) {
 
   // ── claims: every template string and every lexicon string ──
   const strings = (v, out) => { if (typeof v === 'string') out.push(v); else if (Array.isArray(v)) v.forEach(x => strings(x, out)); else if (v && typeof v === 'object') Object.keys(v).forEach(k => strings(v[k], out)); return out; };
-  for (const s of strings(F.T, [])) assert.ok(!BANNED.test(s), 'template makes a longevity/projection claim: ' + s);
+  // The glossary DEFINES the words (longevity, projection, sillage, beast mode), so it is scanned for claim
+  // forms only (hours, "lasts longer", "long lasting"); every other template must not even use the words.
+  const CLAIM = /lasts? longer|long[\s-]?lasting|\b\d+\s*hours?\b/i;
+  for (const s of strings(Object.assign({}, F.T, { gloss: null }), [])) assert.ok(!BANNED.test(s), 'template makes a longevity/projection claim: ' + s);
+  for (const s of strings(F.T.gloss || {}, [])) assert.ok(!CLAIM.test(s), 'glossary makes a wear-time claim: ' + s);
+  assert.ok(F.T.gloss && Object.keys(F.T.gloss).length >= 15, 'glossary definitions present');
   assert.ok(strings(F.T, []).some(s => /Leans stronger: higher concentration and a heavier profile\./.test(s)), 'the one permitted strength wording is present');
   // Lexicon: every string a visitor can SEE (labels, reference names, feature labels)
   // must be claim-free. Match phrases (`m`, negations, strength words …) are what
@@ -812,6 +817,50 @@ if (engine) {
     assert.ok(/from ৳170 for 3 ml/.test(F.faqLines('sizes', model).notes[0]), 'sizes answer quotes the cheapest in-stock regular decant');
     assert.ok(/decants only/.test(F.faqLines('type', model).text) && !/full bottles/.test(F.faqLines('type', model).text), 'product-type answer: decants only, no claim about full bottles');
     assert.strictEqual(lexicon.brandAliases.armani, 'Giorgio Armani'); assert.ok(Object.keys(lexicon.intents).length >= 10 && lexicon.faq.length >= 10, 'intent / faq blocks present');
+
+    // ── bugs round (2026-10-15): negation wins, self-wearer, Bangla script, glossary, comparisons, gaps ──
+    let bq = P('i hate sweet perfumes, everything is too sweet these days');
+    assert.ok(bq.features['a:Sweet'] < 0 && !bq.parts.some(p => p.features && p.features['a:Sweet'] > 0), 'a rejected feature is not also wished for: ' + JSON.stringify(bq.parts.map(p => p.label)));
+    bq = P('winter but no vanilla'); assert.ok(bq.features['a:Amber'] > 0 && bq.features['a:Vanilla'] < 0, 'the wish keeps its other features, only the rejected one is removed');
+    assert.ok(P('sweet but not too sweet').features['a:Sweet'] > 0, 'a mild "not too sweet" is still a wish');
+    bq = P('i want a perfume that my wife will love on me'); assert.strictEqual(bq.gender, null, '"on me": the wearer is the visitor, a woman in the sentence does not switch to unisex'); assert.ok(bq.features['o:Date Night'] > 0);
+    assert.strictEqual(P('something for my wife').gender, 'unisex', 'without a self-wearer phrase the women note still applies');
+    assert.strictEqual(F.normalize('৫০০ টাকার মধ্যে'), '500 টাকার মধ্যে', 'Bengali numerals become digits'); assert.strictEqual(P('৫০০ টাকার মধ্যে').maxPrice, 500, 'Bangla "within 500 taka"');
+    bq = P('অফিসের জন্য ফ্রেশ কিছু'); assert.ok(bq.features['o:Office'] > 0 && (bq.features['a:Fresh'] > 0 || bq.features['f:Fresh'] > 0), 'Bangla office + fresh: ' + JSON.stringify(bq.features));
+    assert.ok(P('মিষ্টি পারফিউম চাই').features['a:Sweet'] > 0 && P('মিষ্টি পারফিউম চাই').unknown.length === 0, 'Bangla sweet, filler words ignored');
+    assert.strictEqual(P('শীতের জন্য কড়া পারফিউম').strength, 'stronger'); assert.strictEqual(P('মেয়েদের জন্য গিফট').gender, 'unisex');
+    assert.ok(P('smells like money').features['a:Amber'] > 0 || P('smells like money').features['a:Woody'] > 0, '"smells like money" is a vibe, not an unknown name: ' + JSON.stringify(P('smells like money').unknownAnchor));
+    assert.ok(P('something i can wear to sleep').strength === 'softer' && P('something i can wear to sleep').features['a:Musky'] > 0, 'bedtime entry');
+    assert.ok(P('something nobody else wears').parts.length === 1 && !P('something nobody else wears').unknown.length, 'uncommon-scent entry');
+    bq = P('perfume for dark skin'); assert.ok(bq.parts.length === 1 && bq.parts[0].note === 'skin' && !bq.features['a:Smoky'], 'skin type → honest note, never "dark" scents: ' + JSON.stringify(bq.parts[0]));
+    assert.strictEqual(F.intentOf('the one in the gold bottle', L), 'bottle'); assert.strictEqual(F.intentOf('the blue one', L), null);
+    assert.deepStrictEqual(F.glossOf('what is the difference between edp and edt', L), ['edp', 'edt']); assert.deepStrictEqual(F.glossOf('what does extrait mean', L), ['extrait']);
+    assert.deepStrictEqual(F.glossOf('edp vs edt', L), ['edp', 'edt']); assert.strictEqual(F.glossOf('edp', L), null, 'a bare term is a search'); assert.strictEqual(F.glossOf('edp under 500', L), null);
+    for (const g of lexicon.glossary) assert.ok(F.T.gloss[g.key], 'definition for glossary key ' + g.key);
+    const PC = t => F.parseCompare(t);
+    assert.deepStrictEqual(PC('which one lasts longer, 9pm or asad').names, ['9pm', 'asad']); assert.ok(/lasts longer/.test(PC('which one lasts longer, 9pm or asad').pre));
+    assert.deepStrictEqual([PC('which is better for summer: hawas ice or sanaya').names, PC('which is better for summer: hawas ice or sanaya').crit], [['hawas ice', 'sanaya'], 'summer']);
+    assert.deepStrictEqual(PC('difference between hawas and hawas ice').names, ['hawas', 'hawas ice']);
+    assert.deepStrictEqual(PC('rank lattafa khamrah qahwa, angham and asad').names, ['lattafa khamrah qahwa', 'angham', 'asad']);
+    assert.deepStrictEqual([PC('compare khamrah qahwa and angham for office').names, PC('compare khamrah qahwa and angham for office').crit], [['khamrah qahwa', 'angham'], 'office']);
+    assert.deepStrictEqual(PC('sanaya vs sanaya 40').names, ['sanaya', 'sanaya 40']); assert.strictEqual(PC('fresh for office'), null);
+    // verdict lines on the synthetic catalogue: Dior Sauvage (Office/Everyday/Summer, EDP) vs Alpha (Office/Everyday, EDP)
+    const vd = F.compareVerdict([model.byId.get('e'), model.byId.get('a')], 'summer', 'which is better', model);
+    assert.ok(vd.some(l => /Dior Sauvage EDP listed for Summer; Alpha not\./.test(l)), 'occasion verdict: ' + vd.join(' | '));
+    assert.ok(F.compareVerdict([model.byId.get('e'), model.byId.get('a')], 'office', '', model).some(l => l === 'Both are listed for Office.'), 'both listed');
+    const vw = F.compareVerdict([model.byId.get('e'), model.byId.get('a')], null, 'which one lasts longer', model);
+    assert.ok(vw.length === 1 && /^We don't track wear time/.test(vw[0]) && !BANNED.test(vw[0]), 'wear question → honest strength line: ' + vw.join(' | '));
+    for (const s of vd.concat(vw)) assert.ok(!BANNED.test(s));
+    // bare names prefer the base bottle over its flankers ('hawas' → Hawas for Him, not Hawas Ice / Hawas Elixir),
+    // while articles and gender words in a name stay free ('le male' → JPG Le Male, not Le Male Le Parfum)
+    const rb = data.vocab.b.indexOf('Rasasi'), jb = data.vocab.b.length;
+    const flankData = { v: 1, vocab: { ...data.vocab, b: data.vocab.b.concat(['Jean Paul Gaultier']) }, items: data.items.concat([
+      { ...data.items[0], id: 'hi', nm: 'Rasasi Hawas Ice', b: rb, bs: 1 }, { ...data.items[0], id: 'hh', nm: 'Rasasi Hawas for Him', b: rb, bs: 0 }, { ...data.items[0], id: 'hx', nm: 'Rasasi Hawas Elixir', b: rb, bs: 1 },
+      { ...data.items[0], id: 'lm', nm: 'JPG Le Male', b: jb, bs: 0 }, { ...data.items[0], id: 'lmp', nm: 'JPG Le Male Le Parfum', b: jb, bs: 1 }, { ...data.items[0], id: 'lmx', nm: 'JPG Le Male Elixir', b: jb, bs: 1 }]) };
+    const fm = F.prepareData(flankData), FR = t => F.resolveFact(t, fm, L);
+    assert.strictEqual(FR('hawas').item.id, 'hh', 'bare hawas → Hawas for Him'); assert.strictEqual(FR('hawas ice').item.id, 'hi'); assert.strictEqual(FR('hawas elixir').item.id, 'hx');
+    assert.strictEqual(FR('le male').item.id, 'lm', 'bare le male → JPG Le Male'); assert.strictEqual(FR('le male elixir').item.id, 'lmx'); assert.strictEqual(FR('le male le parfum').item.id, 'lmp');
+    assert.deepStrictEqual(F.parseCompare('difference between hawas and hawas ice').names, ['hawas', 'hawas ice']);
   }
 
   console.log('test-finder: engine checks passed' + (lexicon ? '' : ' (stand-in lexicon)'));
