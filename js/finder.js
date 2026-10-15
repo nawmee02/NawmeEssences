@@ -39,6 +39,27 @@
     askName: 'Which fragrance do you like? Type its name, e.g. Creed Aventus or Dior Sauvage.',
     answer: 'Here are three picks that fit.',
     answerFor: 'Three picks for {what}:',
+    // Chat-style answer lines (chosen by what the visitor asked for; rotated so a thread doesn't repeat itself)
+    chat: {
+      en: {
+        both: ['Something {vibe} for {occ}{price}? Here are three I\'d try:', 'For {occ}, I\'d go {vibe}{price}. Three to start with:', 'Three {vibe} picks for {occ}{price}:'],
+        vibe: ['Something {vibe}{price}? Here are three I think you\'ll like:', 'Three {vibe} ones worth a try{price}:', 'Here are three {vibe} picks{price}:'],
+        occ: ['For {occ}{price}, these three are a good start:', 'Three good picks for {occ}{price}:', 'Here are three for {occ}{price}:'],
+        none: ['Here are three that fit{price}:', 'Three picks that fit{price}:', 'These three fit{price}:'],
+        stronger: ', on the stronger side', softer: ', on the softer side',
+        under: ' under ৳{max}', over: ' from ৳{min} up', between: ' between ৳{min} and ৳{max}',
+        nothing: ', nothing {neg}', really: 'really ',
+      },
+      bn: {
+        both: ['{occ} er jonno {vibe} kichu{price}? Ei tinta try kore dekhen:', '{occ} e {vibe} kichu chaile{price} — ei tinta bhalo hobe:', '{occ} er jonno {vibe}{price} — amar tinta pick:'],
+        vibe: ['{vibe} kichu{price}? Ei tinta dekhen:', '{vibe} vibe er moddhe{price} ei tinta try korte paren:', '{vibe}{price} — ei tinta bhalo lagbe:'],
+        occ: ['{occ} er jonno{price} ei tinta bhalo hobe:', '{occ} er jonno{price} amar tinta pick:', '{occ} e porar moto{price} ei tinta:'],
+        none: ['Ei tinta apnar shathe mile{price}:', 'Ei tinta dekhen{price}:', 'Amar tinta pick{price}:'],
+        stronger: ', ektu strong dike', softer: ', ektu halka dike',
+        under: ' ৳{max} er moddhe', over: ' ৳{min} er upore', between: ' ৳{min} theke ৳{max} er moddhe',
+        nothing: ', {neg} chara', really: 'onek ',
+      },
+    },
     exclusiveBrandNote: '{brand} is in our Exclusive collection (rare bottles, full advance payment).',
     askVibeFor: 'Got it — {what}. What kind of scent do you lean towards?',
     more: 'Three more that fit.',
@@ -621,7 +642,7 @@
 
     const spanAfter = start => { const s = []; for (let j = start; j < tokens.length && s.length < 6; j++) { if (consumed[j] || HARD_STOP.has(tokens[j])) break; if (isNum(tokens[j]) && (hasKind(kindsAt(index, tokens[j + 1] || ''), 'cur') || tokens[j + 1] === 'ml')) break; s.push(j); } return s; };
     const spanBefore = end => { const s = []; for (let j = end - 1; j >= 0 && s.length < 6; j--) { if (consumed[j] || HARD_STOP.has(tokens[j])) break; s.unshift(j); } return s; };
-    const settle = (span, strict, bare, lex) => {
+    const settle = (span, strict, bare, lex, post) => {
       const C = span.map(j => tokens[j]);
       const res = resolveName(C, model, L, index, strict, lex);
       if (res) {
@@ -634,7 +655,10 @@
       // Unknown name after a trigger: only the leading tokens nobody understands (never a
       // lexicon word; a leading generic word like "le" is skipped, never reported).
       const lead = [];
-      for (const j of span) { const t = tokens[j]; if (GENERIC.has(t) && !lead.length) continue; if (kindsAt(index, t).length || STOP.has(t) || GENERIC.has(t) || !(isWord(t) || isNum(t))) break; lead.push(j); if (lead.length >= 4) break; }
+      // "X type" / "X er moto": the unknown name must sit right before the trigger, read backwards ("… barite use korbo ar dark type" names nothing)
+      const order = post ? span.slice().reverse() : span;
+      for (const j of order) { const t = tokens[j]; if (GENERIC.has(t) && !lead.length) continue; if (kindsAt(index, t).length || STOP.has(t) || GENERIC.has(t) || !(isWord(t) || isNum(t))) break; lead.push(j); if (lead.length >= 4) break; }
+      if (post) lead.reverse();
       if (lead.length && !unknownAnchor) { unknownAnchor = lead.map(j => tokens[j]).join(' '); lead.forEach(j => { consumed[j] = true; }); return true; }
       return false;
     };
@@ -656,7 +680,7 @@
         continue;
       }
       hadTrigger = true;
-      if (settle(span, false)) for (let k = 0; k < tl; k++) consumed[i + k] = true;
+      if (settle(span, false, false, null, post)) for (let k = 0; k < tl; k++) consumed[i + k] = true;
     }
     // 2. phrase units over what is left (longest phrase first, whole tokens)
     const units = [];
@@ -774,7 +798,8 @@
         // "not (too) expensive" / "no budget-breaker": a price ceiling at the entry's own threshold, not a wish for luxury accords
         const pmin = entries.map(k => k.data.price && k.data.price.min).find(v => v != null);
         if (pmin != null && (neg || isMild) && !sawPrice) { if (!parts.some(p => p.maxPrice != null)) parts.push(Object.assign({ maxPrice: Number(pmin) }, priceText(null, Number(pmin)))); return; }
-        const part = { features: merged.features, label: (neg ? negWord : '') + u.raw, text: (neg ? negText : f > 1 ? 'very ' : f < 1 ? 'a bit ' : '') + u.raw };
+        const prim = Object.keys(entries[0].data || {}).find(k => ['f', 'a', 'n', 'o', 'k'].indexOf(k) >= 0) || null;
+        const part = { primary: prim, features: merged.features, label: (neg ? negWord : '') + u.raw, text: (neg ? negText : f > 1 ? 'very ' : f < 1 ? 'a bit ' : '') + u.raw };
         if (merged.gender && !(selfWear && merged.gender === 'unisex' && womenIn(u.raw))) {
           part.gender = entryGender = merged.gender; part.note = merged.note || (merged.gender === 'unisex' && womenIn(u.raw) ? 'unisex' : null);
           part.label = T.tokenPrefix[part.note === 'unisex' ? 'gift' : merged.gender];   // the spec label; `text` keeps the phrase so the share link re-parses
@@ -791,7 +816,7 @@
         if (vocabs.length) {
           const f = {}; const sign = neg ? -1 : 1, fac = neg && factor > 1 ? 0.5 : factor;
           vocabs.forEach(k => addFeat(f, k.data.p + ':' + k.data.label, sign * fac * k.data.w));
-          parts.push({ features: f, label: (neg ? negWord : '') + u.raw, text: (neg ? negText : '') + u.raw });
+          parts.push({ primary: vocabs[0].data.p === 'w' ? 'a' : vocabs[0].data.p, features: f, label: (neg ? negWord : '') + u.raw, text: (neg ? negText : '') + u.raw });
         }
       }
       const brand = kindOf(u, 'brand');
@@ -1131,6 +1156,53 @@
   const lowerList = labels => cap(joinAnd(labels.map(l => String(l).toLowerCase())));
   // A label that is both a note and an accord (Vanilla, Lavender, Leather …) is said once.
   const uniq = labels => { const seen = new Set(), out = []; labels.forEach(l => { const k = String(l).toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push(l); } }); return out; };
+  // ── chat-style answer line ──
+  const OCC_WORD = {
+    en: { Office: 'the office', Everyday: 'everyday wear', 'Date Night': 'a date night', Evening: 'evenings out', Party: 'a party', Wedding: 'a wedding', Formal: 'formal events', Summer: 'summer', Winter: 'winter', 'Gym / Sport': 'the gym', Casual: 'casual days', Festivals: 'festivals', Holiday: 'holidays', Monsoon: 'the rainy season', Spring: 'spring' },
+    bn: { Office: 'office', Everyday: 'protidin', 'Date Night': 'date night', Evening: 'shondhay baire', Party: 'party', Wedding: 'biye bari', Formal: 'formal program', Summer: 'gorom', Winter: 'sheet', 'Gym / Sport': 'gym', Casual: 'casual', Festivals: 'utshob', Holiday: 'chhuti', Monsoon: 'borsha', Spring: 'boshonto' },
+  };
+  const ACC_WORD = { Citrus: 'citrusy', Leather: 'leathery', Amber: 'warm amber', 'Warm Spicy': 'warm spicy', 'Fresh Spicy': 'peppery', 'Soft Spicy': 'softly spicy', Spicy: 'spicy', Fruity: 'fruity', Smoky: 'smoky', Powdery: 'powdery', Musky: 'musky', Earthy: 'earthy', Mossy: 'mossy', Balsamic: 'balsamic', Animalic: 'animalic', Tropical: 'tropical', Marine: 'marine', Herbal: 'herbal', Lactonic: 'creamy', 'White Floral': 'white floral', Gourmand: 'gourmand' };
+  const accWord = a => ACC_WORD[a] || String(a).toLowerCase();
+  // Banglish typed messages get Banglish replies (sticky for the thread once seen).
+  const BN_MARK = new Set(['jonno', 'jonne', 'kichu', 'kisu', 'lagbe', 'chai', 'amar', 'amr', 'ami', 'korbo', 'korte', 'ekta', 'akta', 'moddhe', 'valo', 'bhalo', 'onek', 'onk', 'beshi', 'dekhen', 'dekhan', 'dao', 'jeta', 'jeita', 'porbo', 'barite', 'bari', 'theke', 'kemon', 'koto', 'ache', 'ase', 'hobe', 'naki', 'apni', 'tumi', 'amake', 'dite', 'nibo', 'kinbo', 'er', 'r', 'ar']);
+  function isBanglish(text) { const tk = tokensOf(text).filter(t => /^[a-z]+$/.test(t)); let n = 0; tk.forEach(t => { if (BN_MARK.has(t)) n++; }); return n >= 2 || (n >= 1 && tk.length <= 3); }
+  // q = the composed query; parts = the thread's parts; turnNo picks a variant. Returns { text, folded } (folded: the strength sentence is included).
+  function chatLine(q, parts, lang, turnNo) {
+    const bn = lang === 'bn', C = T.chat[bn ? 'bn' : 'en'], f = q.features || {};
+    parts = (parts || []).filter(p => !p.anchor && !p.exclude);
+    // How much of a part is about occasions vs accords: "biye" is an occasion word, "dark" a vibe word (both carry some of each).
+    const share = (p, pre) => { let a = 0, t = 0; Object.keys(p.features || {}).forEach(k => { const w = p.features[k]; if (w > 0) { t += w; if (k.indexOf(pre + ':') === 0) a += w; } }); return t ? a / t : 0; };
+    const occScore = {};
+    const isOcc = p => !p.gender && (p.primary ? p.primary === 'o' : share(p, 'o') >= 0.5);
+    parts.filter(isOcc).forEach(p => { Object.keys(p.features || {}).forEach(k => { if (/^o:/.test(k) && p.features[k] > 0) occScore[k.slice(2)] = (occScore[k.slice(2)] || 0) + p.features[k]; }); });
+    const occKeys = Object.keys(occScore).sort((a, b) => occScore[b] - occScore[a]);
+    const occs = occKeys.filter(k => occScore[k] >= 0.95 * occScore[occKeys[0]]).slice(0, 2).map(o => OCC_WORD[bn ? 'bn' : 'en'][o] || String(o).toLowerCase());
+    // Vibe: the visitor's own words when they are short vibe words ("dark", "sweet", "mishti"), else the top accords.
+    // the visitor's words without intensifiers and Banglish filler ("fresh kichu" → "fresh", "office er jonno" → "office")
+    const plain = t => String(t || '').replace(/^(very|a bit) /, '').replace(/ (kichu|kisu|kichhu|ta|ekta|er jonno|jonno|jonne|chai|lagbe)$/, '');
+    const own = parts.filter(p => !p.gender && !p.ai && !isOcc(p) && (p.primary ? ['a', 'f', 'n'].indexOf(p.primary) >= 0 : share(p, 'a') + share(p, 'f') + share(p, 'n') >= 0.5) && Object.keys(p.features || {}).some(k => p.features[k] > 0)
+      && /^[a-zঀ-৿]+( [a-zঀ-৿]+)?$/i.test(plain(p.text)) && !/\blike\b/.test(p.text || ''));
+    const stressedOwn = own.some(p => /^very /.test(p.text || ''));
+    let vibe = '';
+    if (own.length) vibe = own.slice(0, 2).map(p => plain(p.text)).join(bn ? ' ar ' : ' and ');
+    else if (!occs.length) {   // no vibe word and no occasion (a gift, an AI reading): describe the top accords instead
+      const ks = Object.keys(f).filter(k => /^a:/.test(k) && f[k] > 0).sort((a, b) => f[b] - f[a]);
+      vibe = ks.filter(k => f[k] >= 0.6 * f[ks[0]]).slice(0, 2).map(k => accWord(k.slice(2))).join(bn ? ' ar ' : ' and ');
+    }
+    if (vibe && stressedOwn) vibe = C.really + vibe;
+    const negPart = parts.find(p => /^(not|less) /.test(p.label || ''));
+    let price = negPart ? fill(C.nothing, { neg: String(negPart.label).replace(/^(not|less) /, '') }) : '';
+    if (q.maxPrice != null && q.minPrice != null) price = fill(C.between, { min: q.minPrice, max: q.maxPrice }) + price;
+    else if (q.maxPrice != null) price = fill(C.under, { max: q.maxPrice }) + price;
+    else if (q.minPrice != null) price = fill(C.over, { min: q.minPrice }) + price;
+    const folded = q.strength === 'stronger' || q.strength === 'softer';
+    if (folded) price += C[q.strength];
+    const occ = occs.join(bn ? ' ar ' : ' and ');
+    const set = vibe && occ ? C.both : vibe ? C.vibe : occ ? C.occ : C.none;
+    let text = fill(set[(turnNo || 0) % set.length], { vibe, occ, price }).replace(/\s+([:?.,])/g, '$1');
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    return { text, folded };
+  }
   function reasons(cand, query, model, anchor) {
     const it = cand.item || cand, V = model.vocab, price = 'from ৳' + it.p;
     const labelsOf = (p, idxs) => idxs.map(i => V[p][i]).filter(Boolean);
@@ -1269,7 +1341,7 @@
   function save() {
     try {
       const th = S.thread; if (!th) return;
-      sessionStorage.setItem(STATE_KEY, JSON.stringify({ v: 1, query: th.query, turns: th.turns, renderedIds: th.renderedIds, parts: th.parts, chips: th.chips, lastIds: th.lastIds, awaitName: th.awaitName, pending: th.pending, cards: th.cards, wizard: th.wizard || null }));
+      sessionStorage.setItem(STATE_KEY, JSON.stringify({ v: 1, query: th.query, turns: th.turns, renderedIds: th.renderedIds, parts: th.parts, chips: th.chips, lastIds: th.lastIds, awaitName: th.awaitName, pending: th.pending, cards: th.cards, wizard: th.wizard || null, lang: th.lang || null }));
     } catch (e) {}
   }
   function loadStored() {
@@ -2107,7 +2179,6 @@
           if (u.server && u.server.intent === 'search') dispatchServer(req, model, u.server, parsed);
           if (u.part) {
             parsed.parts.push(u.part);
-            notes.push(fill(u.source === 'server' ? T.serverRead : T.aiRead, { what: u.part.text }));
             parsed.unknown = parsed.unknown.filter(w => u.part.text.toLowerCase().indexOf(w) < 0);
           } else if (u.server && u.server.intent === 'search' && parsed.parts.length) parsed.unknown = [];
           else if (u.tried) notes.push(T.aiNothing);
@@ -2162,8 +2233,10 @@
       if (other.length) notes.push(fill(T.relaxed, { what: joinAnd(other.map(s => T['relax' + cap(s)])) }));
       if (!res.picks.length) { botText(T.noMore); setChips('follow'); th.pending = []; save(); return; }
       // Reply text: echo what this answer is based on ("Three picks for fresh, office, under ৳500:").
-      const basis = th.parts.map(p => p.label || p.text).filter(Boolean);
-      let text = basis.length && !q.anchor ? fill(T.answerFor, { what: basis.slice(0, 5).join(', ') }) : T.answer;
+      if (req.typed && req.text && isBanglish(req.text)) th.lang = 'bn';
+      const answersSoFar = th.turns.filter(t => t.ids && t.ids.length).length;
+      const chat = !q.anchor ? chatLine(q, th.parts, th.lang, answersSoFar) : null;
+      let text = chat ? chat.text : T.answer;
       const a = q.anchor;
       // Exclusive bottles shown only because their brand was asked for: say so once.
       const exBrand = res.picks.find(r => r.item.c === 'e' && q.collection !== 'exclusive');
@@ -2178,8 +2251,8 @@
         if (p.note === 'unisex' && notes.indexOf(T.unisexNote) < 0) notes.push(T.unisexNote);
         if (p.note === 'skin' && notes.indexOf(T.skinNote) < 0) notes.push(T.skinNote);
         if (p.note === 'modest' && notes.indexOf(T.modestNote) < 0) notes.push(T.modestNote);
-        if (p.strength === 'stronger' && notes.indexOf(T.strongerNote) < 0) notes.push(T.strongerNote);
-        if (p.strength === 'softer' && notes.indexOf(T.softerNote) < 0) notes.push(T.softerNote);
+        if (p.strength === 'stronger' && !(chat && chat.folded && text === chat.text) && notes.indexOf(T.strongerNote) < 0) notes.push(T.strongerNote);
+        if (p.strength === 'softer' && !(chat && chat.folded && text === chat.text) && notes.indexOf(T.softerNote) < 0) notes.push(T.softerNote);
         if (p.collection === 'exclusive' && notes.indexOf(T.exclusiveNote) < 0) notes.push(T.exclusiveNote);
       });
       th.pending = [];
@@ -2333,5 +2406,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, chatLine, isBanglish, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });

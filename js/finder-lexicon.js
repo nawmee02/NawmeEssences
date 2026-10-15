@@ -187,7 +187,7 @@
         o: ['Party', 'Evening'], a: ['Sweet', 'Amber', 'Fruity', 'Vanilla'] },
       { m: ['formal', 'formal wear', 'formals', 'suit', 'suits', 'suited', 'suit and tie', 'black tie', 'business', 'corporate', 'boardroom', 'professional', 'gentleman', 'gentlemanly', 'dapper', 'sophisticated', 'elegant', 'elegance', 'refined', 'polished', 'presentation', 'conference', 'executive', 'ceo'],
         o: ['Formal', 'Office'], f: ['Chypre', 'Woody'], a: ['Woody', 'Aromatic', 'Leather', 'Iris'] },
-      { m: ['বিয়ে', 'বিয়ের', 'বিয়েতে', 'বিয়ে বাড়ি', 'বিয়ের জন্য', 'wedding', 'weddings', 'biye', 'biyer', 'biyer jonno', 'bia', 'biya', 'holud', 'gaye holud', 'reception', 'marriage', 'shaadi', 'shadi', 'walima', 'groom', 'ceremony', 'mehendi', 'bou bhat', 'boubhat', 'engagement', 'akd', 'nikah'],
+      { m: ['biye bari', 'biye barite', 'biye barir', 'biyebari', 'biyebarite', 'biye barir jonno', 'biye barite porar', 'biye te', 'biyete', 'বিয়ে', 'বিয়ের', 'বিয়েতে', 'বিয়ে বাড়ি', 'বিয়ের জন্য', 'wedding', 'weddings', 'biye', 'biyer', 'biyer jonno', 'bia', 'biya', 'holud', 'gaye holud', 'reception', 'marriage', 'shaadi', 'shadi', 'walima', 'groom', 'ceremony', 'mehendi', 'bou bhat', 'boubhat', 'engagement', 'akd', 'nikah'],
         o: ['Wedding', 'Formal', 'Festivals'], a: ['Amber', 'Oud', 'Rose', 'Sweet'], n: ['Oud', 'Rose', 'Saffron'] },
       { m: ['ঈদ', 'ঈদে', 'ঈদের', 'ঈদের জন্য', 'পূজা', 'পূজার', 'উৎসব', 'eid', 'eid er jonno', 'eid ul fitr', 'eid ul adha', 'eid e', 'festival', 'festivals', 'festive', 'puja', 'pooja', 'durga puja', 'pohela boishakh', 'boishakh', 'christmas', 'new year', 'holiday season', 'celebrate', 'utsob', 'utshob', 'occasion', 'occasions', 'special occasion', 'special', 'shab e barat', 'ramadan', 'ramzan', 'iftar', 'victory day', 'pohela falgun'],
         o: ['Festivals', 'Holiday', 'Evening'], a: ['Amber', 'Sweet', 'Oud', 'Warm Spicy'] },
@@ -530,7 +530,7 @@
     intensifiers: {
       very: 1.3, too: 1.3, really: 1.3, super: 1.3, extremely: 1.4, 'a bit': 0.5, slightly: 0.5, little: 0.5, somewhat: 0.6,
       'a little': 0.5, 'a little bit': 0.5, 'kind of': 0.6, kinda: 0.6, 'sort of': 0.6, mostly: 1.2, heavily: 1.3, extra: 1.3, ultra: 1.4, 'so much': 1.3,
-      onek: 1.3, khub: 1.3, bhishon: 1.4, vishon: 1.4, prochur: 1.3, ektu: 0.5, 'ektu ektu': 0.5, alpo: 0.5, olpo: 0.5, 'ektu beshi': 1.2, 'onek beshi': 1.4,
+      onek: 1.3, onk: 1.3, onnek: 1.3, anek: 1.3, khub: 1.3, bhishon: 1.4, vishon: 1.4, prochur: 1.3, ektu: 0.5, 'ektu ektu': 0.5, alpo: 0.5, olpo: 0.5, 'ektu beshi': 1.2, 'onek beshi': 1.4,
     },
 
     genderWords: {

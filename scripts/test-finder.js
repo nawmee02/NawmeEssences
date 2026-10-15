@@ -892,6 +892,22 @@ if (engine) {
     assert.strictEqual(F.ordinalIn('the first one price', 3), 0); assert.strictEqual(F.ordinalIn('more like the second one', 3), 1); assert.strictEqual(F.ordinalIn('the last one', 3), 2); assert.strictEqual(F.ordinalIn('fresh for office', 3), null);
     assert.ok(F.faqLines('tracking', model).text && F.faqLines('tracking', model).link.href.indexOf('wa.me') >= 0, 'tracking answer points to WhatsApp');
 
+    // ── chat-style answer line (English or Banglish to match the visitor; no token lists, no system notes) ──
+    const CL = (t, lang, n) => { const pq = P(t); return F.chatLine(pq, pq.parts, lang, n || 0); };
+    assert.ok(F.isBanglish('amr ekta perfume lagbe jeta onk sweet and date night e use korbo') && F.isBanglish('mishti perfume chai') && !F.isBanglish('fresh for office under 500') && !F.isBanglish('i want something sweet for a date'), 'Banglish detection');
+    let cl = CL('fresh for office under 500', 'en'); assert.ok(/fresh/.test(cl.text) && /the office/.test(cl.text) && /under ৳500/.test(cl.text) && cl.folded && /softer side/.test(cl.text), 'English line: ' + cl.text);
+    cl = CL('amar ekta perfume lagbe jeta biye barite use korbo ar onk dark type', 'bn'); assert.ok(/^Biye bari/.test(cl.text) && /onek dark/.test(cl.text) && !/Shondhay/.test(cl.text), 'the occasion word wins over the vibe word\'s side occasions: ' + cl.text);
+    cl = CL('amr ekta perfume lagbe jeta onk sweeet and date night e use korbo', 'bn'); assert.ok(/^Date night er jonno onek sweet/.test(cl.text), 'Banglish line, stressed vibe: ' + cl.text);
+    assert.ok(/nothing vanilla/.test(CL('winter but no vanilla', 'en').text) && /oud chara/.test(CL('oud chai na', 'bn').text), 'negations are said in words');
+    assert.ok(!/kichu kichu/.test(CL('office er jonno fresh kichu 500 taka er moddhe', 'bn').text), 'Banglish filler is not repeated');
+    bq = P('amar ekta perfume lagbe jeta biye barite use korbo ar onk dark type'); assert.ok(!bq.unknownAnchor && !bq.unknown.length && bq.features['o:Wedding'] > 0, '"X type" only names the words right before it: ' + bq.unknownAnchor);
+    assert.strictEqual(P('zorblax type').unknownAnchor, 'zorblax'); assert.ok(P('sauvage type').anchor && /sauvage/i.test(P('sauvage type').anchor.name), 'sauvage type still anchors');
+    for (const t of ['strong perfume', 'gym', 'something for my wife', 'smells like money', 'under 300', 'i hate sweet perfumes']) for (const lang of ['en', 'bn']) for (const n of [0, 1, 2]) {
+      const x = CL(t, lang, n).text;
+      assert.ok(x.length > 10 && !/\{|\}|undefined|null|NaN|AI:|  /.test(x) && /[:?]$/.test(x), 'clean line for "' + t + '" (' + lang + n + '): ' + x);
+      assert.ok(!BANNED.test(x), 'no claims: ' + x);
+    }
+
     // ── Layer C (server understanding): the contract is re-validated, the gate is loose but never fires on a confident parse ──
     const VS = raw => F.validateServer(raw, model, L);
     const baseOut = { language: 'en', features: [], strength: 'none', gender: 'none', maxPrice: 0, minPrice: 0, anchor: '', exclude: [], fact: null, compare: null, faq: 'none', glossary: [], chat: 'none' };
