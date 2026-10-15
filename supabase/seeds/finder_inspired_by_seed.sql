@@ -31,6 +31,11 @@ SELECT pg_temp.add_inspired('armaf-cdni-edp',     ARRAY['Creed Aventus']);      
 SELECT pg_temp.add_inspired('armaf-cdni-extrait', ARRAY['Creed Aventus']);
 SELECT pg_temp.add_inspired('afnan-9pm',          ARRAY['Jean Paul Gaultier Ultra Male']);      -- 9PM ≈ Ultra Male
 SELECT pg_temp.add_inspired('rasasi-hawas',       ARRAY['Paco Rabanne Invictus Aqua']);         -- Hawas for Him ≈ Invictus Aqua
+-- Owner-stated 2026-10-15 (not on Fragrantica): both Sanaya bottles are sold as alternatives to
+-- Louis Vuitton Imagination; Sanaya 40 is the Extrait (40% oil) of Sanaya (EDP). Fresh, citrusy,
+-- somewhat soapy; casual / everyday / summer / office.
+SELECT pg_temp.add_inspired('junaid-perfumes-sanaya',   ARRAY['Louis Vuitton Imagination']);
+SELECT pg_temp.add_inspired('junaid-perfumes-sanaya40', ARRAY['Louis Vuitton Imagination']);
 
 -- Check:
 SELECT fragrance_id, inspired_by FROM fragrance_details WHERE cardinality(inspired_by) > 0 ORDER BY fragrance_id;
