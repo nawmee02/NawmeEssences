@@ -40,7 +40,10 @@ SELECT pg_temp.add_inspired('armaf-cdni-iconic', ARRAY['CHANEL Bleu de Chanel Ea
 SELECT pg_temp.add_inspired('armaf-cdni-milestone', ARRAY['CREED Millésime Impérial', 'SEAN JOHN Unforgivable']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('bentley-silverlake', ARRAY['GIORGIO ARMANI Acqua di Gio Essenza', 'GIORGIO ARMANI Acqua di Gio']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-aether', ARRAY['PARFUMS DE MARLY Greenley']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('french-avenue-atlantis', ARRAY['ROOM 1015 Wavechild']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-liquid-brun', ARRAY['PARFUMS DE MARLY Althaïr']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('french-avenue-magnetiq', ARRAY['YVES SAINT LAURENT MYSLF Eau de Parfum', 'PRADA Luna Rossa Ocean']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('french-avenue-platine-blanc', ARRAY['XERJOFF Torino21']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-black-friday', ARRAY['XERJOFF Deified Tony Iommi Parfum', 'XERJOFF Deified Tony Iommi Signed Edition']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-feu', ARRAY['STÉPHANE HUMBERT LUCAS 777 God of Fire']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('french-avenue-vulcan-sable', ARRAY['STÉPHANE HUMBERT LUCAS 777 Sand Dance']);  -- Fragrantica votes

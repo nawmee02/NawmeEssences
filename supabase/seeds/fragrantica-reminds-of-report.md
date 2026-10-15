@@ -1,4 +1,4 @@
-# Fragrantica "reminds me of" — all catalogue products (crawled 2026-10-14)
+# Fragrantica "reminds me of" — all catalogue products (crawled 2026-10-15)
 
 Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate for "Alternative to"); ⌂ = also in our catalogue (cross-sell); confidence = how well the Fragrantica page name matched ours (review anything below 0.6).
 
@@ -12,7 +12,13 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - AL WATANIAH Attar Al Wesal — 62/12
 - DUMONT Nitro Green — 50/11
 
-## Afnan 9PM Rebel (Afnan) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Afnan/9pm-65414.html, /perfume/Afnan/9PM-Elixir-111894.html
+## Afnan 9PM Rebel (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/9-PM-Rebel-99238.html) · confidence 1
+- LATTAFA PERFUMES Qaed Al Fursan — 624/124
+- RAVE Now — 216/49
+- DUMONT Nitro Platinum — 78/19
+- ARMAF Odyssey Revolution — 71/22
+- ★ ZARA Vibrant Leather Bogoss — 49/29
+- MYKONOS Glitch — 36/13
 
 ## Afnan Modest Une (Afnan) — [page](https://www.fragrantica.com/perfume/Afnan/Modest-Pour-Homme-Une-69256.html) · confidence 1
 - ★ DIOR Sauvage — 306/31
@@ -144,9 +150,25 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - NUANCIELO Royal Garden — 11/1
 - ★ HAMIDI Addicted Imperial — 10/4
 
-## Giorgio Armani ADG Absolu (Giorgio Armani) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Giorgio-Armani/Armani-Code-Absolu-53106.html, /perfume/Giorgio-Armani/Armani-827.html
+## Giorgio Armani ADG Absolu (Giorgio Armani) — [page](https://www.fragrantica.com/perfume/Giorgio-Armani/Acqua-di-Gio-Absolu-48138.html) · confidence 1
+- GIORGIO ARMANI Acqua di Giò Absolu Instinct — 167/93
+- GIORGIO ARMANI Acqua di Giò Eau de Parfum Intense — 96/24
+- LA RIVE Prestige Men Brown — 43/18
+- ★ BATH & BODY WORKS Marble Cologne — 22/8
+- ARMAF All You Need Is Love Pour Homme — 17/9
+- LA RIVE His Passion — 16/4
+- ★ PERFUMÉRICA HC4 Amaderado Acqua — 10/0
+- MICHAEL MALUL LONDON 831 San Lucas — 10/2
 
-## Giorgio Armani ADG Profondo 2020 (Giorgio Armani) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Giorgio-Armani/Armani-827.html, /perfume/Giorgio-Armani/Armani-Eau-Pour-Homme-409.html
+## Giorgio Armani ADG Profondo 2020 (Giorgio Armani) — [page](https://www.fragrantica.com/perfume/Giorgio-Armani/Acqua-di-Gio-Profondo-59532.html) · confidence 1
+- GIORGIO ARMANI Acqua di Gio — 776/200
+- ★ AZZARO Azzaro Chrome Extreme — 467/96
+- GIORGIO ARMANI Acqua di Giò Eau de Parfum — 412/158
+- LATTAFA PERFUMES Liam Blue Shine — 327/27
+- ★ RALPH LAUREN Polo Blue Eau de Parfum — 270/152
+- GIORGIO ARMANI Acqua di Giò Profondo Lights — 244/40
+- GIORGIO ARMANI Acqua di Giò Profondo Parfum — 197/44
+- ★ RALPH LAUREN Polo Deep Blue Parfum — 193/103
 
 ## Giorgio Armani Stronger With You Absolutely (Giorgio Armani) — [page](https://www.fragrantica.com/perfume/Giorgio-Armani/Emporio-Armani-Stronger-With-You-Absolutely-64501.html) · confidence 0.8
 - GIORGIO ARMANI Emporio Armani Stronger With You Intensely — 1100/143
@@ -280,7 +302,14 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ★ Y25 Midori — 5/1
 - ★ SICILI FRAGANCES Frutto Di Eva — 5/2
 
-## French Avenue Atlantis (French Avenue) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/French-Avenue/Atlantis-Extrait-113595.html, /perfume/French-Avenue/Arsh-95173.html
+## French Avenue Atlantis (French Avenue) — [page](https://www.fragrantica.com/perfume/French-Avenue/Atlantis-Extrait-113595.html) · confidence 1
+- ★ ROOM 1015 Wavechild — 341/27
+- RAYHAAN Pacific Aloha — 92/9
+- LATTAFA PERFUMES Ana Abiyedh Coral — 92/40
+- ★ BUJAIRAMI Ozonic — 18/4
+- ★ ALREHAB PERFUMES Avenue — 16/9
+- ★ OAKCHA Watermelon Jam — 11/1
+- ★ ADYAN BY ANFAR Tropic Swirl — 7/0
 
 ## French Avenue Liquid Brun Limited Edition (French Avenue) — [page](https://www.fragrantica.com/perfume/French-Avenue/Liquid-Brun-Limited-Edition-123526.html) · confidence 1
 - FRENCH AVENUE Liquid Brun — 442/26
@@ -292,9 +321,21 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ARD AL ZAAFARAN Al Dirgham Special Edition — 6/3
 - MAISON ALHAMBRA Victorioso Fearless — 5/2
 
-## French Avenue X Aromatix Magnetiq (French Avenue) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Aromatix-X-French-Avenue/Magnetiq-117529.html, /perfume/Aromatix-X-French-Avenue/X-Xandal-104625.html
+## French Avenue X Aromatix Magnetiq (French Avenue) — [page](https://www.fragrantica.com/perfume/Aromatix-X-French-Avenue/Magnetiq-117529.html) · confidence 1
+- ★ YVES SAINT LAURENT MYSLF Eau de Parfum — 215/70
+- ★ PRADA Luna Rossa Ocean — 156/44
+- ★ BOND NO 9 Lafayette Street — 40/14
+- ★ MONTALE Wood and Spices — 15/9
 
-## French Avenue X Aromatix Platine Blanc (French Avenue) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Aromatix-X-French-Avenue/Platine-Blanc-106068.html, /perfume/French-Avenue/Essence-de-Blanc-95181.html
+## French Avenue X Aromatix Platine Blanc (French Avenue) — [page](https://www.fragrantica.com/perfume/Aromatix-X-French-Avenue/Platine-Blanc-106068.html) · confidence 1
+- ★ XERJOFF Torino21 — 456/60
+- RASASI Hawas Verde — 127/19
+- PARIS CORNER Voux Zingy — 90/25
+- LATTAFA PERFUMES Maahir Honor — 67/13
+- ★ ETAT LIBRE D'ORANGE You Or Someone Like You — 56/33
+- LE FALCONÉ PERFUMES Mirsaal Valentine — 36/10
+- ★ ACQUA DI PARMA Buongiorno — 29/14
+- ARABIYAT PRESTIGE Bamboo Reflection — 26/3
 
 ## French Avenue Vulcan Black Friday LE (French Avenue) — [page](https://www.fragrantica.com/perfume/French-Avenue/Vulcan-Black-Friday-119220.html) · confidence 0.75
 - ★ XERJOFF Deified Tony Iommi Parfum — 197/22
@@ -332,9 +373,25 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - GIORGIO ARMANI Emporio Armani Stronger With You Spices — 8/5
 - ATRALIA Elixir Dao — 7/2
 
-## Givenchy Pi 2018 (Givenchy) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Givenchy/Pi-39.html, /perfume/Givenchy/Eau-de-Givenchy-2018-49600.html
+## Givenchy Pi 2018 (Givenchy) — [page](https://www.fragrantica.com/perfume/Givenchy/Pi-39.html) · confidence 1
+- GIVENCHY Pi Extreme — 115/38
+- GIVENCHY Pi Fraiche — 52/32
+- ★ NILAFAR DU NIL NILUFER Extrait De Parfum — 35/15
+- ★ SUPERZ. Morocco — 35/17
+- ★ ROCCOBAROCCO Fashion Man — 35/20
+- ★ ÉSIKA Vanilla Hombre — 29/7
+- ★ ZARA Majolica — 11/3
+- AL HARAMAIN PERFUMES Angel — 9/5
 
-## Gucci Guilty Elixir (Gucci) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Gucci/Guilty-Elixir-de-Parfum-pour-Homme-84547.html, /perfume/Gucci/Gucci-Guilty-9677.html
+## Gucci Guilty Elixir (Gucci) — [page](https://www.fragrantica.com/perfume/Gucci/Guilty-Elixir-de-Parfum-pour-Homme-84547.html) · confidence 1
+- ★ AMOUAGE Reflection Man — 1000/420
+- ★ PARFUMS DE MARLY Pegasus — 485/321
+- ★ AMOUAGE Reflection 45 Man — 337/210
+- GUCCI Gucci Guilty Absolu de Parfum Pour Homme — 331/32
+- GUCCI Gucci Guilty Love Edition Pour Homme 2024 — 298/71
+- KHADLAJ PERFUMES Shiyaaka For Men — 231/109
+- ★ ZARA Vanilla Collection 01: Irresistible, Magnetic, Delicious — 191/22
+- ★ HOUBIGANT Ambre des Abysses — 126/62
 
 ## Gulf Orchid Naseem (Gulf Orchid) — [page](https://www.fragrantica.com/perfume/Gulf-Orchid/Naseem-126085.html) · confidence 1
 - RAYHAAN Pacific Aura — 21/6
@@ -369,7 +426,15 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - HUGO BOSS Boss Bottled Tonic On The Go Spray — 13/5
 - ★ ABERCROMBIE & FITCH Authentic Moment Man — 10/5
 
-## Issey Miyake L’eau D’issey Pour Homme EDT (Issey Miyake) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Issey-Miyake/L-Eau-d-Issey-Pour-Homme-Eau-de-Toilette-L-Ete-14739.html, /perfume/Issey-Miyake/L-Eau-d-Issey-Pure-Eau-de-Toilette-41934.html
+## Issey Miyake L’eau D’issey Pour Homme EDT (Issey Miyake) — [page](https://www.fragrantica.com/perfume/Issey-Miyake/L-Eau-d-Issey-Pour-Homme-721.html) · confidence 1
+- ISSEY MIYAKE L'Eau d'Issey Pour Homme Fraiche — 332/69
+- ISSEY MIYAKE L’Eau d’Issey pour Homme Vetiver — 133/76
+- ISSEY MIYAKE L'Eau d'Issey Pour Homme Eau de Toilette L'Ete — 116/38
+- ISSEY MIYAKE L’Eau d’Issey Pour Homme Eau de Parfum — 101/51
+- ★ PARIS ELYSEES Mister Caviar — 96/32
+- ★ PERRY ELLIS 18 Intense — 73/40
+- ★ MAISON VIEGAS Legend — 53/12
+- ★ FRAGRANCES OF IRELAND Inis the Energy of the Sea — 48/24
 
 ## JPG Le Beau (Jean Paul Gaultier) — [page](https://www.fragrantica.com/perfume/Jean-Paul-Gaultier/Le-Beau-55785.html) · confidence 1
 - JEAN PAUL GAULTIER Le Beau Le Parfum — 1400/100
@@ -740,7 +805,15 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 
 ## Riiffs Fareed (Riiffs) — NO MATCH on Fragrantica (designer list empty); candidates: none
 
-## Terre d'Hermès Eau Givree (Hermes) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Hermes/Terre-d-Hermes-Eau-Givree-72439.html, /perfume/Hermes/Terre-d-Hermes-17.html
+## Terre d'Hermès Eau Givree (Hermes) — [page](https://www.fragrantica.com/perfume/Hermes/Terre-d-Hermes-Eau-Givree-72439.html) · confidence 1
+- HERMÈS Terre d'Hermès — 651/295
+- ★ PARFUMS DE MARLY Perseus — 462/260
+- HERMÈS Terre d'Hermes Eau Tres Fraiche — 285/133
+- MAISON ALHAMBRA Toro Pour Homme Glace — 120/19
+- IN THE BOX Earthy Icy — 48/10
+- MICHAEL MALUL LONDON Modern Poet — 18/8
+- L'ERBOLARIO Ginepro Nero — 13/7
+- FRAIS ET FRAIS Beaute Fraiche Green — 10/4
 
 ## Valentino Uomo Born In Roma Intense (Valentino) — [page](https://www.fragrantica.com/perfume/Valentino/Valentino-Uomo-Born-In-Roma-Intense-78740.html) · confidence 1
 - LATTAFA PERFUMES Asad Bourbon — 785/231
@@ -752,9 +825,21 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - ARMAF Art Du Parfum Abstracto — 58/23
 - ARABIYAT PRESTIGE Extradose Homme — 24/7
 
-## Xerjoff Renaissance (Xerjoff) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Xerjoff/XJ-1861-Renaissance-12126.html, /perfume/Xerjoff/1986-64279.html
+## Xerjoff Renaissance (Xerjoff) — [page](https://www.fragrantica.com/perfume/Xerjoff/XJ-1861-Renaissance-12126.html) · confidence 1
+- ★ EAU D'ITALIE Acqua Decima — 101/45
+- NUANCIELO Italian Soul — 89/9
+- ★ BOIS 1920 Scorzaforza — 36/14
+- ★ SAPIENTIAE NICHE Fortuna — 32/14
 
-## YSL Tuxedo 2ml Official Sample (Yves Saint Laurent) — NO MATCH on Fragrantica (no confident match in designer list); candidates: /perfume/Yves-Saint-Laurent/Tuxedo-32269.html, /perfume/Yves-Saint-Laurent/Tuxedo-Sharp-Patchouli-104942.html
+## YSL Tuxedo 2ml Official Sample (Yves Saint Laurent) — [page](https://www.fragrantica.com/perfume/Yves-Saint-Laurent/Tuxedo-32269.html) · confidence 1
+- ★ ROCHAS Moustache Eau de Parfum — 1200/145
+- MAISON ALHAMBRA The Tux — 460/44
+- MAISON ALHAMBRA Kismet for Men — 265/60
+- ⌂ AFNAN Turathi Brown — 251/43 (ours: afnan-turathi-brown)
+- KINDI Rich Spices — 209/13
+- FRAGRANCE WORLD Suits — 188/18
+- PARIS CORNER Rifaaqat Adorn — 138/13
+- YVES SAINT LAURENT Tuxedo Sharp Patchouli — 116/7
 
 ## YSL Y EDP (Yves Saint Laurent) — [page](https://www.fragrantica.com/perfume/Yves-Saint-Laurent/Y-Eau-de-Parfum-50757.html) · confidence 1
 - LATTAFA PERFUMES Fakhar Black — 1900/322
@@ -767,6 +852,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - YVES SAINT LAURENT Y Iced Cologne — 234/32
 
 
-**Summary:** 105 products crawled · 90 matched a Fragrantica page · 87 with a clear "reminds me of" list · 38 with a data-backed "Alternative to" seed · 15 unmatched.
+**Summary:** 105 products crawled · 102 matched a Fragrantica page · 99 with a clear "reminds me of" list · 41 with a data-backed "Alternative to" seed · 3 unmatched.
 
-**Famous references voted ≥ 30 that the finder lexicon does not know yet (add as refs):** CUBA PARIS Cuba Gold; BURBERRY Goddess; CREED Absolu Aventus 2023; CHANEL Bleu de Chanel Eau de Parfum; AZZARO The Most Wanted; CHANEL Bleu de Chanel; STÉPHANE HUMBERT LUCAS 777 God of Fire; PRADA Luna Rossa Sport; VERSACE Versace Pour Homme; PARFUMS DE MARLY Greenley; COTY Aspen For Men; JEAN PAUL GAULTIER Le Beau Paradise Garden; PARFUMS DE MARLY Carlisle; AMOUAGE Outlands; RABANNE Invictus Aqua; CAROLINA HERRERA 212 Sexy Men; AZZARO The Most Wanted Parfum; GIORGIO ARMANI Emporio Armani Stronger With You Intensely; HERMÈS Terre d'Hermès; CREED Virgin Island Water 2007; RABANNE Invictus Aqua (2018); VALENTINO Valentino Uomo Intense; EX NIHILO Blue Talisman; XERJOFF XJ 1861 Naxos; MOSCHINO Cheap & Chic I Love Love; GIORGIO ARMANI Emporio Armani Stronger With You; ZARA Gourmand Leather; TIZIANA TERENZI Kirkè; O BOTICÁRIO Quasar Classic; CREED Absolu Aventus
+**Famous references voted ≥ 30 that the finder lexicon does not know yet (add as refs):** CUBA PARIS Cuba Gold; BURBERRY Goddess; ROCHAS Moustache Eau de Parfum; CREED Absolu Aventus 2023; CHANEL Bleu de Chanel Eau de Parfum; AZZARO The Most Wanted; STÉPHANE HUMBERT LUCAS 777 God of Fire; PRADA Luna Rossa Sport; VERSACE Versace Pour Homme; PARFUMS DE MARLY Greenley; COTY Aspen For Men; JEAN PAUL GAULTIER Le Beau Paradise Garden; PARFUMS DE MARLY Carlisle; AMOUAGE Outlands; RABANNE Invictus Aqua; CAROLINA HERRERA 212 Sexy Men; AZZARO The Most Wanted Parfum; GIORGIO ARMANI Emporio Armani Stronger With You Intensely; HERMÈS Terre d'Hermès; CREED Virgin Island Water 2007; RABANNE Invictus Aqua (2018); VALENTINO Valentino Uomo Intense; EX NIHILO Blue Talisman; AZZARO Azzaro Chrome Extreme; XERJOFF XJ 1861 Naxos; PARFUMS DE MARLY Perseus; XERJOFF Torino21; MOSCHINO Cheap & Chic I Love Love; GIORGIO ARMANI Emporio Armani Stronger With You; ZARA Gourmand Leather
