@@ -861,6 +861,29 @@ if (engine) {
     assert.strictEqual(FR('hawas').item.id, 'hh', 'bare hawas → Hawas for Him'); assert.strictEqual(FR('hawas ice').item.id, 'hi'); assert.strictEqual(FR('hawas elixir').item.id, 'hx');
     assert.strictEqual(FR('le male').item.id, 'lm', 'bare le male → JPG Le Male'); assert.strictEqual(FR('le male elixir').item.id, 'lmx'); assert.strictEqual(FR('le male le parfum').item.id, 'lmp');
     assert.deepStrictEqual(F.parseCompare('difference between hawas and hawas ice').names, ['hawas', 'hawas ice']);
+
+    // ── round 4 (fourth 100-query batch): negation words, "less X", "not too expensive", typos, follow-ups, comparisons ──
+    assert.ok(P('my gf hates sweet perfumes, what should i wear').features['a:Sweet'] < 0, '"hates" negates'); assert.ok(P('i dislike vanilla').features['a:Vanilla'] < 0);
+    bq = P('it should not be too expensive'); assert.ok(bq.maxPrice != null && bq.minPrice == null && !bq.features['a:Oud'], '"not too expensive" → a price ceiling, never a luxury wish: ' + JSON.stringify(bq.parts));
+    assert.strictEqual(P('not expensive, under 500').maxPrice, 500, 'an explicit price wins over the entry threshold');
+    assert.deepStrictEqual(P('without changing it').parts, [], '"changing" is filler, never typo-fixed into a vibe word');
+    bq = P('something like khamrah but less sweet'); assert.ok(bq.features['a:Sweet'] < 0 && bq.features['a:Sweet'] > -1, '"less sweet" is a mild rejection: ' + bq.features['a:Sweet']); assert.ok(/^less sweet/.test(bq.parts.find(p => p.features && p.features['a:Sweet']).label));
+    assert.ok(P('mishti kom').features['a:Sweet'] < 0, 'Banglish "kom" after the feature');
+    bq = P('no more bravo, show others'); assert.deepStrictEqual(bq.exclude, ['id:b'], 'a negated bottle name excludes it: ' + JSON.stringify(bq.exclude)); assert.ok(bq.anchor === null && !bq.unknown.length, 'nothing unknown: ' + bq.unknown);
+    assert.deepStrictEqual(P('not charlie').exclude, ['id:c']); assert.deepStrictEqual(P('i dont want dior sauvage').exclude, ['id:e'], 'a negated full name'); assert.deepStrictEqual(P('not rasasi strong').exclude, ['brand:Rasasi'], 'brand negation unchanged');
+    assert.ok(P('something for a doctor').features['o:Office'] > 0 && P('something for a doctor').strength === 'softer', 'professions entry');
+    assert.strictEqual(P('উপহার দিব বাবাকে').gender, 'men', 'Bangla "to father" inflection'); assert.ok(P('কোনটা সবচেয়ে বেশি বিক্রি হয়').parts.length === 1, 'Bangla best-seller');
+    assert.strictEqual(F.intentOf('ok bye', L), 'bye'); assert.strictEqual(F.intentOf('ok show me 5ml price', L), null, '"ok" never swallows a longer message'); assert.strictEqual(F.intentOf('ok', L), 'ack');
+    assert.strictEqual(F.intentOf('show more', L), 'more'); assert.strictEqual(F.intentOf('something else', L), 'more'); assert.strictEqual(F.intentOf('different brand', L), 'brands');
+    assert.deepStrictEqual([F.matchFrame('ok show me 5ml price').kind, F.matchFrame('ok show me 5ml price').name, F.matchFrame('ok show me 5ml price').ml], ['price', '', 5]);
+    assert.strictEqual(F.matchFrame('same but unisex').name, '', 'filler-only name is empty'); assert.deepStrictEqual([F.matchFrame('how strong is supremacy not only intense').kind, F.matchFrame('how strong is supremacy not only intense').name], ['strength', 'supremacy not only intense']);
+    for (const [t, k] of [['what languages do you speak', null], ['koto din e delivery pabo', 'delivery'], ['advance koto dite hobe', 'payment'], ['can i get it today', 'delivery'], ['is there any shop i can visit', 'pickup'], ['minimum order amount', 'order'], ['how to track my order', 'tracking'], ['where is my order', 'tracking']]) assert.strictEqual(FQ(t), k, t);
+    assert.strictEqual(I('what languages do you speak'), 'lang');
+    assert.deepStrictEqual(F.glossOf('what is sillage', L), ['projection']); assert.deepStrictEqual(F.glossOf('edt vs edp which lasts longer', L), ['edt', 'edp']);
+    assert.deepStrictEqual(F.parseCompare('is 9pm stronger than asad').names, ['9pm', 'asad']); assert.ok(/stronger/.test(F.parseCompare('is 9pm stronger than asad').pre));
+    const cs = F.resolveSides(['hawas ice', 'elixir'], fm, L); assert.strictEqual(cs[1].r.kind, 'catalog'); assert.strictEqual(cs[1].r.item.id, 'hx', 'the second name resolves in the first one\'s context');
+    assert.strictEqual(F.ordinalIn('the first one price', 3), 0); assert.strictEqual(F.ordinalIn('more like the second one', 3), 1); assert.strictEqual(F.ordinalIn('the last one', 3), 2); assert.strictEqual(F.ordinalIn('fresh for office', 3), null);
+    assert.ok(F.faqLines('tracking', model).text && F.faqLines('tracking', model).link.href.indexOf('wa.me') >= 0, 'tracking answer points to WhatsApp');
   }
 
   console.log('test-finder: engine checks passed' + (lexicon ? '' : ' (stand-in lexicon)'));
