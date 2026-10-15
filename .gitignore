@@ -23,3 +23,6 @@ node_modules/
 
 # local caches (model/embedding outputs)
 assets/.cache/
+
+# Supabase CLI cache (npx supabase …)
+supabase/.temp/
