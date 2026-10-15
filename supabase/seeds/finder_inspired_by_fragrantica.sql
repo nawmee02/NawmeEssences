@@ -66,6 +66,7 @@ SELECT pg_temp.add_inspired('rayhaan-italia', ARRAY['XERJOFF XJ 1861 Naxos']);  
 SELECT pg_temp.add_inspired('rayhaan-lion', ARRAY['JEAN PAUL GAULTIER Ultra Male']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rayhaan-nocturno-elixir', ARRAY['CHANEL Bleu de Chanel L''Exclusif', 'CHANEL Bleu de Chanel Parfum']);  -- Fragrantica votes
 SELECT pg_temp.add_inspired('rayhaan-terra', ARRAY['AMOUAGE Outlands']);  -- Fragrantica votes
+SELECT pg_temp.add_inspired('riiffs-fareed', ARRAY['YVES SAINT LAURENT La Nuit de l''Homme']);  -- Fragrantica votes
 
 -- Check:
 SELECT fragrance_id, inspired_by FROM fragrance_details WHERE cardinality(inspired_by) > 0 ORDER BY fragrance_id;

@@ -803,7 +803,14 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - LATTAFA PERFUMES Creative Art — 29/5
 - IN THE BOX Mystic Newlands — 14/8
 
-## Riiffs Fareed (Riiffs) — NO MATCH on Fragrantica (designer list empty); candidates: none
+## Riiffs Fareed (Riiffs) — [page](https://www.fragrantica.com/perfume/Riiffs-Perfumes/Fareed-127888.html) · confidence 1
+- ★ YVES SAINT LAURENT La Nuit de l'Homme — 151/12
+- LATTAFA PERFUMES Al Nashama Caprice — 38/10
+- ★ YVES SAINT LAURENT La Nuit de L'Homme Bleu Électrique — 24/11
+- ★ TED LAPIDUS Poker Face — 7/3
+- ★ GRANDEUR Iconic Nuit Pour Homme — 6/2
+- FRAGRANCE WORLD Jack Of Clubs — 5/2
+- LATTAFA PERFUMES Habik For Men — 5/3
 
 ## Terre d'Hermès Eau Givree (Hermes) — [page](https://www.fragrantica.com/perfume/Hermes/Terre-d-Hermes-Eau-Givree-72439.html) · confidence 1
 - HERMÈS Terre d'Hermès — 651/295
@@ -852,6 +859,6 @@ Columns: up/down = Fragrantica votes. ★ = designer/niche reference (candidate 
 - YVES SAINT LAURENT Y Iced Cologne — 234/32
 
 
-**Summary:** 105 products crawled · 102 matched a Fragrantica page · 99 with a clear "reminds me of" list · 41 with a data-backed "Alternative to" seed · 3 unmatched.
+**Summary:** 105 products crawled · 103 matched a Fragrantica page · 100 with a clear "reminds me of" list · 42 with a data-backed "Alternative to" seed · 2 unmatched.
 
 **Famous references voted ≥ 30 that the finder lexicon does not know yet (add as refs):** CUBA PARIS Cuba Gold; BURBERRY Goddess; ROCHAS Moustache Eau de Parfum; CREED Absolu Aventus 2023; CHANEL Bleu de Chanel Eau de Parfum; AZZARO The Most Wanted; STÉPHANE HUMBERT LUCAS 777 God of Fire; PRADA Luna Rossa Sport; VERSACE Versace Pour Homme; PARFUMS DE MARLY Greenley; COTY Aspen For Men; JEAN PAUL GAULTIER Le Beau Paradise Garden; PARFUMS DE MARLY Carlisle; AMOUAGE Outlands; RABANNE Invictus Aqua; CAROLINA HERRERA 212 Sexy Men; AZZARO The Most Wanted Parfum; GIORGIO ARMANI Emporio Armani Stronger With You Intensely; HERMÈS Terre d'Hermès; CREED Virgin Island Water 2007; RABANNE Invictus Aqua (2018); VALENTINO Valentino Uomo Intense; EX NIHILO Blue Talisman; AZZARO Azzaro Chrome Extreme; XERJOFF XJ 1861 Naxos; PARFUMS DE MARLY Perseus; XERJOFF Torino21; MOSCHINO Cheap & Chic I Love Love; GIORGIO ARMANI Emporio Armani Stronger With You; ZARA Gourmand Leather
