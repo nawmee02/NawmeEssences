@@ -5,7 +5,9 @@
 // (intent + fields). It never writes the answer — js/finder.js renders every reply from the catalogue
 // and the policy templates, so nothing the model says reaches the screen as text.
 
-export const MODEL = 'gemini-2.5-flash-lite';
+// Google closed gemini-2.5-flash-lite to new keys in October 2026 ('no longer available to new users'). The owner chose
+// 3.1 Flash-Lite (same tier, free). Override per deployment with the GEMINI_MODEL secret.
+export const MODEL = 'gemini-3.1-flash-lite';
 export const MAX_QUERY_CHARS = 200;
 
 // Keep these lists in sync with js/finder-lexicon.js (scripts/test-finder.js checks they match).
@@ -59,7 +61,7 @@ export function buildSystemPrompt(finder) {
     'You classify a perfume shopper\'s message for NawmeEssences, a Bangladesh shop selling decants (3 ml to 30 ml) of original fragrances, men\'s and unisex only.',
     'Messages may be English, Banglish (Bangla written in Latin letters, e.g. "office er jonno fresh kichu" = something fresh for the office) or Bangla script. Output JSON only, matching the schema. Set "language".',
     'intent:',
-    '- "search": they describe what they want (a vibe, an occasion, a budget, a person, a strength, or "like X"). Fill features: keys "<prefix>:<label>" with prefixes a (accord), f (family), n (note), o (occasion), k (concentration), b (brand); weight 1 = wanted, -1 = avoid, 0.5 = mild ("not too sweet" = 0.5, "less sweet" = -0.5). strength: "stronger" for strong/loud/heavy/long-wear wishes, "softer" for subtle/light/office-safe. gender: "men" for him/dad/brother/myself (male), "unisex" for anyone/couple, "women" for her/wife/girlfriend/mother. maxPrice/minPrice in taka (0 = none; "cheap"/"budget" = maxPrice 300; "premium"/"luxury" = minPrice 400). anchor: a fragrance they want something LIKE, as they wrote it ("" if none). exclude: brands or bottles to avoid, as written.',
+    '- "search": they describe what they want (a vibe, an occasion, a budget, a person, a strength, or "like X"). Fill features: keys "<prefix>:<label>" with prefixes a (accord), f (family), n (note), o (occasion), k (concentration), b (brand); weight 1 = wanted, -1 = avoid, 0.5 = mild ("not too sweet" = 0.5, "less sweet" = -0.5). strength: "stronger" for strong/loud/heavy/long-wear wishes, "softer" for subtle/light/office-safe. gender: "men" for him/dad/brother/myself (male), "unisex" for anyone/couple, "women" for her/wife/girlfriend/mother. maxPrice/minPrice in taka only when the shopper states a budget or says cheap/budget (maxPrice 300) or premium/luxury/expensive (minPrice 400); never infer a price from age, job or occasion (0 = none). anchor: a fragrance NAME they want something LIKE, as they wrote it ("" if none; a described smell like "rain on asphalt" is features, not an anchor). exclude: brands or bottles to avoid, as written.',
     '- "fact": a question about ONE specific bottle. fact.kind: smell (what it smells like / describe), notes, about (tell me about / review), family, gender (is it unisex), strength (is it strong / how long does it last), price (price / how much / cheapest size; set fact.ml when a size is asked), have (do you have / in stock), buy (i want to order X). fact.name = the bottle as written.',
     '- "compare": two or more named bottles against each other (X vs Y, which is better, difference between, rank A, B and C, is X stronger than Y). compare.names as written, compare.criterion ("summer", "office", "stronger", "sweeter"…) or "".',
     '- "faq": a question about the shop. faq key meanings: ' + FAQ_KEYS.map(k => k + ' = ' + FAQ_MEANING[k]).join('; ') + '.',
@@ -88,7 +90,8 @@ export async function callGemini(apiKey, systemPrompt, text, opts) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: String(text).slice(0, MAX_QUERY_CHARS) }] }],
-        generationConfig: { temperature: 0, maxOutputTokens: 400, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA, thinkingConfig: { thinkingBudget: 0 } },
+        // thinking off: Gemini 2.x takes thinkingBudget 0, Gemini 3.x takes thinkingLevel 'minimal' (budget 0 is rejected there)
+        generationConfig: { temperature: 0, maxOutputTokens: 400, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA, thinkingConfig: /^gemini-2./.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'minimal' } },
       }),
     });
     if (!res.ok) { const body = await res.text().catch(() => ''); throw new Error('gemini http ' + res.status + ' ' + body.slice(0, 200)); }

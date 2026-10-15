@@ -1,15 +1,17 @@
 // finder-understand — Find a Scent, Layer C (server-side understanding).
 //
 // POST { q: "<typed sentence>" } → { ok: true, out: { intent, … } } — the finder's structured contract,
-// produced by Gemini 2.5 Flash-Lite from the vocabulary in the live data/finder.json. The browser
+// produced by Gemini Flash-Lite (GEMINI_MODEL, default 3.1) from the vocabulary in the live data/finder.json. The browser
 // validates the object again and renders the answer itself; the model never writes reply text.
 //
-// Secrets: GEMINI_API_KEY (required), SITE_ORIGIN (optional, default https://nawmeessences.com).
+// Secrets: GEMINI_API_KEY (required), SITE_ORIGIN (optional, default https://nawmeessences.com),
+//          GEMINI_MODEL (optional; default gemini-3.1-flash-lite — 2.5 Flash-Lite is closed to new keys since 2026-10).
 // Deploy:  supabase functions deploy finder-understand --no-verify-jwt   (the site uses a publishable key, not a JWT)
-// Guards:  per-IP and per-minute rate limits + a daily cap sized for the Gemini free tier; 3.5 s upstream timeout.
+// Guards:  per-IP and per-minute rate limits + a daily cap sized for the Gemini free tier; 8 s upstream timeout.
 import { MODEL, MAX_QUERY_CHARS, buildSystemPrompt, callGemini } from './prompt.mjs';
 
 const KEY = Deno.env.get('GEMINI_API_KEY') || '';
+const MODEL_ID = Deno.env.get('GEMINI_MODEL') || MODEL;
 const SITE = (Deno.env.get('SITE_ORIGIN') || 'https://nawmeessences.com').replace(/\/$/, '');
 const ALLOW = new Set([SITE, 'https://nawmeessences.com', 'https://www.nawmeessences.com', 'http://127.0.0.1:8765', 'http://localhost:8765']);
 const PER_IP_MIN = 10, PER_MIN = 14, PER_DAY = 950;   // free tier (check the current limits): ~15 requests/min, ~1,000/day
@@ -60,9 +62,12 @@ Deno.serve(async (req: Request) => {
   if (why) return json(429, { ok: false, reason: 'rate ' + why }, { ...headers, 'Retry-After': '60' });
   try {
     await loadFinder();
-    const out = await callGemini(KEY, prompt, q, { timeoutMs: 3500 });
+    // Flash-Lite answers 503 'model overloaded' now and then (7 of 199 in the 2026-10-16 eval): one quick retry.
+    let out;
+    try { out = await callGemini(KEY, prompt, q, { timeoutMs: 5000, model: MODEL_ID }); }
+    catch (e) { if (!/http (503|429|500)/.test(String(e && (e as Error).message))) throw e; await new Promise(r => setTimeout(r, 400)); out = await callGemini(KEY, prompt, q, { timeoutMs: 4500, model: MODEL_ID }); }
     if (!out || typeof out !== 'object' || typeof out.intent !== 'string') return json(502, { ok: false, reason: 'bad output' }, headers);
-    return json(200, { ok: true, model: MODEL, out }, headers);
+    return json(200, { ok: true, model: MODEL_ID, out }, headers);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return json(/abort/i.test(msg) ? 504 : 502, { ok: false, reason: msg.slice(0, 120) }, headers);

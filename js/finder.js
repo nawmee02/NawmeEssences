@@ -233,7 +233,7 @@
   // Phase 2: on-device understanding is tried only when the deterministic parser is lost
   // (≥ 4 words and ≥ 2 unknown content words, or nothing parsed at all).
   // Layer C: server-side understanding (Gemini via supabase/functions/finder-understand), asked only when the parser is unsure.
-  const SERVER_NLU = true, SERVER_NLU_PATH = '/functions/v1/finder-understand', SERVER_TIMEOUT_MS = 6000;
+  const SERVER_NLU = true, SERVER_NLU_PATH = '/functions/v1/finder-understand', SERVER_TIMEOUT_MS = 10000;
   const NLU_MIN_WORDS = 4, NLU_MIN_UNKNOWN = 2, NLU_TIMEOUT_MS = 4000, NLU_CONSENT_KEY = 'nawme_finder_ai';
   const WA_FALLBACK = '8801988536843', CDN = 'https://cdn.nawmeessences.com';
 

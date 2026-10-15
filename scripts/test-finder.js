@@ -1097,7 +1097,7 @@ if (engine) {
   assert.deepStrictEqual(PM.RESPONSE_SCHEMA.properties.faq.enum, PM.FAQ_KEYS.concat(['none'])); assert.deepStrictEqual(PM.RESPONSE_SCHEMA.properties.fact.properties.kind.enum, PM.FACT_KINDS);
   const sp = PM.buildSystemPrompt(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'finder.json'), 'utf8')));
   assert.ok(/Rasasi Hawas Ice/.test(sp) && /accords: /.test(sp) && /occasions: /.test(sp) && PM.FAQ_KEYS.every(k => sp.indexOf(k + ' = ') >= 0), 'system prompt carries the catalogue names, labels and FAQ meanings');
-  assert.ok(sp.length < 12000, 'system prompt stays small (' + sp.length + ' chars)'); assert.strictEqual(PM.MODEL, 'gemini-2.5-flash-lite');
+  assert.ok(sp.length < 12000, 'system prompt stays small (' + sp.length + ' chars)'); assert.ok(/^gemini-[0-9.]+-flash-lite$/.test(PM.MODEL), 'a flash-lite model id: ' + PM.MODEL);
   const fnSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'finder-understand', 'index.ts'), 'utf8');
   assert.ok(/from '\.\/prompt\.mjs'/.test(fnSrc) && /GEMINI_API_KEY/.test(fnSrc) && /Access-Control-Allow-Origin/.test(fnSrc) && /429/.test(fnSrc), 'edge function: shared prompt, secret, CORS, rate limit');
   assert.ok(fs.existsSync(path.join(ROOT, 'scripts', 'eval-finder-server.js')) && /Gemini AI/.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8')), 'eval script present, privacy line names the AI');
