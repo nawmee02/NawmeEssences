@@ -39,6 +39,8 @@
     askName: 'Which fragrance do you like? Type its name, e.g. Creed Aventus or Dior Sauvage.',
     answer: 'Here are three picks that fit.',
     answerFor: 'Three picks for {what}:',
+    caution: { en: 'Heads-up: strong {what} — worth a 3 ml decant first.', bn: 'Kheyal korun: {what} beshi bojha jay — age 3 ml diye try korun.', bs: 'খেয়াল করুন: {what} বেশ বোঝা যায় — আগে 3 ml দিয়ে ট্রাই করুন।' },
+    cheaperLike: { en: 'Cheaper like this', bn: 'Kom dame emon', bs: 'কম দামে এমন' },
     // Chat-style answer lines (chosen by what the visitor asked for; rotated so a thread doesn't repeat itself)
     chat: {
       en: {
@@ -58,6 +60,15 @@
         stronger: ', ektu strong dike', softer: ', ektu halka dike',
         under: ' ৳{max} er moddhe', over: ' ৳{min} er upore', between: ' ৳{min} theke ৳{max} er moddhe',
         nothing: ', {neg} chara', really: 'onek ',
+      },
+      bs: {
+        both: ['{occ} জন্য {vibe} কিছু{price}? এই তিনটা দেখুন:', '{occ} জন্য {vibe} কিছু চাইলে{price} — এই তিনটা ভালো হবে:', '{occ} জন্য {vibe}{price} — আমার তিনটা পছন্দ:'],
+        vibe: ['{vibe} কিছু{price}? এই তিনটা দেখুন:', '{vibe}{price} — এই তিনটা ভালো লাগবে:', '{vibe} ধাঁচের{price} এই তিনটা দেখতে পারেন:'],
+        occ: ['{occ} জন্য{price} — এই তিনটা ভালো হবে:', '{occ} জন্য{price} — আমার তিনটা পছন্দ:', '{occ} জন্য{price} — এই তিনটা দেখুন:'],
+        none: ['এই তিনটা আপনার সাথে মিলবে{price}:', 'এই তিনটা দেখুন{price}:', 'আমার তিনটা পছন্দ{price}:'],
+        stronger: ', একটু কড়া ধাঁচের', softer: ', একটু হালকা ধাঁচের',
+        under: ' ৳{max}-এর মধ্যে', over: ' ৳{min}-এর উপরে', between: ' ৳{min} থেকে ৳{max}-এর মধ্যে',
+        nothing: ', {neg} ছাড়া', really: 'খুব ',
       },
     },
     exclusiveBrandNote: '{brand} is in our Exclusive collection (rare bottles, full advance payment).',
@@ -85,6 +96,7 @@
     noCheaper: "I couldn't find a cheaper match, so here are the closest alternatives.",
     // Relational follow-ups: each pick must be fresher / sweeter / stronger than the last #1 overall.
     axisTitle: { fresh: 'Fresher than {name}, and still what you asked for — try these three:', sweet: 'Sweeter than {name}, and still what you asked for — try these three:', strong: 'Stronger than {name}, and still what you asked for — try these three:' },
+    axisTitleBs: { fresh: '{name}-এর চেয়ে আরো ফ্রেশ, কিন্তু আপনার চাহিদা মতো — এই তিনটা দেখুন:', sweet: '{name}-এর চেয়ে আরো মিষ্টি, কিন্তু আপনার চাহিদা মতো — এই তিনটা দেখুন:', strong: '{name}-এর চেয়ে আরো কড়া, কিন্তু আপনার চাহিদা মতো — এই তিনটা দেখুন:' },
     axisTitleBn: { fresh: '{name} er cheye aro fresh, kintu apnar chahida moto — ei tinta dekhen:', sweet: '{name} er cheye aro sweet, kintu apnar chahida moto — ei tinta dekhen:', strong: '{name} er cheye aro strong, kintu apnar chahida moto — ei tinta dekhen:' },
     noAxis: { fresh: "Nothing that still fits is fresher than {name} overall, so here are the closest picks.", sweet: "Nothing that still fits is sweeter than {name} overall, so here are the closest picks.", strong: "Nothing that still fits is stronger than {name} overall, so here are the closest picks." },
     compare: 'Side by side:',
@@ -110,7 +122,7 @@
     moodsChip: 'Pick a mood instead', vibesChip: 'Back to scent types',
     guideDone: 'Show my picks',
     likeThis: 'More like this', compareLink: 'Compare the top two', brandsLink: 'Other brands',
-    follow: { more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
+    follow: { likeCheap: 'Cheaper like #{n}', more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
     tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: 'AI: ' },
     // Phase 3 (display only, never in the score)
@@ -212,6 +224,9 @@
     banglaNote: "Some of the Bangla words were new to me, so these follow the words I understood — English or Banglish works best.",
     modestNote: "We currently stock men's and unisex decants, so these are the unisex ones that stay clean and close to the skin.",
     sweatNote: 'In heat and sweat, fresh citrus and aquatic scents stay pleasant, while heavy sweet ones can turn cloying. A spray on your shirt as well as your skin helps.',
+    sweatNoteBs: 'গরমে আর ঘামে ফ্রেশ, সাইট্রাস আর অ্যাকোয়াটিক ঘ্রাণ ভালো থাকে; ভারী মিষ্টি ঘ্রাণ ঘামে একটু ভারী লাগতে পারে। ত্বকের পাশাপাশি শার্টেও একটা স্প্রে দিন।',
+    commuteNoteBs: 'ভিড়ের বাস বা অফিসের জন্য এগুলো হালকা থাকে — আপনার কাছে ভালো লাগবে, আশেপাশের মানুষের কাছে বেশি লাগবে না।',
+    skinNoteBs: 'ত্বকের ধরনে পারফিউম খুব একটা বদলায় না — প্রত্যেকের ত্বকে একটু আলাদা লাগে, তাই আগে 3 ml ডিক্যান্ট দিয়ে ট্রাই করুন।',
     sweatNoteBn: 'Gorome ar ghame fresh, citrus ar aquatic scent bhalo thake; bhari mishti scent ghame ektu cloying lagte pare. Skin er pashapashi shirt eo ekta spray din.',
     commuteNote: 'For a crowded bus or office, these stay close and easy — pleasant to you without filling the space around you.',
     commuteNoteBn: 'Bhir bus ba office er jonno egula halka thake — apnar kache bhalo lagbe, ashe pasher manush er kache beshi lagbe na.',
@@ -1167,10 +1182,25 @@
     en: { Office: 'the office', Everyday: 'everyday wear', 'Date Night': 'a date night', Evening: 'evenings out', Party: 'a party', Wedding: 'a wedding', Formal: 'formal events', Summer: 'summer', Winter: 'winter', 'Gym / Sport': 'the gym', Casual: 'casual days', Festivals: 'festivals', Holiday: 'holidays', Monsoon: 'the rainy season', Spring: 'spring' },
     bn: { Office: 'office', Everyday: 'protidin', 'Date Night': 'date night', Evening: 'shondhay baire', Party: 'party', Wedding: 'biye bari', Formal: 'formal program', Summer: 'gorom', Winter: 'sheet', 'Gym / Sport': 'gym', Casual: 'casual', Festivals: 'utshob', Holiday: 'chhuti', Monsoon: 'borsha', Spring: 'boshonto' },
   };
+  // Bangla occasion words are stored in the possessive ("অফিসের", "বিয়ে বাড়ির"): the templates say "{occ} জন্য".
+  const OCC_BS = { Office: 'অফিসের', Everyday: 'প্রতিদিনের', 'Date Night': 'ডেট নাইটের', Evening: 'সন্ধ্যার', Party: 'পার্টির', Wedding: 'বিয়ে বাড়ির', Formal: 'ফরমাল অনুষ্ঠানের', Summer: 'গরমের', Winter: 'শীতের', 'Gym / Sport': 'জিমের', Casual: 'ক্যাজুয়াল দিনের', Festivals: 'উৎসবের', Holiday: 'ছুটির', Monsoon: 'বর্ষার', Spring: 'বসন্তের' };
+  OCC_WORD.bs = OCC_BS;
+  // Bold accords that split opinion: said once per card when the visitor did not ask for them (ScentWise's "risk" line, from our own data).
+  const BOLD = { Oud: 'oud', Smoky: 'smoke', Leather: 'leather', Animalic: 'animalic notes', Tobacco: 'tobacco', Patchouli: 'patchouli', Earthy: 'earthy notes', Coffee: 'coffee', Boozy: 'boozy notes', Whiskey: 'whiskey', Rum: 'rum', Anis: 'anise', Anise: 'anise', Metallic: 'metallic notes', Terpenic: 'resinous notes', Salty: 'salty notes', Mossy: 'oakmoss' };
+  function cautionFor(it, q, model, lang) {
+    const V = model.vocab, f = (q && q.features) || {};
+    const top = (it.a || []).slice(0, 3).map(i => V.a[i]).filter(Boolean);
+    const hit = top.find(a => BOLD[a] && !(f['a:' + a] > 0) && !(f['n:' + a] > 0) && !(f['f:' + a] > 0));
+    if (!hit) return '';
+    const LK = lang === 'bs' ? 'bs' : lang === 'bn' ? 'bn' : 'en';
+    return fill(T.caution[LK], { what: BOLD[hit] });
+  }
   const ACC_WORD = { Citrus: 'citrusy', Leather: 'leathery', Amber: 'warm amber', 'Warm Spicy': 'warm spicy', 'Fresh Spicy': 'peppery', 'Soft Spicy': 'softly spicy', Spicy: 'spicy', Fruity: 'fruity', Smoky: 'smoky', Powdery: 'powdery', Musky: 'musky', Earthy: 'earthy', Mossy: 'mossy', Balsamic: 'balsamic', Animalic: 'animalic', Tropical: 'tropical', Marine: 'marine', Herbal: 'herbal', Lactonic: 'creamy', 'White Floral': 'white floral', Gourmand: 'gourmand' };
   const accWord = a => ACC_WORD[a] || String(a).toLowerCase();
   // Banglish typed messages get Banglish replies (sticky for the thread once seen).
   const BN_MARK = new Set(['jonno', 'jonne', 'kichu', 'kisu', 'lagbe', 'chai', 'amar', 'amr', 'ami', 'korbo', 'korte', 'ekta', 'akta', 'moddhe', 'valo', 'bhalo', 'onek', 'onk', 'beshi', 'dekhen', 'dekhan', 'dao', 'jeta', 'jeita', 'porbo', 'barite', 'bari', 'theke', 'kemon', 'koto', 'ache', 'ase', 'hobe', 'naki', 'apni', 'tumi', 'amake', 'dite', 'nibo', 'kinbo', 'er', 'r', 'ar']);
+  const isBanglaScript = text => (String(text || '').match(/[\u0980-\u09FF]+/g) || []).length >= 2;
+  const langOf = text => (isBanglaScript(text) ? 'bs' : isBanglish(text) ? 'bn' : null);
   function isBanglish(text) { const tk = tokensOf(text).filter(t => /^[a-z]+$/.test(t)); let n = 0; tk.forEach(t => { if (BN_MARK.has(t)) n++; }); return n >= 2 || (n >= 1 && tk.length <= 3); }
   // q = the composed query; parts = the thread's parts; turnNo picks a variant. Returns { text, folded } (folded: the strength sentence is included).
   // "aro sweet kichu" / "more fresh" / "sweeter one" / "ektu beshi strong" → { axis, text } for the relational follow-up, else null.
@@ -1198,7 +1228,8 @@
     return (parsed.parts || []).some(p => p.anchor || (p.primary && ['o', 'a', 'f', 'n'].indexOf(p.primary) >= 0));
   }
   function chatLine(q, parts, lang, turnNo) {
-    const bn = lang === 'bn', C = T.chat[bn ? 'bn' : 'en'], f = q.features || {};
+    const LK = lang === 'bs' ? 'bs' : lang === 'bn' ? 'bn' : 'en', bn = LK !== 'en', C = T.chat[LK], f = q.features || {};
+    const AND = LK === 'bs' ? ' আর ' : LK === 'bn' ? ' ar ' : ' and ';
     parts = (parts || []).filter(p => !p.anchor && !p.exclude);
     // How much of a part is about occasions vs accords: "biye" is an occasion word, "dark" a vibe word (both carry some of each).
     const share = (p, pre) => { let a = 0, t = 0; Object.keys(p.features || {}).forEach(k => { const w = p.features[k]; if (w > 0) { t += w; if (k.indexOf(pre + ':') === 0) a += w; } }); return t ? a / t : 0; };
@@ -1206,23 +1237,23 @@
     const isOcc = p => !p.gender && (p.primary ? p.primary === 'o' : share(p, 'o') >= 0.5);
     parts.filter(isOcc).forEach(p => { Object.keys(p.features || {}).forEach(k => { if (/^o:/.test(k) && p.features[k] > 0) occScore[k.slice(2)] = (occScore[k.slice(2)] || 0) + p.features[k]; }); });
     const occKeys = Object.keys(occScore).sort((a, b) => occScore[b] - occScore[a]);
-    const occs = occKeys.filter(k => occScore[k] >= 0.95 * occScore[occKeys[0]]).slice(0, 2).map(o => OCC_WORD[bn ? 'bn' : 'en'][o] || String(o).toLowerCase());
+    const occs = occKeys.filter(k => occScore[k] >= 0.95 * occScore[occKeys[0]]).slice(0, 2).map(o => OCC_WORD[LK][o] || String(o).toLowerCase());
     // Vibe: the visitor's own words when they are short vibe words ("dark", "sweet", "mishti"), else the top accords.
     // the visitor's words without intensifiers and Banglish filler ("fresh kichu" → "fresh", "office er jonno" → "office")
-    const plain = t => String(t || '').replace(/^(very|a bit) /, '').replace(/ (kichu|kisu|kichhu|ta|ekta|er jonno|jonno|jonne|chai|lagbe)$/, '');
+    const plain = t => String(t || '').replace(/^(very|a bit) /, '').replace(/ (kichu|kisu|kichhu|ta|ekta|er jonno|jonno|jonne|chai|lagbe|কিছু|জন্য|এর জন্য|চাই|লাগবে)$/, '');
     const own = parts.filter(p => !p.gender && !p.ai && !isOcc(p) && (p.primary ? ['a', 'f', 'n'].indexOf(p.primary) >= 0 : share(p, 'a') + share(p, 'f') + share(p, 'n') >= 0.5) && Object.keys(p.features || {}).some(k => p.features[k] > 0)
       && /^[a-zঀ-৿]+( [a-zঀ-৿]+)?$/i.test(plain(p.text)) && !/\blike\b/.test(p.text || ''));
     const stressedOwn = own.some(p => /^very /.test(p.text || ''));
     let vibe = '';
     // context words ("I sweat a lot", "bus e jai") are not vibes; say the character they lead to instead ("fresh and citrusy")
     const context = parts.filter(p => p.note && ['sweat', 'commute', 'skin', 'modest'].indexOf(p.note) >= 0);
-    if (own.length) vibe = own.slice(0, 2).map(p => plain(p.text)).join(bn ? ' ar ' : ' and ');
+    if (own.length) vibe = own.slice(0, 2).map(p => plain(p.text)).join(AND);
     else if (context.length) {
       const cf = {}; context.forEach(p => Object.keys(p.features || {}).forEach(k => { if (/^a:/.test(k) && p.features[k] > 0) cf[k] = (cf[k] || 0) + p.features[k]; }));
-      vibe = Object.keys(cf).sort((a, b) => cf[b] - cf[a]).slice(0, 2).map(k => accWord(k.slice(2))).join(bn ? ' ar ' : ' and ');
+      vibe = Object.keys(cf).sort((a, b) => cf[b] - cf[a]).slice(0, 2).map(k => accWord(k.slice(2))).join(AND);
     } else if (!occs.length) {   // no vibe word and no occasion (a gift, an AI reading): describe the top accords instead
       const ks = Object.keys(f).filter(k => /^a:/.test(k) && f[k] > 0).sort((a, b) => f[b] - f[a]);
-      vibe = ks.filter(k => f[k] >= 0.6 * f[ks[0]]).slice(0, 2).map(k => accWord(k.slice(2))).join(bn ? ' ar ' : ' and ');
+      vibe = ks.filter(k => f[k] >= 0.6 * f[ks[0]]).slice(0, 2).map(k => accWord(k.slice(2))).join(AND);
     }
     if (vibe && stressedOwn) vibe = C.really + vibe;
     const negPart = parts.find(p => /^(not|less) /.test(p.label || ''));
@@ -1232,7 +1263,7 @@
     else if (q.minPrice != null) price = fill(C.over, { min: q.minPrice }) + price;
     const folded = q.strength === 'stronger' || q.strength === 'softer';
     if (folded) price += C[q.strength];
-    const occ = occs.join(bn ? ' ar ' : ' and ');
+    const occ = occs.join(AND);
     const set = vibe && occ ? C.both : vibe ? C.vibe : occ ? C.occ : C.none;
     let text = fill(set[(turnNo || 0) % set.length], { vibe, occ, price }).replace(/\s+([:?.,])/g, '$1');
     text = text.charAt(0).toUpperCase() + text.slice(1);
@@ -1447,7 +1478,9 @@
         const card = window.RenderCard && typeof RenderCard.renderCard === 'function'
           ? RenderCard.renderCard(c.c, { isExclusive: !!c.e, priority: false })
           : '<div class="product-card" data-id="' + esc(c.c.id) + '"><a class="card-link" href="/product/' + esc(c.c.id) + '/">' + esc(c.c.name) + '</a></div>';
-        a += card + '<p class="finder-reason">' + esc((turn.reasons || [])[i] || '') + ' <button type="button" class="finder-like" data-n="' + i + '">' + esc(T.likeThis) + '</button></p>';
+        const caution = (turn.cautions || [])[i], LK = turn.lang === 'bs' ? 'bs' : turn.lang === 'bn' ? 'bn' : 'en';
+        a += card + '<p class="finder-reason">' + esc((turn.reasons || [])[i] || '') + (caution ? '<span class="finder-caution">' + esc(caution) + '</span>' : '') + ' <button type="button" class="finder-like" data-n="' + i + '">' + esc(T.likeThis) + '</button>'
+          + ((turn.cheap || [])[i] ? ' <button type="button" class="finder-cheap" data-n="' + i + '">' + esc(T.cheaperLike[LK]) + '</button>' : '') + '</p>';
       });
       a += '</div>';
       if (turn.also && turn.also.items && turn.also.items.length) {
@@ -2283,7 +2316,7 @@
       if (other.length) notes.push(fill(T.relaxed, { what: joinAnd(other.map(s => T['relax' + cap(s)])) }));
       if (!res.picks.length) { botText(T.noMore); setChips('follow'); th.pending = []; save(); return; }
       // Reply text: echo what this answer is based on ("Three picks for fresh, office, under ৳500:").
-      if (req.typed && req.text && isBanglish(req.text)) th.lang = 'bn';
+      if (req.typed && req.text && langOf(req.text)) th.lang = langOf(req.text);
       const answersSoFar = th.turns.filter(t => t.ids && t.ids.length).length;
       const chat = !q.anchor ? chatLine(q, th.parts, th.lang, answersSoFar) : null;
       let text = chat ? chat.text : T.answer;
@@ -2292,14 +2325,14 @@
       const exBrand = res.picks.find(r => r.item.c === 'e' && q.collection !== 'exclusive');
       if (exBrand && notes.indexOf(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] })) < 0) notes.push(fill(T.exclusiveBrandNote, { brand: model.vocab.b[exBrand.item.b] }));
       if (req.mode === 'cheaper' && q.cheaper) text = fill(T.cheaper, { price: q.refPrice });
-      else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill((th.lang === 'bn' ? T.axisTitleBn : T.axisTitle)[req.axis], { name: lastTop.nm });
+      else if (req.mode === 'axis' && lastTop && res.relaxed.indexOf('axis') < 0) text = fill((th.lang === 'bs' ? T.axisTitleBs : th.lang === 'bn' ? T.axisTitleBn : T.axisTitle)[req.axis], { name: lastTop.nm });
       else if (req.mode === 'more' && !a) text = T.more;
       else if (a && a.kind === 'catalog') { const ai = model.byId.get(a.id); text = fill(ai && ai.i && th.renderedIds.indexOf(a.id) < 0 ? T.anchorStocked : T.anchorCatalog, { name: a.name }); }
       else if (a && a.kind === 'ref') text = fill(T.anchorRef, { name: a.name });
       // Notes for constraints added since the last answer (never repeated).
       th.pending.forEach(p => {
         if (p.note === 'unisex' && notes.indexOf(T.unisexNote) < 0) notes.push(T.unisexNote);
-        const noteIn = key => (th.lang === 'bn' && T[key + 'Bn']) || T[key];
+        const noteIn = key => (th.lang === 'bs' && T[key + 'Bs']) || (th.lang === 'bn' && T[key + 'Bn']) || T[key];
         if (p.note === 'skin' && notes.indexOf(noteIn('skinNote')) < 0) notes.push(noteIn('skinNote'));
         if (p.note === 'sweat' && notes.indexOf(noteIn('sweatNote')) < 0) notes.push(noteIn('sweatNote'));
         if (p.note === 'commute' && !th.pending.some(x => x.note === 'sweat') && notes.indexOf(noteIn('commuteNote')) < 0) notes.push(noteIn('commuteNote'));
@@ -2311,7 +2344,8 @@
       th.pending = [];
       const ids = res.picks.map(r => r.id);
       res.picks.forEach(r => { th.cards[r.id] = { c: toCard(r.item, model), e: r.item.c === 'e' }; });
-      const turn = { role: 'bot', text, notes, ids, reasons: res.picks.map(r => reasons(r, q, model, a)), mode: req.mode || 'answer' };
+      const floor = minFrom(model);
+      const turn = { role: 'bot', text, notes, ids, reasons: res.picks.map(r => reasons(r, q, model, a)), cautions: res.picks.map(r => cautionFor(r.item, q, model, th.lang)), cheap: res.picks.map(r => r.item.p > floor), lang: th.lang || null, mode: req.mode || 'answer' };
       if (req.compareAfter && ids.length >= 2) turn.table = compareRows(ids, model);   // "compare your top 3 fresh ones"
       // Phase 3: co-purchase row for #1 (display only; never a card, never in the score)
       const also = alsoConsidered(res.picks[0], model, th.renderedIds.concat(ids), 3);
@@ -2354,14 +2388,21 @@
   function followUp(op, n) {
     const th = S.thread;
     if (op === 'reset') { reset(); return; }
-    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : (T.follow[op] || (op === 'compare' ? T.compareLink : op === 'brands' ? T.brandsLink : op)));
+    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : op === 'likecheap' ? fill(T.follow.likeCheap, { n: n + 1 }) : (T.follow[op] || (op === 'compare' ? T.compareLink : op === 'brands' ? T.brandsLink : op)));
     if (op === 'more') runAnswer({ mode: 'more' });
     else if (op === 'cheaper') runAnswer({ mode: 'cheaper', text: 'cheaper' });
     else if (op === 'stronger') runAnswer({ mode: 'axis', axis: 'strong', text: 'stronger' });
     else if (op === 'fresher') runAnswer({ mode: 'axis', axis: 'fresh', text: 'fresh' });
     else if (op === 'sweeter') runAnswer({ mode: 'axis', axis: 'sweet', text: 'sweet' });
     else if (op === 'brands') runAnswer({ mode: 'answer', text: 'different brands' });
-    else if (op === 'like') {
+    else if (op === 'likecheap') {   // "Cheaper like this": that bottle's profile, priced below it
+      prepare().then(model => {
+        const id = th.lastIds[n], it = model && model.byId.get(id);
+        if (!it) { runAnswer({ mode: 'answer' }); return; }
+        addParts([anchorPart({ kind: 'catalog', id, name: it.nm }), { cheaper: true, refPrice: it.p, label: T.tokenPrefix.cheaper + it.p, text: 'under ' + it.p }]);
+        runAnswer({ mode: 'cheaper' });
+      });
+    } else if (op === 'like') {
       prepare().then(model => {
         const id = th.lastIds[n], it = model && model.byId.get(id);
         if (!it) { runAnswer({ mode: 'answer' }); return; }
@@ -2424,8 +2465,8 @@
     });
     // Answer-block controls: "More like this" per card, compare / other brands links.
     S.el.thread.addEventListener('click', e => {
-      const t = e.target && e.target.closest ? e.target.closest('button.finder-like, button.finder-link') : null; if (!t) return;
-      if (t.classList.contains('finder-like')) followUp('like', Number(t.dataset.n)); else followUp(t.dataset.op);
+      const t = e.target && e.target.closest ? e.target.closest('button.finder-like, button.finder-cheap, button.finder-link') : null; if (!t) return;
+      if (t.classList.contains('finder-cheap')) followUp('likecheap', Number(t.dataset.n)); else if (t.classList.contains('finder-like')) followUp('like', Number(t.dataset.n)); else followUp(t.dataset.op);
     });
     if (S.el.bar) S.el.bar.addEventListener('click', e => {
       const b = e.target && e.target.closest ? e.target.closest('button[data-part]') : null; if (!b) return;
@@ -2459,5 +2500,5 @@
     } catch (e) { /* the finder is optional; the page keeps its static intro + shop link */ }
   }
 
-  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, chatLine, isBanglish, axisFollowUp, isNewRequest, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
+  return { T, WEIGHTS, EVENT_W, MIN_COS, BRAND_CAP, ANSWER_SIZE, CHEAP_DEFAULT, NLU_SCHEMA, normalize, lev, parse, hasTrigger, mergeQuery, emptyQuery, compose, fromChip, chipPart, surprisePart, prepareData, vectorize, queryVector, buildQueryVec, buildProfile, cosine, readSignals, rank, answer, reasons, toCard, validateFragment, mergeNLU, alsoConsidered, queryLogBody, needsNLU, aiSystemPrompt, AXES, axisScore, queryAxes, profileSim, refItem, typoFix: (t, L, model) => typoFix(getIndex(L || {}, model), normalize(t)), setRefs: r => { REFS = r || []; }, intentOf, faqOf, glossOf, parseCompare, compareVerdict, resolveSides, ordinalIn, validateServer, needsServer, chatLine, isBanglish, isBanglaScript, cautionFor, axisFollowUp, isNewRequest, SERVER_NLU, SERVER_NLU_PATH, matchFrame, cleanName, resolveFact, factLines, faqLines, FAQ_RATES, FAQ_POINTS, _state: S, _init };
 });
