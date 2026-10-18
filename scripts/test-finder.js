@@ -352,7 +352,18 @@ assert.ok(Object.keys(realMap).every(k => /^(css\/[^/]+\.css|js\/[^/]+\.js|data\
 
 // ── build plumbing (string checks of the build sources) ─────────
 const genSrc = fs.readFileSync(path.join(ROOT, 'scripts', 'generate-product-pages.js'), 'utf8');
-assert.ok(/loc: `\$\{SITE\}\/recommend\.html`,\s*freq: 'weekly',\s*pri: '0\.6',\s*lastmod: catalogMod/.test(genSrc), 'recommend.html is in the sitemap core array');
+assert.ok(/loc: `\$\{SITE\}\/recommend\.html`,\s*freq: 'weekly',\s*pri: '0\.6',\s*lastmod: catalogMod/.test(genSrc) && /\.\.\.\(FINDER_PUBLIC \?/.test(genSrc), 'recommend.html sits in the sitemap core array behind the FINDER_PUBLIC switch');
+// Soft launch: the page works by URL but is not linked, not in the sitemap and not indexed until FINDER_PUBLIC is true.
+const FP = /const FINDER_PUBLIC = (true|false);/.exec(genSrc);
+assert.ok(FP, 'FINDER_PUBLIC switch present');
+if (FP[1] === 'false') {
+  for (const f of ['index.html', 'shop.html', 'exclusive.html', 'cart.html', 'about.html', 'about-me.html', '404.html']) {
+    const h = fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+    assert.ok(!/href="\/?recommend\.html"/.test(h), f + ' must not link to the finder during the soft launch');
+  }
+  assert.ok(/<meta name="robots" content="noindex, nofollow" \/>/.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8')), 'recommend.html is noindex during the soft launch');
+  assert.ok(!/recommend\.html/.test(fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8')), 'sitemap.xml has no finder entry during the soft launch');
+}
 const buildSrc = fs.readFileSync(path.join(ROOT, 'scripts', 'build-from-supabase.js'), 'utf8');
 assert.ok(/writeFinder\(ROOT, buildFinder\(recsData, productDetails/.test(buildSrc), 'build writes data/finder.json');
 assert.strictEqual((buildSrc.match(/'recommend\.html'/g) || []).length, 5, 'recommend.html is in all five root-page lists');
