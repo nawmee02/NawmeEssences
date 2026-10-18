@@ -2426,7 +2426,17 @@
     renderOpening();
     clearStored();   // the fresh opening is what a reload shows anyway; keep sessionStorage empty after "Start over"
   }
+  // How the page was opened: 'reload' (refresh), 'back_forward' (Back from a product page), or 'navigate'.
+  const navType = () => { try { const e = performance.getEntriesByType('navigation')[0]; return (e && e.type) || ''; } catch (e) { return ''; } };
   function restore() {
+    // A refresh starts the conversation from the beginning (and drops the ?q= our own thread wrote into the URL);
+    // Back from a product page still brings the thread back, so a shopper doesn't lose their picks.
+    if (navType() === 'reload') {
+      clearStored();
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      S.thread = freshThread(); renderOpening(); clearStored();
+      return;
+    }
     let params = null;
     try { params = new URLSearchParams(location.search); } catch (e) {}
     const q = params && params.get('q'), like = params && params.get('like');
