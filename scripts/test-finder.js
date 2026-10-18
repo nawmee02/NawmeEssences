@@ -898,6 +898,7 @@ if (engine) {
     assert.strictEqual(F.matchFrame('same but unisex').name, '', 'filler-only name is empty'); assert.deepStrictEqual([F.matchFrame('how strong is supremacy not only intense').kind, F.matchFrame('how strong is supremacy not only intense').name], ['strength', 'supremacy not only intense']);
     for (const [t, k] of [['what languages do you speak', null], ['koto din e delivery pabo', 'delivery'], ['advance koto dite hobe', 'payment'], ['can i get it today', 'delivery'], ['is there any shop i can visit', 'pickup'], ['minimum order amount', 'order'], ['how to track my order', 'tracking'], ['where is my order', 'tracking']]) assert.strictEqual(FQ(t), k, t);
     assert.strictEqual(I('what languages do you speak'), 'lang');
+    assert.strictEqual(FQ('kotodin lagbe delivery dite aapnader'), 'delivery', 'Banglish delivery-time question without the AI'); assert.strictEqual(FQ('aapnader delivery charge koto'), 'delivery');
     assert.deepStrictEqual(F.glossOf('what is sillage', L), ['projection']); assert.deepStrictEqual(F.glossOf('edt vs edp which lasts longer', L), ['edt', 'edp']);
     assert.deepStrictEqual(F.parseCompare('is 9pm stronger than asad').names, ['9pm', 'asad']); assert.ok(/stronger/.test(F.parseCompare('is 9pm stronger than asad').pre));
     const cs = F.resolveSides(['hawas ice', 'elixir'], fm, L); assert.strictEqual(cs[1].r.kind, 'catalog'); assert.strictEqual(cs[1].r.item.id, 'hx', 'the second name resolves in the first one\'s context');
