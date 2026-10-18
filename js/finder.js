@@ -124,21 +124,21 @@
     likeThis: 'More like this', compareLink: 'Compare the top two', brandsLink: 'Other brands',
     follow: { likeCheap: 'Cheaper like #{n}', more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
-    tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: 'AI: ' },
+    tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: '' },
     // Phase 3 (display only, never in the score)
     also: 'People who chose {name} also considered:',
     // Phase 2 — on-device understanding (nothing leaves the browser; nothing loads until asked)
-    aiRead: 'On-device AI read that as: {what}.',
-    serverRead: 'AI read that as: {what}.',
+    aiRead: 'I read that as: {what}.',
+    serverRead: 'I read that as: {what}.',
     serverWait: 'Thinking…',
-    aiNothing: "On-device AI couldn't add anything, so these follow the words I understood.",
-    aiConsent: "Use Chrome's built-in AI to understand your words? It runs on your device and may download a large model once.",
-    aiConsentChip: "Yes, use Chrome's built-in AI",
-    aiOffer: 'I understood only part of that. Want better understanding of free text? It downloads a small model (~{mb} MB) once and runs on your device.',
+    aiNothing: "I couldn't add anything more, so these follow the words I understood.",
+    aiConsent: "Want me to understand free text better? Your browser may need a one-time download first.",
+    aiConsentChip: "Yes, understand my words better",
+    aiOffer: 'I understood only part of that. Want me to understand free text better? It needs a one-time download of about {mb} MB.',
     aiOfferChip: 'Understand my words better (~{mb} MB once)',
-    aiLoading: 'Downloading the language model… {pct}%',
-    aiLoadFailed: "The model couldn't be loaded, so I'll keep using the words I understand.",
-    aiNoSupport: "This browser can't run the on-device model, so I'll keep using the words I understand.",
+    aiLoading: 'Getting ready… {pct}%',
+    aiLoadFailed: "That didn't load, so I'll keep using the words I understand.",
+    aiNoSupport: "This browser can't do that, so I'll keep using the words I understand.",
     noThanks: 'No thanks',
     // Skill 1 — facts about a bottle we stock (every value comes from finder.json; nothing invented)
     factSmell: '{name} by {brand} — {family}: {accords}.',
@@ -175,7 +175,7 @@
     chatBye: 'Bye for now! Come back any time.',
     chatByeList: 'Bye for now! Your shortlist stays on this page until you close the tab.',
     chatAck: 'Anything else? Try a vibe, an occasion, a budget, or a fragrance name.',
-    chatBot: "I'm Nawmee's scent finder — a rule-based helper that runs in your browser, not a chat AI. For a human, message Nawmee on WhatsApp.",
+    chatBot: "I'm Nawmee's scent finder, an automated helper, not a person. For a human, message Nawmee on WhatsApp.",
     chatMaker: 'NawmeEssences built me for this shop. I only know our catalogue and our policies.',
     chatLang: "I understand English and Banglish (Bangla in English letters), e.g. 'office er jonno fresh kichu'. Bangla script isn't supported yet.",
     chatHelp: 'Here is what I can do:',
@@ -274,7 +274,7 @@
   const LOG_QUERIES = true, LOG_TABLE = 'finder_queries';
   // Phase 2: on-device understanding is tried only when the deterministic parser is lost
   // (≥ 4 words and ≥ 2 unknown content words, or nothing parsed at all).
-  // Layer C: server-side understanding (Gemini via supabase/functions/finder-understand), asked only when the parser is unsure.
+  // Layer C: server-side understanding (server understanding), asked only when the parser is unsure.
   const SERVER_NLU = true, SERVER_NLU_PATH = '/functions/v1/finder-understand', SERVER_TIMEOUT_MS = 10000;
   const NLU_MIN_WORDS = 4, NLU_MIN_UNKNOWN = 2, NLU_TIMEOUT_MS = 4000, NLU_CONSENT_KEY = 'nawme_finder_ai';
   const WA_FALLBACK = '8801988536843', CDN = 'https://cdn.nawmeessences.com';
@@ -1701,7 +1701,7 @@
     const raw = await withTimeout(m.understand(text), NLU_TIMEOUT_MS);
     return validateFragment(raw, model);
   }
-  // ── Phase 2: Layer C — the server (Gemini) reads the sentence into the same contract; the engine answers ──
+  // ── Phase 2: Layer C — the server  reads the sentence into the same contract; the engine answers ──
   // Everything is re-validated here: unknown labels, keys, kinds and intents are dropped, names are trimmed.
   function validateServer(raw, model, L) {
     if (!raw || typeof raw !== 'object' || !model) return null;

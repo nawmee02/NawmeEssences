@@ -682,6 +682,7 @@ if (engine) {
   const CLAIM = /lasts? longer|long[\s-]?lasting|\b\d+\s*hours?\b/i;
   for (const s of strings(Object.assign({}, F.T, { gloss: null }), [])) assert.ok(!BANNED.test(s), 'template makes a longevity/projection claim: ' + s);
   for (const s of strings(F.T.gloss || {}, [])) assert.ok(!CLAIM.test(s), 'glossary makes a wear-time claim: ' + s);
+  for (const s of strings(F.T, [])) assert.ok(!/gemini|google|chrome|on-device|rule-based|language model|supabase|AI/i.test(s), 'visible text names the technology: ' + s);
   assert.ok(F.T.gloss && Object.keys(F.T.gloss).length >= 15, 'glossary definitions present');
   assert.ok(strings(F.T, []).some(s => /Leans stronger: higher concentration and a heavier profile\./.test(s)), 'the one permitted strength wording is present');
   // Lexicon: every string a visitor can SEE (labels, reference names, feature labels)
@@ -1136,7 +1137,7 @@ if (engine) {
   assert.ok(sp.length < 12000, 'system prompt stays small (' + sp.length + ' chars)'); assert.ok(/^gemini-[0-9.]+-flash-lite$/.test(PM.MODEL), 'a flash-lite model id: ' + PM.MODEL);
   const fnSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'finder-understand', 'index.ts'), 'utf8');
   assert.ok(/from '\.\/prompt\.mjs'/.test(fnSrc) && /GEMINI_API_KEY/.test(fnSrc) && /Access-Control-Allow-Origin/.test(fnSrc) && /429/.test(fnSrc), 'edge function: shared prompt, secret, CORS, rate limit');
-  assert.ok(fs.existsSync(path.join(ROOT, 'scripts', 'eval-finder-server.js')) && /Gemini AI/.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8')), 'eval script present, privacy line names the AI');
+  assert.ok(fs.existsSync(path.join(ROOT, 'scripts', 'eval-finder-server.js')) && /trusted service provider/.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8')) && !/gemini|google/i.test(fs.readFileSync(path.join(ROOT, 'recommend.html'), 'utf8').replace(/fonts.(googleapis|gstatic).com/g, '')), 'eval script present, privacy line discloses processing without naming the provider; privacy line names the AI');
 
   console.log('test-finder: NLU checks passed' + (pkg ? '' : ' (package absent)'));
 })().catch(e => { console.error(e); process.exit(1); });
