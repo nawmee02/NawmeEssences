@@ -16,11 +16,25 @@
 
 ALTER TABLE fragrance_details ADD COLUMN IF NOT EXISTS inspired_by text[] NOT NULL DEFAULT '{}';
 
+CREATE OR REPLACE FUNCTION valid_inspired_by(value text[])
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+STRICT
+AS $$
+  SELECT cardinality(value) <= 10
+     AND NOT EXISTS (
+       SELECT 1
+         FROM unnest(value) AS n
+        WHERE length(trim(n)) < 1 OR length(n) > 80
+     );
+$$;
+
 DO $$ BEGIN
+  ALTER TABLE fragrance_details DROP CONSTRAINT IF EXISTS fragrance_details_inspired_by_chk;
   ALTER TABLE fragrance_details ADD CONSTRAINT fragrance_details_inspired_by_chk
-    CHECK (cardinality(inspired_by) <= 10
-           AND NOT EXISTS (SELECT 1 FROM unnest(inspired_by) n WHERE length(trim(n)) < 1 OR length(n) > 80));
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    CHECK (valid_inspired_by(inspired_by));
+END $$;
 
 COMMENT ON COLUMN fragrance_details.inspired_by IS 'Famous fragrances this decant is sold as an alternative to (Find a Scent "verified alternative"). Not shown publicly.';
 
