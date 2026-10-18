@@ -909,6 +909,10 @@ if (engine) {
     bq = P('office strong'); assert.ok(bq.parts.some(p => p.features && p.features['o:Office'] > 0) && bq.strength === 'stronger', 'a strength word no longer deletes the office wish');
     assert.deepStrictEqual(F.axisFollowUp('aro sweet kichu'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('sweeter one'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('ektu beshi strong'), { axis: 'strong', text: 'strong' });
     assert.strictEqual(F.axisFollowUp('sweet'), null, 'a bare vibe word is a search'); assert.strictEqual(F.axisFollowUp('fresh and sweet'), null); assert.strictEqual(F.axisFollowUp('sweet for winter'), null);
+    // the "Who will wear it?" step asks, never assumes: Men / Women / Anyone — "Women" means unisex bottles + an honest note
+    assert.deepStrictEqual(lexicon.chips.who.map(c => c.label), ['Men', 'Women', 'Anyone (unisex)'], 'who-step chips');
+    const wp = F.chipPart(lexicon.chips.who[1], model); assert.ok(wp.gender === 'unisex' && wp.note === 'women' && /for women/.test(wp.text), 'Women chip → unisex + women note: ' + JSON.stringify(wp));
+    assert.ok(F.T.womenNote && F.T.womenNoteBn && F.T.womenNoteBs && /unisex/.test(F.T.womenNote) && F.T.stepTitle.who === 'Who will wear it?', 'women note + step title');
     // ideas from AUROME / ScentWise: Bangla-script replies, a heads-up for bold accords nobody asked for
     assert.ok(F.isBanglaScript('অফিসের জন্য ফ্রেশ কিছু') && !F.isBanglaScript('office er jonno fresh'), 'Bangla script detection');
     cl = CL('অফিসের জন্য ফ্রেশ কিছু', 'bs'); assert.ok(/^অফিসের জন্য ফ্রেশ/.test(cl.text) && !/-এর|অফিস-/.test(cl.text), 'Bangla-script line, possessive form: ' + cl.text);

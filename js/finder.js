@@ -35,7 +35,7 @@
     askOccasion: 'When will you mostly wear it?',
     askVibe: 'What kind of scent do you lean towards?',
     askBudget: 'Budget for the smallest decant?',
-    askWho: 'Who is it for?',
+    askWho: 'Who will wear it?',
     askName: 'Which fragrance do you like? Type its name, e.g. Creed Aventus or Dior Sauvage.',
     answer: 'Here are three picks that fit.',
     answerFor: 'Three picks for {what}:',
@@ -86,6 +86,9 @@
     nothingNew: 'Nothing new to go on there. Tell me a vibe, an occasion, a budget, or a fragrance name — or tap a quick reply.',
     status: '{n} quick replies below.',
     unisexNote: "We currently stock men's and unisex decants, so these focus on unisex options that suit gifting.",
+    womenNote: "We currently stock men's and unisex decants, so these are unisex picks that suit women too.",
+    womenNoteBn: 'Amader kache ekhon chele ar unisex decant ache, tai egula unisex — meyeder jonno o bhalo.',
+    womenNoteBs: 'আমাদের কাছে এখন ছেলেদের আর ইউনিসেক্স ডিক্যান্ট আছে, তাই এগুলো ইউনিসেক্স — মেয়েদের জন্যও ভালো।',
     strongerNote: 'Leans stronger: higher concentration and a heavier profile.',
     softerNote: 'Leans softer: lighter concentration and a fresher profile.',
     exclusiveNote: 'Showing rare and exclusive bottles, as asked.',
@@ -118,7 +121,7 @@
     // Guided mode: four short questions answered in ONE panel (nothing piles up in the thread).
     guideChip: 'Answer four quick questions',
     stepOf: 'Step {n} of 4',
-    stepTitle: { occasion: 'When will you mostly wear it?', vibe: 'What kind of scent do you lean towards?', budget: 'Budget for the smallest decant?', who: 'Who is it for?' },
+    stepTitle: { occasion: 'When will you mostly wear it?', vibe: 'What kind of scent do you lean towards?', budget: 'Budget for the smallest decant?', who: 'Who will wear it?' },
     moodsChip: 'Pick a mood instead', vibesChip: 'Back to scent types',
     guideDone: 'Show my picks',
     likeThis: 'More like this', compareLink: 'Compare the top two', brandsLink: 'Other brands',
@@ -464,7 +467,7 @@
     const words = [];
     ['f', 'a', 'n', 'o', 'k', 'b'].forEach(p => (Array.isArray(c[p]) ? c[p] : []).forEach(l => { const w = String(l).toLowerCase(); if (words.indexOf(w) < 0) words.push(w); }));
     if (part.maxPrice != null || part.minPrice != null) words.push(priceText(part.minPrice, part.maxPrice).text);
-    if (c.g === 'men') words.push('for men'); else if (c.g === 'unisex' || c.gift) words.push('unisex');
+    if (c.g === 'men') words.push('for men'); else if (c.note === 'women') words.push('for women'); else if (c.g === 'unisex' || c.gift) words.push('unisex');
     if (c.strength) words.push(c.strength); if (c.collection === 'exclusive') words.push('exclusive');
     part.text = words.join(' ');
     return hasEffect(part) ? part : null;
@@ -1372,7 +1375,7 @@
     occasion: [{ label: 'Office / University', o: ['Office', 'Everyday'] }, { label: 'Everyday', o: ['Everyday', 'Casual'] }, { label: 'Date night', o: ['Date Night', 'Evening'] }, { label: 'Evening / Party', o: ['Party', 'Evening'] }, { label: 'Summer heat', o: ['Summer'], a: ['Fresh', 'Citrus'] }, { label: 'Winter', o: ['Winter'], a: ['Amber', 'Warm Spicy'] }, { label: 'Gym', o: ['Gym / Sport'], a: ['Fresh'] }, { label: 'Formal / Wedding', o: ['Formal', 'Wedding'] }],
     vibe: [{ label: 'Fresh & clean', a: ['Fresh', 'Citrus', 'Aromatic'] }, { label: 'Sweet', a: ['Sweet', 'Vanilla'] }, { label: 'Woody & warm', a: ['Woody', 'Amber'] }, { label: 'Spicy', a: ['Warm Spicy', 'Fresh Spicy'] }, { label: 'Aquatic / blue', a: ['Aquatic', 'Marine', 'Fresh'] }, { label: 'Soft & powdery', a: ['Powdery', 'Musky'] }, { label: 'Green', a: ['Green'] }, { label: 'Surprise me', surprise: true }],
     budget: [{ label: 'Under ৳300', price: { max: 300 } }, { label: '৳300–600', price: { min: 300, max: 600 } }, { label: '৳600–1,000', price: { min: 600, max: 1000 } }, { label: 'Any' }],
-    who: [{ label: 'Me', g: 'men' }, { label: 'Unisex / anyone', g: 'unisex' }, { label: 'A gift', g: 'unisex', gift: true }],
+    who: [{ label: 'Men', g: 'men' }, { label: 'Women', g: 'unisex', note: 'women' }, { label: 'Anyone (unisex)', g: 'unisex' }],
   };
   const lexChips = set => { const c = ((S.lex || {}).chips || {})[set]; return Array.isArray(c) && c.length ? c : DEFAULT_CHIPS[set]; };
   function freshThread() { return { v: 1, query: emptyQuery(), turns: [], renderedIds: [], parts: [], chips: 'opening', lastIds: [], awaitName: false, pending: [], cards: {}, wizard: null }; }
@@ -2335,6 +2338,7 @@
         const noteIn = key => (th.lang === 'bs' && T[key + 'Bs']) || (th.lang === 'bn' && T[key + 'Bn']) || T[key];
         if (p.note === 'skin' && notes.indexOf(noteIn('skinNote')) < 0) notes.push(noteIn('skinNote'));
         if (p.note === 'sweat' && notes.indexOf(noteIn('sweatNote')) < 0) notes.push(noteIn('sweatNote'));
+        if (p.note === 'women' && notes.indexOf(noteIn('womenNote')) < 0) notes.push(noteIn('womenNote'));
         if (p.note === 'commute' && !th.pending.some(x => x.note === 'sweat') && notes.indexOf(noteIn('commuteNote')) < 0) notes.push(noteIn('commuteNote'));
         if (p.note === 'modest' && notes.indexOf(T.modestNote) < 0) notes.push(T.modestNote);
         if (p.strength === 'stronger' && !(chat && chat.folded && text === chat.text) && notes.indexOf(T.strongerNote) < 0) notes.push(T.strongerNote);

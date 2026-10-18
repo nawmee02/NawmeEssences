@@ -524,9 +524,9 @@
         { label: 'Any' },
       ],
       who: [
-        { label: 'Me', g: 'men' },
-        { label: 'Unisex / anyone', g: 'unisex' },
-        { label: 'A gift', g: 'unisex', gift: true },
+        { label: 'Men', g: 'men' },
+        { label: 'Women', g: 'unisex', note: 'women' },
+        { label: 'Anyone (unisex)', g: 'unisex' },
       ],
     },
 
