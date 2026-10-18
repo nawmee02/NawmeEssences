@@ -125,6 +125,8 @@
     moodsChip: 'Pick a mood instead', vibesChip: 'Back to scent types',
     guideDone: 'Show my picks',
     likeThis: 'More like this', compareLink: 'Compare the top two', brandsLink: 'Other brands',
+    followBn: { more: 'Aro 3ta', cheaper: 'Kom dame', fresher: 'Aro fresh', sweeter: 'Aro sweet', stronger: 'Aro strong', reset: 'Notun kore' },
+    followBs: { more: 'আরো ৩টা', cheaper: 'কম দামে', fresher: 'আরো ফ্রেশ', sweeter: 'আরো মিষ্টি', stronger: 'আরো কড়া', reset: 'নতুন করে' },
     follow: { likeCheap: 'Cheaper like #{n}', more: 'Show 3 more', cheaper: 'Cheaper', stronger: 'Stronger', fresher: 'Fresher', sweeter: 'Sweeter', brands: 'Different brands', like: 'More like #{n}', compare: 'Compare #1 and #2', reset: 'Start over' },
     compareRows: { brand: 'Brand', family: 'Family', accords: 'Accords', notes: 'Notes', occasions: 'Occasions', concentration: 'Concentration', price: 'From price' },
     tokenPrefix: { like: 'Like ', not: 'not ', under: 'under ৳', over: 'over ৳', men: 'For men', unisex: 'Unisex', gift: 'Unisex (gift)', stronger: 'Leans stronger', softer: 'Leans softer', exclusive: 'Exclusive', cheaper: 'cheaper than ৳', surprise: 'Surprise: ', ai: '' },
@@ -1496,7 +1498,7 @@
       // js/api.js declares `const ProductAPI` (a global lexical binding, NOT a window property), so test the name itself.
       if (typeof ProductAPI !== 'undefined' && ProductAPI && typeof ProductAPI.hydrateCards === 'function') { try { ProductAPI.hydrateCards(); } catch (e) {} }
     }
-    if (scroll) { try { node.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+    if (scroll) { try { const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 640px)').matches; node.scrollIntoView({ block: phone && ids.length ? 'start' : 'nearest' }); } catch (e) {} }
     return node;
   }
   // Compare rows are computed once (model needed) and stored on the turn as plain text.
@@ -1538,13 +1540,16 @@
     if (id === 'vibe') return lexChips('vibe').map(mk).concat((L.moods || []).length ? [{ label: T.moodsChip, kind: 'moods' }] : [], [{ label: T.skip, kind: 'skip' }]);
     if (id === 'moods') return (L.moods || []).map(mk).concat([{ label: T.vibesChip, kind: 'vibes' }, { label: T.skip, kind: 'skip' }]);
     if (id === 'name') return [{ label: T.skip, kind: 'skip' }];
-    if (id === 'follow') return ['more', 'cheaper', 'fresher', 'sweeter', 'stronger', 'reset'].map(op => ({ label: T.follow[op], kind: 'follow', op }));
+    if (id === 'follow') return ['more', 'cheaper', 'fresher', 'sweeter', 'stronger', 'reset'].map(op => ({ label: followLabel(op), kind: 'follow', op }));
     return [];
   }
+  // Follow-up labels in the shopper's language (Banglish / Bangla threads), English otherwise.
+  const followLabel = op => { const lang = S.thread && S.thread.lang; const L = lang === 'bs' ? T.followBs : lang === 'bn' ? T.followBn : null; return (L && L[op]) || T.follow[op]; };
   const stepOf = id => (id === 'moods' ? 'vibe' : id);
   function setChips(id, aiKind) {
     S.thread.chips = id; S.chips = aiChips(aiKind).concat(chipSet(id));
     const box = S.el.chips; if (!box) return;
+    box.dataset.set = id;   // phones pin only the follow-up row (see finder.css)
     box.textContent = '';
     const step = STEPS.indexOf(stepOf(id));
     if (step >= 0) {   // guided mode: the question lives in the panel, not in the thread
@@ -1553,7 +1558,7 @@
       box.appendChild(h);
     }
     const row = document.createElement('div'); row.className = 'finder-chip-row'; box.appendChild(row);
-    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'guide' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : c.kind === 'skip' || c.kind === 'moods' || c.kind === 'vibes' || c.kind === 'ai-no' ? ' chip-quiet' : ''); b.dataset.chip = String(k); b.textContent = c.label; row.appendChild(b); });
+    S.chips.forEach((c, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (c.kind === 'guide' ? ' chip-primary' : c.kind === 'example' ? ' chip-example' : c.kind === 'skip' || c.kind === 'moods' || c.kind === 'vibes' || c.kind === 'ai-no' ? ' chip-quiet' : ''); b.dataset.chip = String(k); if (c.op) b.dataset.op = c.op; if (c.kind) b.dataset.kind = c.kind; b.textContent = c.label; row.appendChild(b); });
     // Screen readers hear the question from the panel; this sr-only status says the buttons changed too.
     if (S.el.status) S.el.status.textContent = S.chips.length ? fill(T.status, { n: S.chips.length }) : '';
   }
@@ -1590,7 +1595,10 @@
     appendMsg(msgEl('bot', '<p>' + esc(T.unavailable) + ' <a href="shop.html">' + esc(T.browseAll) + '</a></p>'));
     setChips('none');
   }
-  function addUserTurn(text) { const t = { role: 'user', text }; S.thread.turns.push(t); renderTurn(t, false); }
+  function addUserTurn(text) {
+    const t = { role: 'user', text }; S.thread.turns.push(t); renderTurn(t, false);
+    try { const pg = S.el.root && S.el.root.closest('.finder-page'); if (pg) pg.classList.add('finder-started'); } catch (e) {}
+  }
   function botText(text) { const t = { role: 'bot', text }; S.thread.turns.push(t); renderTurn(t, true); }
 
   // ── the conversation ──
@@ -2392,7 +2400,7 @@
   function followUp(op, n) {
     const th = S.thread;
     if (op === 'reset') { reset(); return; }
-    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : op === 'likecheap' ? fill(T.follow.likeCheap, { n: n + 1 }) : (T.follow[op] || (op === 'compare' ? T.compareLink : op === 'brands' ? T.brandsLink : op)));
+    addUserTurn(op === 'like' ? fill(T.follow.like, { n: n + 1 }) : op === 'likecheap' ? fill(T.follow.likeCheap, { n: n + 1 }) : (followLabel(op) || (op === 'compare' ? T.compareLink : op === 'brands' ? T.brandsLink : op)));
     if (op === 'more') runAnswer({ mode: 'more' });
     else if (op === 'cheaper') runAnswer({ mode: 'cheaper', text: 'cheaper' });
     else if (op === 'stronger') runAnswer({ mode: 'axis', axis: 'strong', text: 'stronger' });
