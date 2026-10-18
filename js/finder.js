@@ -80,6 +80,9 @@
     anchorRef: 'Closest matches to {name} by scent profile:',
     communityRef: 'often compared to {name} by Fragrantica users',
     unknownAnchor: "I couldn't find that one, so here are matches based on what you've told me so far.",
+    approxRef: "I don't have {name} on file yet, so these follow its notes as I understand them — worth checking the notes before you buy.",
+    approxRefBn: "{name} amar list e ekhono nai, tai egula oitar notes jemon bujhechi sei onujayi — kinar age notes gulo mile niben.",
+    approxRefBs: "{name} এখনো আমার তালিকায় নেই, তাই এগুলো ওটার নোটস যেমন বুঝেছি সেই অনুযায়ী — কেনার আগে নোটস মিলিয়ে নিন।",
     unknownAnchorOnly: "I couldn't find that one. Try another name, or tell me what you like — fresh, sweet, office, a budget.",
     notUnderstood: "I didn't understand: {words}. Try words like fresh, sweet, office, or a fragrance name.",
     notUnderstoodAnswer: "I didn't understand: {words} — so these follow what you told me before.",
@@ -673,11 +676,36 @@
       const res = resolveName(C, model, L, index, strict, lex);
       if (res) {
         res.used.forEach(ci => { consumed[span[ci]] = true; });
-        if (res.kind === 'brand') { const f = {}; f['b:' + res.name] = 1; parts.push({ features: f, label: res.name, text: res.name.toLowerCase() }); return true; }
+        if (res.kind === 'brand') {
+          // "like amouage outland": a brand followed by words nobody knows names a fragrance we don't have on file —
+          // report the whole name (and let the AI layer try it), never turn it into "show me Amouage".
+          if (!bare && !post) {
+            const rest = []; for (let ci = res.used.length; ci < C.length; ci++) { const t = C[ci]; if (kindsAt(index, t).length || STOP.has(t) || !(isWord(t) || isNum(t))) break; rest.push(span[ci]); }
+            if (rest.length && !unknownAnchor) {
+              unknownAnchor = tokensOf(res.name).concat(rest.map(j => tokens[j])).join(' ');
+              rest.forEach(j => { consumed[j] = true; });
+              return true;
+            }
+          }
+          const f = {}; f['b:' + res.name] = 1; parts.push({ features: f, label: res.name, text: res.name.toLowerCase() }); return true;
+        }
         if (!anchor) { anchor = anchorFrom(res); parts.push(anchorPart(anchor)); }
         return true;
       }
       if (bare) return false;
+      // A house we don't stock ("like parfums de marly greenley", "like creed zorbex"): the house plus the words after it
+      // name a fragrance we don't have on file — never split it into vibe words.
+      if (!post) {
+        const aliases = L.brandAliases || {};
+        for (let k = Math.min(3, C.length); k >= 1; k--) {
+          if (!aliases[C.slice(0, k).join(' ')]) continue;
+          const rest = []; for (let ci = k; ci < C.length && rest.length < 4; ci++) { const t = C[ci]; if (STOP.has(t) || !(isWord(t) || isNum(t)) || kindsAt(index, t).some(u => u.kind === 'entry' || u.kind === 'strength' || u.kind === 'gender')) break; rest.push(ci); }
+          if (!rest.length || unknownAnchor) break;
+          unknownAnchor = C.slice(0, k).concat(rest.map(ci => C[ci])).join(' ');
+          for (let ci = 0; ci < k; ci++) consumed[span[ci]] = true; rest.forEach(ci => { consumed[span[ci]] = true; });
+          return true;
+        }
+      }
       // Unknown name after a trigger: only the leading tokens nobody understands (never a
       // lexicon word; a leading generic word like "le" is skipped, never reported).
       const lead = [];
@@ -1062,7 +1090,7 @@
     const idx = (p, labels) => (labels || []).map(l => model.lookup[p].get(String(l).toLowerCase())).filter(x => x != null);
     return { a: idx('a', ref.a), n: idx('n', ref.n), f: idx('f', ref.f), k: -1, g: 0 };
   }
-  const SIM_BOOST = 0.35, CREF_BOOST = 0.45;   // Fragrantica "reminds me of" votes: catalogue pairs / famous references
+  const SIM_BOOST = 0.35, CREF_BOOST = 0.45, REF_SIMILAR_W = 0.6;   // REF_SIMILAR_W: a stocked bottle listed on the reference's own Fragrantica "reminds me of"   // Fragrantica "reminds me of" votes: catalogue pairs / famous references
 
   // ── ranking ──
   const brandOf = (it, model) => model.vocab.b[it.b] || '';
@@ -1127,6 +1155,7 @@
       // or of the famous reference the visitor named.
       let simW = community && anchorSim && anchorSim.has(it.idx) ? anchorSim.get(it.idx) : 0;
       let crefW = 0; if (community && refAnchor && Array.isArray(it.cref)) it.cref.forEach(p => { if (refMatches(model.vocab.r[Number(p[0])] || '')) crefW = Math.max(crefW, Number(p[1]) || 0); });
+      if (community && query.anchor && query.anchor.kind === 'ref' && query.anchor.ref && Array.isArray(query.anchor.ref.similar) && query.anchor.ref.similar.indexOf(it.id) >= 0) crefW = Math.max(crefW, REF_SIMILAR_W);
       if (hasQ && cq <= minCos && !verified && !simW && !crefW) continue;
       const cp = prof && prof.weight ? cosine(prof.vec, it.vec) : 0;
       let score = QUERY_SHARE * cq + PROFILE_SHARE * cp + BS_BONUS * (it.bs || 0) + strengthBonus(it, query.strength, model) + (verified ? VERIFIED_BONUS : 0) + SIM_BOOST * simW + CREF_BOOST * crefW;
@@ -1725,6 +1754,12 @@
     out.frag = validateFragment({ features: fmap, strength: raw.strength, gender: raw.gender === 'women' ? 'unisex' : raw.gender, exclude_brands: Array.isArray(raw.exclude) ? raw.exclude : [] }, model);
     out.women = raw.gender === 'women';
     out.anchor = str(raw.anchor);
+    out.anchorProfile = null;
+    if (raw.anchorProfile && typeof raw.anchorProfile === 'object' && out.anchor) {
+      const pick = (p, list) => (Array.isArray(list) ? list : []).map(x => { const i = model.lookup[p].get(String(x || '').trim().toLowerCase()); return i == null ? null : model.vocab[p][i]; }).filter((x, i, a) => x && a.indexOf(x) === i).slice(0, 12);
+      const prof = { name: out.anchor, a: pick('a', raw.anchorProfile.accords), n: pick('n', raw.anchorProfile.notes), f: pick('f', raw.anchorProfile.families), approx: true };
+      if (prof.a.length + prof.n.length + prof.f.length >= 3) out.anchorProfile = prof;
+    }
     const px = v => { const n = Number(v); return isFinite(n) && n >= 50 && n <= 100000 ? Math.round(n) : null; };
     out.maxPrice = px(raw.maxPrice); out.minPrice = px(raw.minPrice);
     if (raw.fact && typeof raw.fact === 'object' && has(['smell', 'notes', 'about', 'family', 'gender', 'strength', 'price', 'have', 'buy'], raw.fact.kind) && str(raw.fact.name)) {
@@ -1788,7 +1823,14 @@
       return false;
     }
     if (out.intent === 'search') {   // the caller merges the fragment; prices and a "like" name are added here when the parser found none
-      if (out.anchor && !parsed.anchor) { const r = resolveFact(out.anchor, model, S.lex); if (r && (r.kind === 'catalog' || r.kind === 'ref')) parsed.parts.push(anchorPart(r.kind === 'catalog' ? { kind: 'catalog', id: r.item.id, name: r.item.nm } : r.anchor)); }
+      if (out.anchor && !parsed.anchor) {
+        const r = resolveFact(out.anchor, model, S.lex);
+        if (r && (r.kind === 'catalog' || r.kind === 'ref')) { parsed.parts.push(anchorPart(r.kind === 'catalog' ? { kind: 'catalog', id: r.item.id, name: r.item.nm } : r.anchor)); parsed.unknownAnchor = null; parsed.anchorFromServer = true; }
+        else if (out.anchorProfile) {
+          parsed.parts.push(anchorPart({ kind: 'ref', name: out.anchor, ref: out.anchorProfile }));
+          parsed.unknownAnchor = null; parsed.unknown = []; parsed.approxRef = out.anchor; parsed.anchorFromServer = true;
+        }
+      }
       if (out.maxPrice != null && parsed.maxPrice == null && !parsed.parts.some(p => p.maxPrice != null)) parsed.parts.push(Object.assign({ maxPrice: out.maxPrice }, priceText(null, out.maxPrice)));
       if (out.minPrice != null && parsed.minPrice == null && !parsed.parts.some(p => p.minPrice != null)) parsed.parts.push(Object.assign({ minPrice: out.minPrice }, priceText(out.minPrice, null)));
       if (out.women && !parsed.gender && !parsed.parts.some(p => p.gender)) parsed.parts.push({ gender: 'unisex', note: 'unisex', label: T.tokenPrefix.gift, text: 'unisex' });
@@ -2254,6 +2296,7 @@
       const notes = [];
       if (req.preNote) notes.push(req.preNote);
       if (req.vsNote) notes.push(req.vsNote);
+      const approxNote = name => { const lang = S.thread && S.thread.lang; return fill(lang === 'bs' ? T.approxRefBs : lang === 'bn' ? T.approxRefBn : T.approxRef, { name }); };
       let parsed = null, aiOffer = null;
       if (req.text != null) {
         parsed = parse(req.text, S.lex, model, { lastBrands: lastBrands(model), refPrice: null });
@@ -2265,7 +2308,7 @@
           if (wait && wait.parentNode) wait.parentNode.removeChild(wait);
           if (u.server && u.server.intent !== 'search' && dispatchServer(req, model, u.server, parsed)) return;
           if (u.server && u.server.intent === 'search') dispatchServer(req, model, u.server, parsed);
-          if (u.part) {
+          if (u.part && !parsed.anchorFromServer) {
             parsed.parts.push(u.part);
             parsed.unknown = parsed.unknown.filter(w => u.part.text.toLowerCase().indexOf(w) < 0);
           } else if (u.server && u.server.intent === 'search' && parsed.parts.length) parsed.unknown = [];
@@ -2274,12 +2317,15 @@
         }
         // A bottle you merely asked about never steers a NEW search: the soft anchor goes once you type scent words or another name.
         if (parsed.parts.some(p => p.anchor || Object.keys(p.features || {}).length)) { const k = th.parts.findIndex(p => p.anchor && p.soft); if (k >= 0) removePart(k); }
+        // A new "like X" replaces the previous bottle even when X can't be placed — never silently answer for the old one.
+        if ((parsed.hadTrigger && (parsed.unknownAnchor || parsed.anchor)) || parsed.anchorFromServer) { th.parts = th.parts.filter(p => !p.anchor && !p.ai); th.query = compose(th.parts); renderBar(); }
         // A new, complete request ("ami daily bus e jai, onk sweat kori") replaces the earlier scent wishes instead of piling
         // onto them; a short refinement ("sweeter", "for winter", "under 500") still adds. Budget, gender and exclusions stay.
         if (req.typed && th.lastIds.length && isNewRequest(req.text, parsed)) {
           th.parts = th.parts.filter(p => !(p.anchor || Object.keys(p.features || {}).length || p.strength));
           th.query = compose(th.parts); renderBar();
         }
+        if (parsed.approxRef) notes.push(approxNote(parsed.approxRef));
         if (parsed.parts.length) addParts(parsed.parts);
         if (!parsed.parts.length) {
           const words = parsed.unknown.join(', ');

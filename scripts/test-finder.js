@@ -909,6 +909,23 @@ if (engine) {
     bq = P('office strong'); assert.ok(bq.parts.some(p => p.features && p.features['o:Office'] > 0) && bq.strength === 'stronger', 'a strength word no longer deletes the office wish');
     assert.deepStrictEqual(F.axisFollowUp('aro sweet kichu'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('sweeter one'), { axis: 'sweet', text: 'sweet' }); assert.deepStrictEqual(F.axisFollowUp('ektu beshi strong'), { axis: 'strong', text: 'strong' });
     assert.strictEqual(F.axisFollowUp('sweet'), null, 'a bare vibe word is a search'); assert.strictEqual(F.axisFollowUp('fresh and sweet'), null); assert.strictEqual(F.axisFollowUp('sweet for winter'), null);
+    // unknown famous fragrances: the name is passed on whole; curated references win; the AI's profile is a labelled fallback
+    assert.strictEqual(P('something like parfums de marly greenley').unknownAnchor, 'parfums de marly greenley', 'an un-stocked house + name stays one unknown name');
+    assert.ok(!P('something like parfums de marly greenley').parts.length, 'no junk tags from a fragrance name');
+    assert.strictEqual(P('like rasasi zorbex').unknownAnchor, 'rasasi zorbex', 'a stocked house + unknown words is an unknown fragrance, not "show me Rasasi"');
+    assert.ok(P('something from rasasi').features['b:Rasasi'] > 0, 'a plain brand request still works');
+    assert.ok(lexicon.refs.some(r => r.name === 'Amouage Outlands' && Array.isArray(r.similar)), 'Amouage Outlands reference with reminds-me-of links');
+    const VS2 = raw => F.validateServer(raw, model, L);
+    let ap = VS2({ intent: 'search', anchor: 'Initio Side Effect', features: [], anchorProfile: { accords: ['Woody', 'Musky', 'Nonsense'], notes: ['Bergamot', 'Unicorn Tears'], families: ['Woody'] } });
+    assert.ok(ap.anchorProfile && ap.anchorProfile.approx && ap.anchorProfile.a.join() === 'Woody,Musky' && ap.anchorProfile.n.join() === 'Bergamot', 'AI profile keeps catalogue labels only: ' + JSON.stringify(ap.anchorProfile));
+    assert.strictEqual(VS2({ intent: 'search', anchor: 'X', anchorProfile: { accords: ['Woody'], notes: [], families: [] } }).anchorProfile, null, 'fewer than three known labels → no profile');
+    assert.strictEqual(VS2({ intent: 'search', anchor: '', anchorProfile: { accords: ['Woody', 'Musky', 'Citrus'] } }).anchorProfile, null, 'no name → no profile');
+    assert.ok(F.T.approxRef && F.T.approxRefBn && F.T.approxRefBs && !BANNED.test(F.T.approxRef), 'approximate-reference note in three languages');
+    // a reference's own "reminds me of" list lifts those stocked bottles (synthetic catalogue: Alpha listed as similar)
+    const simRef = { kind: 'ref', name: 'Test Ref', ref: { name: 'Test Ref', a: ['Musky'], n: [], f: [], similar: ['b'] } };
+    const withSim = F.rank(model, Object.assign(F.emptyQuery(), { anchor: simRef }), { limit: 5 }), noSim = F.rank(model, Object.assign(F.emptyQuery(), { anchor: Object.assign({}, simRef, { ref: Object.assign({}, simRef.ref, { similar: [] }) }) }), { limit: 5 });
+    const pos = (list, id) => list.findIndex(r => r.id === id);
+    assert.ok(pos(withSim, 'b') >= 0 && (pos(noSim, 'b') < 0 || pos(withSim, 'b') <= pos(noSim, 'b')) && withSim.find(r => r.id === 'b').community, 'ref.similar lifts the listed bottle');
     // the "Who will wear it?" step asks, never assumes: Men / Women / Anyone — "Women" means unisex bottles + an honest note
     assert.deepStrictEqual(lexicon.chips.who.map(c => c.label), ['Men', 'Women', 'Anyone (unisex)'], 'who-step chips');
     const wp = F.chipPart(lexicon.chips.who[1], model); assert.ok(wp.gender === 'unisex' && wp.note === 'women' && /for women/.test(wp.text), 'Women chip → unisex + women note: ' + JSON.stringify(wp));

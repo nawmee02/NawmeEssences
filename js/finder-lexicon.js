@@ -359,6 +359,10 @@
         a: ['Fruity', 'Sweet', 'Citrus', 'Musky', 'Amber'], n: ['Orange', 'Lemon', 'Bergamot', 'Red Fruits', 'Candied Fruits', 'White Musk', 'Amber', 'Vanilla'], f: ['Fruity', 'Oriental'] },
       { m: ['interlude', 'interlude man', 'amouage interlude', 'interlude black iris', 'interlude amouage'], name: 'Amouage Interlude Man',
         a: ['Smoky', 'Balsamic', 'Amber', 'Woody', 'Warm Spicy'], n: ['Bergamot', 'Pimento Seeds', 'Incense', 'Myrrh', 'Labdanum', 'Opoponax', 'Amber', 'Oud', 'Leather', 'Sandalwood', 'Frankincense'], f: ['Oriental', 'Woody'] },
+      // Fragrantica (2026-10-18): Oriental Woody, 2024, Cécile Zarokian. "Reminds me of" votes include Essential Parfums Bois Impérial (stocked).
+      { m: ['outlands', 'outland', 'amouage outlands', 'amouage outland', 'outlands amouage', 'outland amouage'], name: 'Amouage Outlands',
+        a: ['Amber', 'Warm Spicy', 'Aromatic', 'Fresh Spicy', 'Balsamic', 'Citrus', 'Vanilla', 'Woody'], n: ['Frankincense', 'Cardamom', 'Elemi', 'Bergamot', 'Sichuan Pepper', 'Patchouli', 'Saffron', 'Rose', 'Vanilla', 'Amber', 'Benzoin', 'Oud', 'Labdanum', 'Birch'], f: ['Oriental', 'Woody'],
+        similar: ['essential-parfums-bois-imp-rial'] },
       { m: ['grand soir', 'mfk grand soir', 'maison francis kurkdjian grand soir', 'grand soir mfk'], name: 'Maison Francis Kurkdjian Grand Soir',
         a: ['Amber', 'Vanilla', 'Balsamic', 'Sweet', 'Warm Spicy'], n: ['Amber', 'Benzoin', 'Vanilla', 'Labdanum', 'Tonka Bean'], f: ['Oriental'] },
       { m: ['tuxedo', 'ysl tuxedo', 'tuxedo ysl', 'le vestiaire tuxedo'], name: 'Yves Saint Laurent Tuxedo',

@@ -43,6 +43,7 @@ export const RESPONSE_SCHEMA = {
     gender: ENUM(['men', 'unisex', 'women', 'none']),
     maxPrice: { type: 'NUMBER' }, minPrice: { type: 'NUMBER' },
     anchor: { type: 'STRING' },
+    anchorProfile: { type: 'OBJECT', nullable: true, properties: { accords: { type: 'ARRAY', items: { type: 'STRING' } }, notes: { type: 'ARRAY', items: { type: 'STRING' } }, families: { type: 'ARRAY', items: { type: 'STRING' } } } },
     exclude: { type: 'ARRAY', items: { type: 'STRING' } },
     fact: { type: 'OBJECT', nullable: true, properties: { kind: ENUM(FACT_KINDS), name: { type: 'STRING' }, ml: { type: 'NUMBER' } }, required: ['kind', 'name'] },
     compare: { type: 'OBJECT', nullable: true, properties: { names: { type: 'ARRAY', items: { type: 'STRING' } }, criterion: { type: 'STRING' } }, required: ['names'] },
@@ -73,7 +74,8 @@ export function buildSystemPrompt(finder) {
     'accords: ' + list(V.a) + '.', 'families: ' + list(V.f) + '.', 'occasions: ' + list(V.o) + '.', 'concentrations: ' + list(V.k) + '.', 'brands: ' + list(V.b) + '.',
     'notes (only when the shopper names one): ' + list(V.n.slice(0, 120)) + '.',
     'stocked bottles (when the shopper means one of these, write its exact name in fact.name / compare.names / anchor): ' + list(names) + '.',
-    'Famous fragrances that are not stocked (Sauvage, Aventus, Bleu de Chanel, Asad, Yara…) may still appear as anchor, fact.name or compare.names, written as the shopper wrote them.',
+    'Famous fragrances that are not stocked (Sauvage, Aventus, Bleu de Chanel, Asad, Yara…) may still appear as anchor, fact.name or compare.names, written with their full official name (house + fragrance).',
+    'anchorProfile: only when anchor names a fragrance that is NOT in the stocked list and you know it well: its main accords, its key notes and its family, using ONLY the vocabulary labels above (closest label for each). If you are not sure of the fragrance or its notes, set anchorProfile to null. Never describe a stocked bottle here.',
   ].join('\n');
 }
 
