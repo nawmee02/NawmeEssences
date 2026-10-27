@@ -1662,6 +1662,10 @@ input, select { font-family: var(--font-body); }
   .card-body { padding: 10px; gap: 4px; }
   .card-footer { padding: 0 10px 10px; }
   /* @critical:end */
+  /* Shop toolbar: sort select always on its own row, so the row count doesn't
+     depend on the result-count text ("Loading..." fit on one row, "88 fragrances
+     found" wrapped and pushed the grid down 48px — CLS 0.115). */
+  .shop-top > div { flex-basis: 100%; }
   .footer-inner { grid-template-columns: 1fr; gap: 28px; }
   .cart-item { grid-template-columns: 56px 1fr; }
   .cart-item-img { width: 56px; height: 56px; }

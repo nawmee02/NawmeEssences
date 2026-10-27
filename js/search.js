@@ -11,6 +11,25 @@
 
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+  // ─── Matching (also used by shop.js via window.searchMatcher) ──
+  // Every typed word must appear in the name, brand or an accord, in any order.
+  // Spaces and punctuation are ignored on both sides, so "9 pm" finds "9PM" and
+  // "sanaya40" finds "Sanaya 40". The returned fn gives 2 for a name/brand
+  // match, 1 when an accord was needed (e.g. "vanilla"), 0 for no match.
+  const fold = s => String(s || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+  const compact = s => fold(s).replace(/[^a-z0-9]/g, '');
+  function searchMatcher(query) {
+    const words = fold(query).split(/[^a-z0-9]+/).filter(Boolean);
+    if (!words.length) return () => 0;
+    return (name, brand, accords) => {
+      const title = compact(name) + '|' + compact(brand);
+      const all = title + '|' + (accords || []).map(compact).join('|');
+      if (!words.every(w => all.includes(w))) return 0;
+      return words.every(w => title.includes(w)) ? 2 : 1;
+    };
+  }
+  window.searchMatcher = searchMatcher;
+
   // ─── Inject header button + overlay ────────────────────────
   function inject() {
     const actions = document.querySelector('.nav-actions');
@@ -52,7 +71,7 @@
         <div class="search-panel">
           <div class="gs-bar">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="global-search" placeholder="Search fragrances or brands…" autocomplete="off" />
+            <input type="text" id="global-search" placeholder="Search fragrances, brands or notes…" autocomplete="off" />
             <button id="search-close" class="search-close" aria-label="Close">&times;</button>
           </div>
           <div class="search-results" id="search-results"></div>
@@ -75,10 +94,14 @@
     loaded = true;
     if (typeof ProductAPI === 'undefined') return;
     try {
-      const products = await ProductAPI.getAll();
+      // Accords are optional: if they fail to load, name/brand search still works.
+      const [products, accords] = await Promise.all([
+        ProductAPI.getAll(),
+        ProductAPI.getAccords().catch(() => ({})),
+      ]);
       catalog = products
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map(p => ({ id: p.id, name: p.name, brand: p.brand, v: verToken(p.updatedAt) }));
+        .map(p => ({ id: p.id, name: p.name, brand: p.brand, accords: accords[p.id] || [], v: verToken(p.updatedAt) }));
     } catch { catalog = null; }
   }
 
@@ -97,15 +120,21 @@
   function render() {
     const q = document.getElementById('global-search').value.trim().toLowerCase();
     const box = document.getElementById('search-results');
-    if (!q) { box.innerHTML = '<p class="search-hint">Type a fragrance or brand name…</p>'; return; }
+    if (!q) { box.innerHTML = '<p class="search-hint">Type a fragrance, brand or note (e.g. vanilla)…</p>'; return; }
 
     if (!catalog) {
       box.innerHTML = `<a class="search-all" href="/shop.html?q=${encodeURIComponent(q)}">Search "${esc(q)}" in the shop →</a>`;
       return;
     }
 
-    const matches = catalog.filter(p =>
-      p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+    // Name/brand matches first, accord-only matches after (sort is stable, so
+    // each group stays alphabetical).
+    const match = searchMatcher(q);
+    const matches = catalog
+      .map(p => ({ p, rank: match(p.name, p.brand, p.accords) }))
+      .filter(m => m.rank)
+      .sort((a, b) => b.rank - a.rank)
+      .map(m => m.p);
 
     if (!matches.length) {
       box.innerHTML = `<p class="search-hint">No matches for "${esc(q)}".</p>`;
@@ -117,6 +146,7 @@
         <img src="${esc(thumb(p.id, p.v))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
         <span><span class="sr-brand">${esc(p.brand)}</span><span class="sr-name">${esc(p.name)}</span></span>
       </a>`).join('');
+    // Shop search includes exclusive products too, so the counts agree.
     const more = matches.length > 8
       ? `<a class="search-all" href="/shop.html?q=${encodeURIComponent(q)}">See all ${matches.length} results →</a>` : '';
     box.innerHTML = rows + more;

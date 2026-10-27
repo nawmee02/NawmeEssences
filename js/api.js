@@ -93,6 +93,26 @@ const ProductAPI = (() => {
     return _cache;
   }
 
+  // Accords by product id, for the header search overlay only — fetched on its
+  // first open so ordinary page loads don't carry them. A failed fetch isn't
+  // cached, so the next open retries.
+  let _accords = null;
+  function getAccords() {
+    if (!_accords) {
+      _accords = restGet('fragrances?select=id,fragrance_details(accords)&status=eq.published')
+        .then(rows => {
+          const byId = {};
+          rows.forEach(r => {
+            const d = Array.isArray(r.fragrance_details) ? r.fragrance_details[0] : r.fragrance_details;
+            byId[r.id] = (d && Array.isArray(d.accords)) ? d.accords : [];
+          });
+          return byId;
+        })
+        .catch(e => { _accords = null; throw e; });
+    }
+    return _accords;
+  }
+
   // ─── Detail shape (product page): full image set + notes ─────
   async function getProduct(id) {
     const sb = await getSupabaseClientAsync();
@@ -221,6 +241,7 @@ const ProductAPI = (() => {
       return [...new Set(d.filter(p => p.collection !== 'special').map(p => p.brand))].sort();
     },
     getProduct,
+    getAccords,
     invalidate() { _cache = null; },
   };
 })();

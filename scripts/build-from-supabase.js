@@ -246,13 +246,13 @@ function validateCatalog(allProducts, imageSet) {
 // paints without JS). The browser then filters/hydrates these nodes.
 // Content is replaced between re-runnable <!--GRID:name:start/end--> markers.
 function injectGrids(allProducts, productDetails) {
-  const card = (p, isExclusive, priority = false) => renderCard({
+  const card = (p, isExclusive, priority = false, searchOnly = false) => renderCard({
     ...p,
     accords: (productDetails[p.id] && productDetails[p.id].accords) || [],
     image_small:  publicUrl(p.id, 'small',  imageVersion(p.updatedAt)),
     image_thumb:  publicUrl(p.id, 'thumb',  imageVersion(p.updatedAt)),
     image_medium: publicUrl(p.id, 'medium', imageVersion(p.updatedAt)),
-  }, { isExclusive, priority });
+  }, { isExclusive, priority, searchOnly });
 
   // prioritizeFirstRow: eager + high fetchpriority on the first 4 cards so the
   // top row of an above-the-fold grid paints immediately; the rest stay lazy.
@@ -262,7 +262,10 @@ function injectGrids(allProducts, productDetails) {
   const grids = {
     bestsellers: cards(allProducts.filter(p => p.is_bestseller).slice(0, 8), false, true),
     new:         cards(allProducts.filter(p => (p.tags || []).includes('new')), false, false),
-    shop:        cards(allProducts.filter(p => p.collection === 'regular'), false, true),
+    // Regular cards, then the exclusive-page products baked hidden so a shop
+    // search can find them (shop.js shows them only while a search is active).
+    shop:        cards(allProducts.filter(p => p.collection === 'regular'), false, true) + '\n' +
+                 allProducts.filter(p => p.collection !== 'regular').map(p => card(p, true, false, true)).join('\n'),
     special:     cards(allProducts.filter(p => p.collection === 'special'), true, true),
     exclusive:   cards(allProducts.filter(p => p.collection === 'exclusive'), true, false),
   };

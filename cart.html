@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
   <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
-  <link rel="stylesheet" href="css/style.css?v=0a1ec4df" />
+  <link rel="stylesheet" href="css/style.css?v=30c0e198" />
 </head>
 <body>
 
@@ -146,6 +146,10 @@
     </div>
   </div>
 
+  <!-- Pick empty vs. full layout before first paint; renderCart() (after the
+       deferred scripts) sets the same values, so the footer doesn't jump. -->
+  <script>try{if(!JSON.parse(localStorage.getItem('nawme_cart')||'[]').length){document.getElementById('cart-empty').style.display='block';document.getElementById('cart-content').style.display='none'}}catch(e){}</script>
+
   <!-- MESSENGER COPY BOX -->
   <div id="messenger-box" style="display:none;margin-top:28px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:20px;">
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">✅ Message copied! Open Messenger and paste — or <button onclick="copyMessengerText()" style="background:none;border:none;color:var(--gold);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">copy again</button>. &nbsp;<a href="https://m.me/509978488868598" target="_blank" style="color:var(--gold);">Open Messenger →</a></p>
@@ -204,7 +208,8 @@
 <script src="js/supabase-config.js?v=8879e998" defer></script>
 <script src="js/supabase.js?v=29d8750f" defer></script>
 <script src="js/settings.js?v=6fd582c5" defer></script>
-<script src="js/search.js?v=ac5eefee" defer></script>
+<script src="js/api.js?v=656f768e" defer></script>
+<script src="js/search.js?v=433f1f23" defer></script>
 <script src="js/commerce-adapter.js?v=d667b304" defer></script>
 <script src="js/webmcp.js?v=5cb0579d" defer></script>
 <script>

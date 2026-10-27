@@ -16,6 +16,11 @@ function handleAdd(id, isExclusive) {
 function getActiveFilters() {
   return {
     search: document.getElementById('search-input').value.trim().toLowerCase(),
+    // Same word-by-word name/brand/accord rule as the header overlay (search.js
+    // loads before this file on shop.html); plain substring if it didn't load.
+    match: typeof searchMatcher === 'function'
+      ? searchMatcher(document.getElementById('search-input').value)
+      : (name, brand) => (name + ' ' + brand.toLowerCase()).includes(document.getElementById('search-input').value.trim().toLowerCase()),
     brands: [...document.querySelectorAll('.brand-filter:checked')].map(c => c.value),
     sizes: [...document.querySelectorAll('.size-filter:checked')].map(c => Number(c.value)),
     tags: [...document.querySelectorAll('.tag-filter:checked')].map(c => c.value),
@@ -28,7 +33,9 @@ function getActiveFilters() {
 
 function cardMatches(card, f) {
   const d = card.dataset;
-  if (f.search && !d.name.includes(f.search) && !d.brand.toLowerCase().includes(f.search)) return false;
+  // Exclusive-page products sit in the grid hidden; only a search reveals them.
+  if ('searchOnly' in d && !f.search) return false;
+  if (f.search && !f.match(d.name, d.brand, d.accords ? d.accords.split('|') : [])) return false;
   if (f.brands.length && !f.brands.includes(d.brand)) return false;
   if (f.sizes.length) {
     const ml = d.sizes.split(' ').map(Number);

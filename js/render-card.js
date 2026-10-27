@@ -40,7 +40,9 @@ function priceCell(orig, eff) {
 
 // p: { id, name, brand, sizes:[{ml,price}], tags:[], accords:[], inStock,
 //      image_thumb, image_medium, sale_percent }
-function renderCard(p, { isExclusive = false, priority = false } = {}) {
+// searchOnly: baked hidden, shown by shop.js only while a search is active
+// (exclusive-page products in the shop grid).
+function renderCard(p, { isExclusive = false, priority = false, searchOnly = false } = {}) {
   const sizes = (p.sizes || []).slice().sort((a, b) => a.ml - b.ml);
   const sp = Number(p.sale_percent) || 0;
   const minPrice = sizes.length ? Math.min(...sizes.map(s => s.price)) : 0;
@@ -81,7 +83,7 @@ function renderCard(p, { isExclusive = false, priority = false } = {}) {
   ].join(' ');
 
   return `
-    <div class="product-card${oos ? ' out-of-stock' : ''}" ${data}>
+    <div class="product-card${oos ? ' out-of-stock' : ''}" ${data}${searchOnly ? ' data-search-only hidden' : ''}>
       <a class="card-link" href="/product/${esc(p.id)}/">
         <div class="card-img">
           <img src="${esc(imgThumb)}" srcset="${esc(imgSmall)} 360w, ${esc(imgThumb)} 450w" sizes="(max-width:640px) 46vw, 300px" alt="${esc(p.name)} ${esc(p.brand)} perfume decant" width="450" height="450" ${loadAttrs} decoding="async" onload="this.classList.add('loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
