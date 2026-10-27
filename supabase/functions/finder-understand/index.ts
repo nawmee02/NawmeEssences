@@ -62,10 +62,18 @@ Deno.serve(async (req: Request) => {
   if (why) return json(429, { ok: false, reason: 'rate ' + why }, { ...headers, 'Retry-After': '60' });
   try {
     await loadFinder();
-    // Flash-Lite answers 503 'model overloaded' now and then (7 of 199 in the 2026-10-16 eval): one quick retry.
+    // Measured from the deployed function (2026-10-27): most answers take 1.9–3.3 s, some go past 5 s — the old 5 s
+    // limit aborted about a third of them. One budget of 9 s (the page waits 10 s): the first attempt may use 8.5 s;
+    // a fast 503 'model overloaded' / 429 / 500 is retried once with whatever time is left.
+    const BUDGET_MS = 9000, started = Date.now();
     let out;
-    try { out = await callGemini(KEY, prompt, q, { timeoutMs: 5000, model: MODEL_ID }); }
-    catch (e) { if (!/http (503|429|500)/.test(String(e && (e as Error).message))) throw e; await new Promise(r => setTimeout(r, 400)); out = await callGemini(KEY, prompt, q, { timeoutMs: 4500, model: MODEL_ID }); }
+    try { out = await callGemini(KEY, prompt, q, { timeoutMs: 8500, model: MODEL_ID }); }
+    catch (e) {
+      const left = BUDGET_MS - (Date.now() - started) - 300;
+      if (!/http (503|429|500)/.test(String(e && (e as Error).message)) || left < 1500) throw e;
+      await new Promise(r => setTimeout(r, 300));
+      out = await callGemini(KEY, prompt, q, { timeoutMs: left, model: MODEL_ID });
+    }
     if (!out || typeof out !== 'object' || typeof out.intent !== 'string') return json(502, { ok: false, reason: 'bad output' }, headers);
     return json(200, { ok: true, model: MODEL_ID, out }, headers);
   } catch (e) {

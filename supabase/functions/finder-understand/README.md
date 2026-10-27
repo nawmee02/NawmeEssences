@@ -35,7 +35,7 @@ as honest as the templates (no invented prices, no wear-time claims).
 ## Guards
 
 - Per IP 10 requests a minute, 14 a minute overall, 950 a day (in-memory per function instance).
-- Upstream timeout 5 s plus one retry on 503 / 429 (3.1 Flash-Lite: median 3.3 s, 90th percentile 4.3 s on 199 test queries); `temperature 0`, thinking off, JSON schema enforced by Gemini and
+- One 9 s budget per question (the page waits 10 s): the first Gemini call may use 8.5 s, a fast 503 / 429 / 500 is retried once with the time left (measured from the deployed function: most answers 1.9–3.3 s, some past 5 s); `temperature 0`, thinking off, JSON schema enforced by Gemini and
   re-validated in the browser (unknown labels, keys and intents are dropped).
 - Only the typed sentence is sent (no cookies, no product ids). Visitors with Do Not Track or
   Global Privacy Control enabled never reach this function; the page's privacy line says so.
