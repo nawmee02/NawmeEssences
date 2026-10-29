@@ -122,3 +122,28 @@ document.addEventListener("DOMContentLoaded", () => {
     observer.observe(statsSection);
   }
 });
+
+// Quick Scent Match (homepage): js/quiz.js is fetched only when a visitor shows
+// intent (pointer / focus / touch on the button) and opens on click — nothing
+// runs on first render or while scrolling. data-quiz-src is versioned by the build.
+(function () {
+  const btn = document.querySelector('[data-quiz-src]');
+  if (!btn) return;
+  let loading = null;
+  const load = () => loading || (loading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = btn.dataset.quizSrc;
+    s.async = true;
+    s.onload = () => resolve(window.NawmeQuiz);
+    s.onerror = () => { loading = null; s.remove(); reject(new Error('quiz failed to load')); };
+    document.head.appendChild(s);
+    if (window.NawmeRecs && NawmeRecs.prepare) NawmeRecs.prepare();
+  }));
+  ['pointerenter', 'focus', 'touchstart'].forEach(t => btn.addEventListener(t, () => { load().catch(() => {}); }, { once: true, passive: true }));
+  btn.addEventListener('click', () => {
+    btn.setAttribute('aria-busy', 'true');
+    load().then(Q => { if (Q) Q.open(btn); })
+      .catch(() => { const n = document.getElementById('quiz-fallback'); if (n) n.hidden = false; })
+      .then(() => btn.removeAttribute('aria-busy'));
+  });
+})();

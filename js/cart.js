@@ -48,7 +48,9 @@ function saveCart(cart) {
   updateCartBadge();
 }
 
-function addToCart(productId, ml, price, name, brand, isExclusive = false, sizes = null) {
+// opts.silent: skip the per-item toast + sound (a caller adding several lines
+// at once — e.g. the homepage quiz's "Try all 3" — confirms once itself).
+function addToCart(productId, ml, price, name, brand, isExclusive = false, sizes = null, opts = {}) {
   const cart = getCart();
   const key = `${productId}_${ml}`;
   const existing = cart.find(i => i.key === key);
@@ -62,6 +64,7 @@ function addToCart(productId, ml, price, name, brand, isExclusive = false, sizes
     cart.push({ key, productId, ml: Number(ml), price: Number(price), name, brand, qty: 1, isExclusive, sizes: sizes || null });
   }
   saveCart(cart);
+  if (opts && opts.silent) return;
   showToast(`${name} (${ml}ml) added to cart!`);
   Sfx.add();
 }
