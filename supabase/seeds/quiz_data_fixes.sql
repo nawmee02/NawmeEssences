@@ -9,6 +9,10 @@
 --  Run in the Supabase SQL Editor. Safe to re-run: every helper
 --  checks the current value first and only changes what it names.
 --  Review each line; the OPTIONAL block is commented out on purpose.
+--
+--  Before REMOVING a family or accord label: the chat finder's phrases point at catalogue
+--  labels, and its build test fails if a label disappears from every product (that is what
+--  happened when item 1 first dropped Milestone's "Musk", the only Musk family in stock).
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION pg_temp.set_family(p_id text, p_family text) RETURNS void LANGUAGE plpgsql AS $$
@@ -53,8 +57,9 @@ END $$;
 
 -- 1. Filed as Woody + Floral + Musk (Fragrantica's olfactory group), but its accords are
 --    marine-led (Marine, Aromatic, Woody, Powdery, Musky, Fruity) with no floral accord, so it
---    was offered for "Floral & Musky" and described as floral. Filed by its accords instead.
-SELECT pg_temp.set_family('armaf-cdni-milestone', 'Aquatic / Woody');
+--    was offered for "Floral & Musky" and described as floral. Filed by its accords instead;
+--    Musk stays (Musky is its #5 accord, and it is the only Musk family the finder relies on).
+SELECT pg_temp.set_family('armaf-cdni-milestone', 'Aquatic / Woody / Musk');
 
 -- 2. Vanilla #1 and Sweet #2, tagged Party / Date Night, yet filed Oriental + Fougère, so the
 --    "Sweet & Gourmand" card missed them. The shop files its other vanilla-led orientals
