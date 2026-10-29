@@ -38,11 +38,13 @@ function priceCell(orig, eff) {
   return eff < orig ? `<s class="price-was">৳${orig}</s> ৳${eff}` : `৳${eff}`;
 }
 
-// p: { id, name, brand, sizes:[{ml,price}], tags:[], accords:[], inStock,
+// p: { id, name, brand, sizes:[{ml,price}], tags:[], accords:[], notes:[],
+//      families:[], occasions:[], inStock,
 //      image_thumb, image_medium, sale_percent }
 // searchOnly: baked hidden, shown by shop.js only while a search is active
 // (exclusive-page products in the shop grid).
-function renderCard(p, { isExclusive = false, priority = false, searchOnly = false } = {}) {
+// shopData: add the shop filter/search keys (the shop grid only).
+function renderCard(p, { isExclusive = false, priority = false, searchOnly = false, shopData = false } = {}) {
   const sizes = (p.sizes || []).slice().sort((a, b) => a.ml - b.ml);
   const sp = Number(p.sale_percent) || 0;
   const minPrice = sizes.length ? Math.min(...sizes.map(s => s.price)) : 0;
@@ -76,7 +78,16 @@ function renderCard(p, { isExclusive = false, priority = false, searchOnly = fal
     `data-brand="${esc(p.brand)}"`,
     `data-tags="${esc((p.tags || []).join(' '))}"`,
     `data-sizes="${esc(sizes.map(s => s.ml).join(' '))}"`,
-    `data-accords="${esc((p.accords || []).join('|'))}"`,
+    // Shop grid only: lower-case filter keys (merged notes/accords from
+    // scripts/lib/note-canon.js — also what shop search matches). Other grids
+    // keep the plain accords and stay lean.
+    ...(shopData ? [
+      `data-family="${esc((p.families || []).join('|'))}"`,
+      `data-occasions="${esc((p.occasions || []).join('|'))}"`,
+      `data-type="${esc(p.type || '')}"`,                         // arabian | designer | niche
+      `data-notekeys="${esc((p.noteKeys || []).join('|'))}"`,
+      `data-vibes="${esc((p.vibeKeys || []).join('|'))}"`,
+    ] : [`data-accords="${esc((p.accords || []).join('|'))}"`]),
     `data-instock="${oos ? 'false' : 'true'}"`,
     `data-price="${minEff}"`,
     `data-sale="${sp}"`,

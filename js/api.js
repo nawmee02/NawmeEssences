@@ -93,24 +93,26 @@ const ProductAPI = (() => {
     return _cache;
   }
 
-  // Accords by product id, for the header search overlay only — fetched on its
-  // first open so ordinary page loads don't carry them. A failed fetch isn't
-  // cached, so the next open retries.
-  let _accords = null;
-  function getAccords() {
-    if (!_accords) {
-      _accords = restGet('fragrances?select=id,fragrance_details(accords)&status=eq.published')
+  // Notes + accords by product id ({ top, heart, base, accords }), for the
+  // header search overlay only — fetched on its first open (~7 KB gzip) so
+  // ordinary page loads don't carry them. A failed fetch isn't cached, so the
+  // next open retries.
+  let _searchDetails = null;
+  function getSearchDetails() {
+    if (!_searchDetails) {
+      _searchDetails = restGet('fragrances?select=id,fragrance_details(top_notes,heart_notes,base_notes,accords)&status=eq.published')
         .then(rows => {
+          const arr = v => (Array.isArray(v) ? v : []);
           const byId = {};
           rows.forEach(r => {
-            const d = Array.isArray(r.fragrance_details) ? r.fragrance_details[0] : r.fragrance_details;
-            byId[r.id] = (d && Array.isArray(d.accords)) ? d.accords : [];
+            const d = (Array.isArray(r.fragrance_details) ? r.fragrance_details[0] : r.fragrance_details) || {};
+            byId[r.id] = { top: arr(d.top_notes), heart: arr(d.heart_notes), base: arr(d.base_notes), accords: arr(d.accords) };
           });
           return byId;
         })
-        .catch(e => { _accords = null; throw e; });
+        .catch(e => { _searchDetails = null; throw e; });
     }
-    return _accords;
+    return _searchDetails;
   }
 
   // ─── Detail shape (product page): full image set + notes ─────
@@ -241,7 +243,7 @@ const ProductAPI = (() => {
       return [...new Set(d.filter(p => p.collection !== 'special').map(p => p.brand))].sort();
     },
     getProduct,
-    getAccords,
+    getSearchDetails,
     invalidate() { _cache = null; },
   };
 })();

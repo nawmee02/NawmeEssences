@@ -12,23 +12,57 @@
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
   // ─── Matching (also used by shop.js via window.searchMatcher) ──
-  // Every typed word must appear in the name, brand or an accord, in any order.
-  // Spaces and punctuation are ignored on both sides, so "9 pm" finds "9PM" and
-  // "sanaya40" finds "Sanaya 40". The returned fn gives 2 for a name/brand
-  // match, 1 when an accord was needed (e.g. "vanilla"), 0 for no match.
+  // Every typed word must match somewhere, in any order:
+  //  - name/brand: anywhere, spaces and punctuation ignored ("9 pm" finds
+  //    "9PM", "sanaya40" finds "Sanaya 40")
+  //  - notes (top/heart/base) and accords: from the start of a word, so "rose"
+  //    finds Rose and Rosemary but not Tuberose, "apple" not Pineapple
+  // The returned fn gives 4 = name/brand match, 3 = the note words sit in one
+  // note ("pink pepper" → Pink Pepper), 2 = they're spread over several notes
+  // (Pink Grapefruit + Black Pepper), 1 = an accord was needed (e.g. "woody"),
+  // 0 = no match.
   const fold = s => String(s || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
   const compact = s => fold(s).replace(/[^a-z0-9]/g, '');
+  const tokens = s => fold(s).split(/[^a-z0-9]+/).filter(Boolean);
+  const hits = (words, list) => (list || []).filter(s => tokens(s).some(t => words.some(w => t.startsWith(w))));
   function searchMatcher(query) {
-    const words = fold(query).split(/[^a-z0-9]+/).filter(Boolean);
-    if (!words.length) return () => 0;
-    return (name, brand, accords) => {
+    const words = tokens(query);
+    return (name, brand, notes, accords) => {
+      if (!words.length) return 0;
       const title = compact(name) + '|' + compact(brand);
-      const all = title + '|' + (accords || []).map(compact).join('|');
-      if (!words.every(w => all.includes(w))) return 0;
-      return words.every(w => title.includes(w)) ? 2 : 1;
+      const noteWords = [];
+      let needsAccord = false;
+      for (const w of words) {
+        if (title.includes(w)) continue;
+        if (hits([w], notes).length) { noteWords.push(w); continue; }
+        if (hits([w], accords).length) { needsAccord = true; continue; }
+        return 0;
+      }
+      if (needsAccord) return 1;
+      if (!noteWords.length) return 4;
+      const together = (notes || []).some(n => { const t = tokens(n); return noteWords.every(w => t.some(x => x.startsWith(w))); });
+      return together ? 3 : 2;
     };
   }
   window.searchMatcher = searchMatcher;
+
+  // Why a note/accord match showed up, e.g. "Vanilla (base), Tonka Bean (base)".
+  // Only the notes matching the most query words, so "pink pepper" shows Pink
+  // Pepper rather than Peppermint too.
+  function matchReason(p, words) {
+    const found = [];
+    ['top', 'heart', 'base'].forEach(layer => (p.notes[layer] || []).forEach(n => {
+      const t = tokens(n);
+      const score = words.filter(w => t.some(x => x.startsWith(w))).length;
+      if (score) found.push({ score, text: `${n} (${layer})` });
+    }));
+    if (found.length) {
+      const best = Math.max(...found.map(f => f.score));
+      return found.filter(f => f.score === best).slice(0, 3).map(f => f.text).join(', ');
+    }
+    const acc = hits(words, p.accords);
+    return acc.length ? acc.slice(0, 3).join(', ') + ' accord' : '';
+  }
 
   // ─── Inject header button + overlay ────────────────────────
   function inject() {
@@ -94,14 +128,19 @@
     loaded = true;
     if (typeof ProductAPI === 'undefined') return;
     try {
-      // Accords are optional: if they fail to load, name/brand search still works.
-      const [products, accords] = await Promise.all([
+      // Notes/accords are optional: if they fail to load, name/brand search still works.
+      const [products, details] = await Promise.all([
         ProductAPI.getAll(),
-        ProductAPI.getAccords().catch(() => ({})),
+        ProductAPI.getSearchDetails().catch(() => ({})),
       ]);
       catalog = products
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map(p => ({ id: p.id, name: p.name, brand: p.brand, accords: accords[p.id] || [], v: verToken(p.updatedAt) }));
+        .map(p => {
+          const d = details[p.id] || {};
+          const notes = { top: d.top || [], heart: d.heart || [], base: d.base || [] };
+          return { id: p.id, name: p.name, brand: p.brand, notes, allNotes: [...notes.top, ...notes.heart, ...notes.base],
+                   accords: d.accords || [], v: verToken(p.updatedAt) };
+        });
     } catch { catalog = null; }
   }
 
@@ -127,28 +166,32 @@
       return;
     }
 
-    // Name/brand matches first, accord-only matches after (sort is stable, so
-    // each group stays alphabetical).
+    // Name/brand matches first, then note matches, then accord-only (sort is
+    // stable, so each group stays alphabetical).
     const match = searchMatcher(q);
+    const words = tokens(q);
     const matches = catalog
-      .map(p => ({ p, rank: match(p.name, p.brand, p.accords) }))
+      .map(p => ({ p, rank: match(p.name, p.brand, p.allNotes, p.accords) }))
       .filter(m => m.rank)
-      .sort((a, b) => b.rank - a.rank)
-      .map(m => m.p);
+      .sort((a, b) => b.rank - a.rank);
 
     if (!matches.length) {
       box.innerHTML = `<p class="search-hint">No matches for "${esc(q)}".</p>`;
       return;
     }
 
-    const rows = matches.slice(0, 8).map(p => `
+    const rows = matches.slice(0, 8).map(({ p, rank }) => {
+      const why = rank < 4 ? matchReason(p, words) : '';
+      return `
       <a class="search-result" href="/product/${esc(p.id)}/">
         <img src="${esc(thumb(p.id, p.v))}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
-        <span><span class="sr-brand">${esc(p.brand)}</span><span class="sr-name">${esc(p.name)}</span></span>
-      </a>`).join('');
-    // Shop search includes exclusive products too, so the counts agree.
+        <span><span class="sr-brand">${esc(p.brand)}</span><span class="sr-name">${esc(p.name)}</span>${why ? `<span class="sr-note">${esc(why)}</span>` : ''}</span>
+      </a>`;
+    }).join('');
+    // No number here: the shop matches merged note names (scripts/lib/note-canon.js),
+    // so its count can differ by a few for multi-word notes — it shows the exact one.
     const more = matches.length > 8
-      ? `<a class="search-all" href="/shop.html?q=${encodeURIComponent(q)}">See all ${matches.length} results →</a>` : '';
+      ? `<a class="search-all" href="/shop.html?q=${encodeURIComponent(q)}">See all results in the shop →</a>` : '';
     box.innerHTML = rows + more;
   }
 

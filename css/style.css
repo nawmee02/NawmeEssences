@@ -68,6 +68,32 @@
   --radius: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+  /* Filter / form controls (shop filters, sort). Dark: a raised warm surface,
+     field borders ≥3:1 against it (WCAG non-text contrast), gold as the
+     accent. Light overrides these to its own look in [data-theme="light"]. */
+  --ui-surface: #141311;            /* phone filter sheet */
+  --ui-sheet-edge: rgba(255, 255, 255, 0.08);
+  --ui-field: #1e1c19;
+  --ui-line: #6b655c;               /* control borders: 3.0:1 on --ui-surface */
+  --ui-divider: #2e2b27;            /* section rules (not interactive) */
+  --ui-track: #4a463f;
+  /* Champagne crystal: gold as a material (reflection band, lit edge) rather
+     than a flat fill. Dark uses it for the primary button and the selected
+     states; light keeps ink there and uses the metal only for details. */
+  --ui-metal: linear-gradient(135deg, #f8ecd0 0%, #e8d0a0 30%, #d4b277 52%, #ecd8ab 74%, #f9efd6 100%);
+  --ui-metal-h: linear-gradient(90deg, #b58f55 0%, #e3c890 55%, #f6e7c3 100%);
+  --ui-metal-edge: linear-gradient(135deg, #f7e9c8 0%, #b8945a 50%, #f0dcae 100%);
+  --ui-on-metal: #2a1f0c;
+  --ui-cta-bg: var(--ui-metal);
+  --ui-cta-fg: var(--ui-on-metal);
+  --ui-cta-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(110, 78, 28, 0.35), 0 10px 28px rgba(201, 164, 101, 0.2);
+  --ui-pick-fill: #2a2419;          /* selected pill: champagne-tinted glass */
+  --ui-pick-edge: var(--ui-metal-edge);
+  --ui-pick-fg: #f0dcae;
+  --ui-on-fill: #221e18;            /* chosen dropdown */
+  --ui-thumb: radial-gradient(circle at 32% 28%, #fffdf7 0%, #f3e8d2 36%, #d2b98e 74%, #a88a5a 100%);   /* pearl */
+  /* Slim chevron for custom-styled selects; a mid-tone that reads on both themes */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%238f8574' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
   --transition: 0.22s ease;
   --trust-ticker-duration: 10s; /* faster trust-bar scroll (tweak this) */
   color-scheme: dark;
@@ -108,6 +134,22 @@
   --gold-gradient-hover: linear-gradient(135deg, #f4e2b8 0%, #e3c384 55%, #d6b06a 100%);
   --on-gold: #2a1f0c;
   --gold-btn-border: rgba(122, 90, 34, 0.35);
+  /* Filter / form controls: light keeps ivory surfaces, hairline borders and
+     an ink accent (see the dark defaults in :root). */
+  --ui-surface: #faf8f4;
+  --ui-sheet-edge: transparent;
+  --ui-field: #ffffff;
+  --ui-line: #e3dccd;
+  --ui-divider: #e3dccd;
+  --ui-track: #e3dccd;
+  --ui-cta-bg: #211d16;
+  --ui-cta-fg: #faf8f4;
+  --ui-cta-shadow: 0 6px 18px rgba(20, 14, 4, 0.16);
+  --ui-pick-fill: #211d16;
+  --ui-pick-edge: linear-gradient(#211d16, #211d16);
+  --ui-pick-fg: #faf8f4;
+  --ui-on-fill: #fbf6ea;
+  --ui-thumb: #211d16;
   /* Warm gold halo + a soft cream wash down to bg — visible on ivory where the
      dark theme's 0.08 gold glow would vanish. Plus a faint darker-gold dot
      texture for a premium-paper feel. */
@@ -805,24 +847,154 @@ input, select { font-family: var(--font-body); }
   outline: none;
 }
 .filter-group input[type=text]::placeholder { color: var(--text-muted); }
-.filter-clear { font-size: 12px; text-decoration: underline; cursor: pointer; background: none; border: none; color: var(--gold-dark); }
-.filter-clear:hover { color: var(--gold); }
+.filter-clear {
+  background: none; border: none; padding: 6px 0; cursor: pointer;
+  color: var(--text); font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px;
+  transition: text-decoration-color var(--transition);
+}
+.filter-clear:hover { text-decoration-color: currentColor; }
+.filters-head, .filters-apply, .filters-backdrop { display: none; }   /* phone sheet only (see max-width: 900px) */
+/* Filter form — quiet luxury: muted small-caps labels, hairline fields, gold
+   only as an accent (slider fill, active borders, the count badge). One
+   labelled native control per facet; stacked in the desktop sidebar, a
+   2-column grid in the phone sheet. */
+.filter-form { display: grid; gap: 16px; }
+.ff { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ff > span { font-size: 10.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+.price-filter, .ff-picks { padding-bottom: 18px; border-bottom: 1px solid var(--ui-divider); }   /* their own sections */
+.ff-select {
+  width: 100%; min-width: 0;
+  -webkit-appearance: none; appearance: none;
+  background: var(--ui-field) var(--select-chevron) no-repeat right 12px center / 12px 8px;
+  border: 1px solid var(--ui-line); border-radius: 10px;
+  color: var(--text); font-family: var(--font-body); font-size: 13px;
+  padding: 9px 34px 9px 12px; outline: none; cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition);
+}
+.ff-select:hover { border-color: var(--text-muted); }
+.ff-select.ff-on {   /* faceted champagne edge (gradient border via border-box layer) + soft tint */
+  border-color: transparent; font-weight: 600;
+  background: var(--select-chevron) no-repeat right 12px center / 12px 8px,
+              linear-gradient(var(--ui-on-fill), var(--ui-on-fill)) padding-box,
+              var(--ui-metal-edge) border-box;
+}
+/* Price range: [min] — [max] [×] above a two-handle slider. The two native
+   range inputs share one track; only their thumbs take pointer events. */
+.price-inputs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.price-inputs > span { color: var(--text-muted); }
+.price-inputs input {
+  width: 100%; min-width: 0;
+  background: var(--ui-field); border: 1px solid var(--ui-line); border-radius: 10px;
+  color: var(--text); font-family: var(--font-body); font-size: 13px; font-variant-numeric: tabular-nums;
+  padding: 8px 10px; outline: none;
+  -moz-appearance: textfield;
+  transition: border-color var(--transition);
+}
+.price-inputs input::-webkit-outer-spin-button, .price-inputs input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.price-inputs input:hover { border-color: var(--text-muted); }
+.price-inputs input:focus { border-color: var(--gold-bg); box-shadow: 0 0 0 3px var(--focus-ring); }
+.price-reset {
+  width: 32px; height: 32px; border: 1px solid var(--ui-line); border-radius: 50%;
+  background: var(--ui-field); color: var(--text-muted); font-size: 16px; line-height: 1; cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+.price-reset:hover { color: var(--text); border-color: var(--text-muted); }
+.price-reset[hidden] { display: block; visibility: hidden; }   /* keep the row's width stable */
+/* touch-action: none — a touch-drag on the slider must not start a scroll
+   gesture in the sheet; otherwise the browser swallowed the next tap (e.g.
+   "Show N fragrances" right after setting a price). */
+.price-range { position: relative; height: 28px; margin-top: 6px; touch-action: none; }
+.price-track { position: absolute; left: 11px; right: 11px; top: 50%; height: 2px; transform: translateY(-50%); background: var(--ui-track); border-radius: 2px; }
+.price-fill { position: absolute; top: 0; bottom: 0; left: 0; right: 0; background: var(--ui-metal-h); border-radius: 2px; }
+.price-range input[type=range] {
+  position: absolute; inset: 0; width: 100%; height: 28px; margin: 0;
+  background: none; pointer-events: none; -webkit-appearance: none; appearance: none;
+  -webkit-tap-highlight-color: transparent; touch-action: none;
+}
+.price-range input[type=range]::-webkit-slider-runnable-track { background: transparent; height: 28px; }
+.price-range input[type=range]::-moz-range-track { background: transparent; }
+.price-range input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; pointer-events: auto; cursor: grab;
+  width: 22px; height: 22px; margin-top: 3px; border-radius: 50%;
+  background: var(--ui-thumb); border: none;   /* ink on light, pearl on dark */
+  box-shadow: 0 0 0 3px var(--card-bg), 0 2px 8px rgba(0, 0, 0, 0.22);
+  transition: transform 0.15s ease;
+}
+.price-range input[type=range]::-moz-range-thumb {
+  pointer-events: auto; cursor: grab; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ui-thumb); border: none;
+  box-shadow: 0 0 0 3px var(--card-bg), 0 2px 8px rgba(0, 0, 0, 0.22);
+}
+.price-range input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.08); }
+.price-range input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--card-bg), 0 0 0 6px var(--focus-ring); }
+/* Quick picks: hairline pills; on = filled in the text colour (ink on light,
+   ivory on dark) with a small check. */
+.quick-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.qp {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 34px; padding: 6px 14px;
+  border: 1px solid var(--ui-line); border-radius: var(--radius-pill);
+  background: var(--ui-field); color: var(--text);
+  font-family: var(--font-body); font-size: 12.5px; letter-spacing: 0.01em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;   /* the pressed style is the feedback */
+  transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+}
+.qp:hover { border-color: var(--text-muted); }
+.qp[aria-pressed="true"] {   /* ink on light; champagne-edged glass on dark */
+  border-color: transparent; color: var(--ui-pick-fg); font-weight: 600;
+  background: linear-gradient(var(--ui-pick-fill), var(--ui-pick-fill)) padding-box, var(--ui-pick-edge) border-box;
+}
+.qp[aria-pressed="true"]::before { content: ''; width: 8px; height: 4px; margin: -2px 0 0 -2px; border: solid currentColor; border-width: 0 0 1.5px 1.5px; transform: rotate(-45deg); }
+.qp:focus-visible { outline: 2px solid var(--gold-bg); outline-offset: 2px; }
+.filters-sidebar .search-bar { max-width: none; background: var(--ui-field); border-color: var(--ui-line); }
+.filters-foot { margin-top: 20px; }
 .shop-main { flex: 1; min-width: 0; }
-.shop-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-.result-count { font-size: 13px; color: var(--text-muted); }
+.shop-top { display: flex; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.shop-top .result-count { flex: 1; min-width: 120px; }
+.result-count { font-size: 13px; color: var(--text-muted); letter-spacing: 0.02em; }
+/* Active filters on the page: hairline pills, the × in a small round well. */
+.active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 18px; }
+.active-filters[hidden] { display: none; }
+.af-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 34px; padding: 5px 6px 5px 14px;
+  border: 1px solid var(--ui-line); border-radius: var(--radius-pill);
+  background: var(--ui-field); color: var(--text);
+  font-family: var(--font-body); font-size: 12.5px; cursor: pointer;
+  transition: border-color var(--transition);
+}
+.af-chip:hover { border-color: var(--text-muted); }
+.af-chip span {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg2); background: color-mix(in srgb, var(--text) 12%, transparent);
+  color: var(--text); font-size: 10px; line-height: 1;
+}
+.af-clear {
+  background: none; border: none; padding: 6px 4px; cursor: pointer;
+  color: var(--text); font-family: var(--font-body); font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 5px;
+}
+.af-clear:hover { text-decoration-color: currentColor; }
 .filter-toggle-btn { display: none; }
 .sort-select {
-  background: var(--input-bg);
-  border: 1px solid var(--border);
+  -webkit-appearance: none; appearance: none;
+  background: var(--ui-field) var(--select-chevron) no-repeat right 12px center / 12px 8px;
+  border: 1px solid var(--ui-line);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 12.5px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  padding: 8px 34px 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
   outline: none;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  transition: border-color var(--transition);
 }
+.sort-select:hover { border-color: var(--text-muted); }
 
 /* Buyer info form in cart */
 .buyer-info {
@@ -879,7 +1051,7 @@ input, select { font-family: var(--font-body); }
 }
 .search-bar::placeholder { color: var(--text-muted); }
 /* One focus treatment for every text control (keyboard + pointer) */
-.nav-search-input:focus, .search-bar:focus, .filter-group select:focus, .filter-group input:focus, .sort-select:focus,
+.nav-search-input:focus, .search-bar:focus, .filter-group select:focus, .filter-group input:focus, .sort-select:focus, .ff-select:focus,
 .delivery-select:focus, .size-select:focus, .buyer-field input:focus, .buyer-field textarea:focus {
   border-color: var(--gold); box-shadow: 0 0 0 3px var(--focus-ring);
 }
@@ -1592,30 +1764,100 @@ input, select { font-family: var(--font-body); }
 @media (max-width: 900px) {
   .cart-layout { grid-template-columns: 1fr; }
   .shop-layout { flex-direction: column; }
+  /* Filters open as a bottom sheet over a softly blurred page (they used to
+     open inline above the grid as ~3500px of checkboxes): grab handle, sticky
+     header, the controls in two columns, and a "Show N fragrances" footer. */
   .filters-sidebar {
-    width: 100%;
-    position: static;
-    max-height: none;
-    overflow: visible;
     display: none;
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 1000;   /* above header 100, below lightboxes 2000 */
+    width: auto; max-height: 88vh;
+    padding: 0 20px;
+    border: none; border-top: 1px solid var(--ui-sheet-edge); border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(20, 14, 4, 0.18);
+    background: var(--ui-surface);
+    overflow-y: auto; overscroll-behavior: contain;
   }
-  .filters-sidebar.sidebar-open { display: block; }
+  .filters-sidebar.sidebar-open { display: block; animation: sheet-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  @keyframes sheet-up { from { transform: translateY(24px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .filters-sidebar.sidebar-open { animation: none; } }
+  body.filters-open { overflow: hidden; }
+  body.filters-open .filters-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 999;
+    background: rgba(18, 14, 8, 0.5);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  }
+  .filter-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+  .ff-wide { grid-column: 1 / -1; }
+  /* 16px: iOS Safari zooms the page when a smaller control gets focus */
+  .ff-select, .filters-sidebar .search-bar { min-height: 48px; font-size: 16px; border-radius: 12px; }
+  .qp { min-height: 38px; padding: 7px 12px; font-size: 13.5px; }
+  .price-inputs input { min-height: 48px; font-size: 16px; border-radius: 12px; }   /* no iOS focus zoom */
+  .price-reset { width: 44px; height: 44px; }
+  .price-range { height: 36px; }
+  .price-range input[type=range], .price-range input[type=range]::-webkit-slider-runnable-track { height: 36px; }
+  .price-range input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; margin-top: 4px; box-shadow: 0 0 0 3px var(--ui-surface), 0 2px 8px rgba(0, 0, 0, 0.22); }   /* touch-sized */
+  .price-range input[type=range]::-moz-range-thumb { width: 26px; height: 26px; box-shadow: 0 0 0 3px var(--ui-surface), 0 2px 8px rgba(0, 0, 0, 0.22); }
+  .price-track { left: 14px; right: 14px; }
+  .filters-head {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 1;
+    margin: 0 -20px 18px; padding: 22px 16px 14px 20px;
+    background: var(--ui-surface); border-bottom: 1px solid var(--ui-divider);
+    font-family: var(--font-head); font-size: 26px; font-weight: 600; letter-spacing: var(--track-head); color: var(--text);
+  }
+  .filters-head::before {   /* grab handle */
+    content: ''; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px;
+    border-radius: 2px; background: var(--ui-line);
+  }
+  .filters-close {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--ui-line); background: var(--ui-field); color: var(--text);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .filters-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    position: sticky; bottom: 0;
+    margin: 12px -20px 0; padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    background: var(--ui-surface); border-top: 1px solid var(--ui-divider);
+  }
+  .filters-apply {   /* ink on light, champagne crystal on dark */
+    display: block; flex: 1; min-height: 52px;
+    background: var(--ui-cta-bg); color: var(--ui-cta-fg);
+    border: none; border-radius: 12px;
+    padding: 0 18px; font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+    box-shadow: var(--ui-cta-shadow);
+    transition: transform 0.15s ease, opacity var(--transition);
+  }
+  .filters-apply:active { transform: scale(0.985); }
   /* Hide the standalone toggle above the sidebar — the one in .shop-top is enough */
   #filter-toggle-btn { display: none; }
+  /* Toolbar as a fixed grid — Sort | Filters, then the count — so the rows
+     never depend on text length (the old flex row re-wrapped when
+     "Loading..." became the count: CLS 0.115). */
+  .shop-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .shop-top #sort-select { grid-area: 1 / 1; }
+  .shop-top #filter-toggle-btn2 { grid-area: 1 / 2; justify-content: center; }
+  .shop-top .result-count { grid-column: 1 / -1; grid-row: 2; min-width: 0; padding-top: 4px; }
+  .shop-top .sort-select, .shop-top #filter-toggle-btn2 { width: 100%; min-width: 0; min-height: 48px; border-radius: 12px; }
+  .shop-top .sort-select { font-size: 16px; }   /* no iOS focus zoom */
   .filter-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--gold);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 9px 16px;
-    cursor: pointer;
-    letter-spacing: 0.04em;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--ui-field); border: 1px solid var(--ui-line); border-radius: 12px;
+    color: var(--text); font-family: var(--font-body);
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 9px 16px; cursor: pointer;
+    transition: border-color var(--transition);
   }
+  .filter-toggle-btn:hover { border-color: var(--text-muted); }
+  .fb-icon { color: var(--gold); }
+  .fb-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px;
+    background: var(--ui-metal); color: var(--ui-on-metal);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 3px rgba(0, 0, 0, 0.25);
+    font-size: 11px; font-weight: 700; letter-spacing: 0; font-variant-numeric: tabular-nums;
+  }
+  .fb-count[hidden] { display: none; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
@@ -1662,10 +1904,6 @@ input, select { font-family: var(--font-body); }
   .card-body { padding: 10px; gap: 4px; }
   .card-footer { padding: 0 10px 10px; }
   /* @critical:end */
-  /* Shop toolbar: sort select always on its own row, so the row count doesn't
-     depend on the result-count text ("Loading..." fit on one row, "88 fragrances
-     found" wrapped and pushed the grid down 48px — CLS 0.115). */
-  .shop-top > div { flex-basis: 100%; }
   .footer-inner { grid-template-columns: 1fr; gap: 28px; }
   .cart-item { grid-template-columns: 56px 1fr; }
   .cart-item-img { width: 56px; height: 56px; }
@@ -2068,6 +2306,7 @@ input, select { font-family: var(--font-body); }
 .search-result span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .sr-brand { color: var(--gold); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; }
 .sr-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-note { color: var(--text-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .search-all { display: block; padding: 14px 16px; text-align: center; color: var(--gold); text-decoration: none; font-size: 14px; }
 .search-all:hover { background: var(--bg); }
 

@@ -99,7 +99,7 @@
       selectedSize: pill && pill.dataset.ml ? pill.dataset.ml + 'ml' : null,
       cartCount: typeof getCartCount === 'function' ? getCartCount() : null,
       cartTotal: typeof getCartTotal === 'function' ? getCartTotal() : null,
-      availableBrands: [...document.querySelectorAll('.brand-filter')].map(el => el.value).filter(Boolean),
+      availableBrands: [...document.querySelectorAll('#f-brand option')].map(el => el.value).filter(Boolean),
     };
   };
 

@@ -22,7 +22,9 @@ const { createClient } = require('@supabase/supabase-js');
 const { SUPABASE_URL, BUCKET, ROOT, publicUrl, imageVersion, brandSlug } = require('./lib/catalog');
 const { renderCard, esc } = require('./lib/render-card');
 const { generateFromData, occasionsOf, concentrationOf, genderOf } = require('./generate-product-pages');
-const { buildRecs, writeRecs } = require('./lib/recs');
+const { buildRecs, writeRecs, familyTokens, norm } = require('./lib/recs');
+const { brandType, LABELS: BRAND_TYPE_LABELS } = require('./lib/brand-types');
+const { canonNote, canonLabel } = require('./lib/note-canon');
 const { buildFinder, writeFinder } = require('./lib/finder');
 const { fetchCoPurchase, buildCoPurchase } = require('./lib/copurchase');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
@@ -245,27 +247,48 @@ function validateCatalog(allProducts, imageSet) {
 // build already fetched, so product content is in the HTML (crawlable +
 // paints without JS). The browser then filters/hydrates these nodes.
 // Content is replaced between re-runnable <!--GRID:name:start/end--> markers.
+// Shop filter facets as lower-case keys — the same derivation as
+// data/recs.json: familyTokens splits "Oriental / Spicy", occasionsOf falls
+// back to the accords when no occasions were set in the admin. Occasions keep
+// the seasons (the Summer/Winter quick picks read them); the Occasion
+// dropdown leaves them out (SEASONS).
+const SEASONS = new Set(['summer', 'winter', 'spring', 'autumn', 'fall', 'monsoon']);
+function shopFacets(d, brand) {
+  const notes = d ? [...d.top, ...d.heart, ...d.base] : [];
+  return {
+    families:  d ? [...new Set(familyTokens(d.family).map(f => f.toLowerCase()))] : [],
+    occasions: d ? [...new Set(occasionsOf(d).map(o => norm(o).toLowerCase()).filter(Boolean))] : [],
+    type: brandType(brand),
+    // Merged keys for the Note / Vibe filters (scripts/lib/note-canon.js);
+    // the raw names stay on the card for search.
+    noteKeys: [...new Set(notes.map(canonNote).filter(Boolean))],
+    vibeKeys: d ? [...new Set((d.accords || []).map(canonNote).filter(Boolean))] : [],
+  };
+}
+
 function injectGrids(allProducts, productDetails) {
-  const card = (p, isExclusive, priority = false, searchOnly = false) => renderCard({
+  const card = (p, isExclusive, priority = false, searchOnly = false, shopData = false) => renderCard({
     ...p,
+    ...shopFacets(productDetails[p.id], p.brand),
     accords: (productDetails[p.id] && productDetails[p.id].accords) || [],
-    image_small:  publicUrl(p.id, 'small',  imageVersion(p.updatedAt)),
+    image_small: publicUrl(p.id, 'small',  imageVersion(p.updatedAt)),
     image_thumb:  publicUrl(p.id, 'thumb',  imageVersion(p.updatedAt)),
     image_medium: publicUrl(p.id, 'medium', imageVersion(p.updatedAt)),
-  }, { isExclusive, priority, searchOnly });
+  }, { isExclusive, priority, searchOnly, shopData });
 
   // prioritizeFirstRow: eager + high fetchpriority on the first 4 cards so the
   // top row of an above-the-fold grid paints immediately; the rest stay lazy.
-  const cards = (list, isExclusive, prioritizeFirstRow = false) =>
-    list.map((p, i) => card(p, isExclusive, prioritizeFirstRow && i < 4)).join('\n');
+  // shopData: only the shop grid carries the filter/search keys.
+  const cards = (list, isExclusive, prioritizeFirstRow = false, shopData = false) =>
+    list.map((p, i) => card(p, isExclusive, prioritizeFirstRow && i < 4, false, shopData)).join('\n');
 
   const grids = {
     bestsellers: cards(allProducts.filter(p => p.is_bestseller).slice(0, 8), false, true),
     new:         cards(allProducts.filter(p => (p.tags || []).includes('new')), false, false),
-    // Regular cards, then the exclusive-page products baked hidden so a shop
-    // search can find them (shop.js shows them only while a search is active).
-    shop:        cards(allProducts.filter(p => p.collection === 'regular'), false, true) + '\n' +
-                 allProducts.filter(p => p.collection !== 'regular').map(p => card(p, true, false, true)).join('\n'),
+    // Regular cards, then the exclusive-page products baked hidden so the shop
+    // can find them (shop.js shows them while a search or any filter is on).
+    shop:        cards(allProducts.filter(p => p.collection === 'regular'), false, true, true) + '\n' +
+                 allProducts.filter(p => p.collection !== 'regular').map(p => card(p, true, false, true, true)).join('\n'),
     special:     cards(allProducts.filter(p => p.collection === 'special'), true, true),
     exclusive:   cards(allProducts.filter(p => p.collection === 'exclusive'), true, false),
   };
@@ -298,25 +321,58 @@ function injectGrids(allProducts, productDetails) {
 // Baking them into the static HTML means they're there before JS runs. shop.js
 // now only builds them if the containers are still empty (older cached HTML).
 function injectShopFilters(allProducts, productDetails) {
-  const regular = allProducts.filter(p => p.collection === 'regular');
-  const brands = [...new Set(regular.map(p => p.brand))].filter(Boolean).sort();
-  const accords = [...new Set(regular.flatMap(p => (productDetails[p.id] && productDetails[p.id].accords) || []))].filter(Boolean).sort();
-  const label = (v, cls) => `<label><input type="checkbox" value="${esc(v)}" class="${cls}" /> ${esc(v)}</label>`;
+  // Dropdown options: labels only (no counts — owner preference), every value
+  // on every product, exclusives included (filters reveal them in the shop).
+  // byCount: most common first (short lists: scent, occasion); otherwise A–Z.
+  // entriesOf(p) returns [key, label] pairs; the first label seen for a key wins.
+  const options = (entriesOf, { byCount = false } = {}) => {
+    const counts = new Map(), labels = new Map();
+    allProducts.forEach(p => {
+      const seen = new Set();
+      entriesOf(p).forEach(([k, label]) => {
+        if (!k) return;
+        if (!labels.has(k)) labels.set(k, label);
+        if (!seen.has(k)) { seen.add(k); counts.set(k, (counts.get(k) || 0) + 1); }
+      });
+    });
+    const az = (a, b) => labels.get(a[0]).localeCompare(labels.get(b[0]));
+    const list = [...counts].sort(byCount ? (a, b) => b[1] - a[1] || az(a, b) : az);
+    return { html: list.map(([k]) => `<option value="${esc(k)}">${esc(labels.get(k))}</option>`).join(''), n: list.length };
+  };
+  const details = p => productDetails[p.id];
+  const notesOf = p => (details(p) ? [...details(p).top, ...details(p).heart, ...details(p).base] : []);
+  const lower = v => { const t = norm(v); return [t.toLowerCase(), t]; };
+  const canon = v => { const k = canonNote(v); return [k, canonLabel(k)]; };
+
+  // Brand type: fixed Arabian / Designer / Niche order. Unknown brands get no
+  // type — listed in the log so scripts/lib/brand-types.js can be updated.
+  const typeCounts = {};
+  allProducts.forEach(p => { const t = brandType(p.brand); if (t) typeCounts[t] = (typeCounts[t] || 0) + 1; });
+  const untyped = [...new Set(allProducts.filter(p => !brandType(p.brand)).map(p => p.brand))];
+  if (untyped.length) console.warn(`  ⚠ no brand type (add to scripts/lib/brand-types.js): ${untyped.join(', ')}`);
+  const typeOptions = Object.keys(BRAND_TYPE_LABELS).filter(t => typeCounts[t])
+    .map(t => `<option value="${t}">${BRAND_TYPE_LABELS[t]}</option>`);
 
   const blocks = {
-    brands: brands.map(b => label(b, 'brand-filter')).join(''),
-    accords: accords.map(a => label(a, 'accord-filter')).join(''),
+    // Brand values stay exact (matched against data-brand as-is).
+    'f-brand': options(p => [[p.brand, p.brand]]),
+    'f-type': { html: typeOptions.join(''), n: typeOptions.length },
+    'f-family': options(p => familyTokens(details(p) && details(p).family).map(lower), { byCount: true }),
+    // Merged notes; entries over 4 words are data errors (a run-on list), skipped.
+    'f-note': options(p => notesOf(p).map(canon).filter(([k]) => k.split(' ').length <= 4)),
+    'f-occasion': options(p => (details(p) ? occasionsOf(details(p)).map(lower).filter(([k]) => !SEASONS.has(k)) : []), { byCount: true }),
+    'f-accord': options(p => ((details(p) && details(p).accords) || []).map(canon)),
   };
 
   const fp = path.join(ROOT, 'shop.html');
   let html = fs.readFileSync(fp, 'utf8');
-  for (const [name, content] of Object.entries(blocks)) {
+  for (const [name, { html: content }] of Object.entries(blocks)) {
     const re = new RegExp(`(<!--FILTERS:${name}:start-->)[\\s\\S]*?(<!--FILTERS:${name}:end-->)`);
     if (!re.test(html)) throw new Error(`marker FILTERS:${name} not found in shop.html`);
     html = html.replace(re, `$1${content}$2`);
   }
   fs.writeFileSync(fp, html);
-  console.log(`  injected → shop.html (${brands.length} brand + ${accords.length} accord filters)`);
+  console.log(`  injected → shop.html (filters: ${Object.entries(blocks).map(([k, v]) => `${v.n} ${k.slice(2)}`).join(', ')})`);
 }
 
 // ─── Bake the home-page brand marquee from the live catalog ────
