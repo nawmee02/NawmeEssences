@@ -28,6 +28,7 @@ const { canonNote, canonLabel } = require('./lib/note-canon');
 const { buildFinder, writeFinder } = require('./lib/finder');
 const { fetchCoPurchase, buildCoPurchase } = require('./lib/copurchase');
 const { fetchSettings, DEFAULTS } = require('./lib/settings');
+const analytics = require('./lib/analytics');
 const schema = require('./lib/schema');
 const { buildAssetMap, versionHtml } = require('./lib/asset-version');
 const { extractCriticalCss } = require('./lib/critical-css');
@@ -613,18 +614,24 @@ function versionAssets() {
 // after viewport). Idempotent: strips any existing token first, so re-running
 // or renewing the token never duplicates it. Generated pages get it via the
 // generator's head template.
+// The same pass also (re)inserts the analytics consent/dataLayer snippet
+// (scripts/lib/analytics.js) right after the viewport meta, between its marker
+// comments, so every static page carries exactly one — admin/ is not in the list.
 function injectOriginTrial() {
   const meta = schema.originTrialMeta();
+  const tags = analytics.headSnippet();
   const files = ['index.html', 'shop.html', 'exclusive.html', 'recommend.html', 'cart.html', 'about.html', 'about-me.html']
     .filter(file => fs.existsSync(path.join(ROOT, file)));
+  const strip = new RegExp('\\n\\s*' + analytics.START.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + analytics.END.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
   for (const file of files) {
     const fp = path.join(ROOT, file);
     let html = fs.readFileSync(fp, 'utf8');
-    html = html.replace(/\n\s*<meta http-equiv="origin-trial"[^>]*>/g, '');
-    if (meta) html = html.replace(/(<meta name="viewport"[^>]*\/>)/, `$1\n  ${meta}`);
+    html = html.replace(/\n\s*<meta http-equiv="origin-trial"[^>]*>/g, '').replace(strip, '');
+    const head = (meta ? `\n  ${meta}` : '') + `\n  ${tags}`;
+    html = html.replace(/<meta name="viewport"[^>]*\/>/, m => m + head);
     fs.writeFileSync(fp, html);
   }
-  console.log(`  injected → origin-trial meta (${meta ? files.length + ' static pages' : 'cleared — no token'})`);
+  console.log(`  injected → origin-trial meta (${meta ? files.length + ' static pages' : 'cleared — no token'}) + analytics snippet (${files.length})`);
 }
 
 // Replace the thin Organization stub on the static collection/about pages with
@@ -728,6 +735,7 @@ async function run() {
   const settings = await fetchSettings(sb);
   facts.setDeliveryRates(settings.delivery);   // Offer shippingDetails read these
   facts.setAnnouncements(settings.announcements);   // generated pages bake the same ticker the browser hydrates
+  analytics.setPolicy(settings.consent);            // consent defaults baked into every page head
   injectSettings(settings);
   injectStaticOrg();
   injectOriginTrial();

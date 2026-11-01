@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="origin-trial" content="As57SiyvGZPH7BBw1u8A0T1emm7cXxA+fBx9zlMD/Tqb36viRUM8SJ0qGoW/3BBjtH4k52nUz/v7qpWMVX44xwUAAABkeyJvcmlnaW4iOiJodHRwczovL25hd21lZXNzZW5jZXMuY29tOjQ0MyIsImZlYXR1cmUiOiJXZWJNQ1AiLCJleHBpcnkiOjE3OTQ4NzM2MDAsImlzU3ViZG9tYWluIjp0cnVlfQ==" />
+  <!--analytics:start--><script>(function(w){var c={"gtm":"GTM-KKCJCDTZ","regions":["BD"],"v":1},D="denied",G="granted",l=w.dataLayer=w.dataLayer||[];function g(){l.push(arguments)}w.gtag=w.gtag||g;w.__nawmeTags=c;function s(v){return{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v}}g("consent","default",s(D));if(c.regions.length){var r=s(G);r.region=c.regions;g("consent","default",r)}try{var k=JSON.parse(localStorage.getItem("nawme_consent")||"null");if(k&&k.v===c.v){var A=k.analytics!=null?k.analytics:k.granted,B=k.ads!=null?k.ads:k.granted,u=s(B?G:D);u.analytics_storage=A?G:D;g("consent","update",u)}}catch(e){}})(window);</script><!--analytics:end-->
   <title>My Cart — NawmeEssences</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="favicon.png" type="image/png" />
@@ -16,7 +17,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=optional" /></noscript>
   <script>document.documentElement.classList.add('img-fade');try{if(localStorage.theme!=='dark')document.documentElement.dataset.theme='light'}catch(e){}</script>
-  <link rel="stylesheet" href="css/style.css?v=c8362e59" />
+  <link rel="stylesheet" href="css/style.css?v=3482eb9b" />
 </head>
 <body>
 
@@ -190,6 +191,7 @@
       <p class="footer-heading">Info</p>
       <a href="about.html">Delivery &amp; Pickup</a>
       <a href="about.html#refund">Refund Policy</a>
+      <a href="about.html#privacy" data-cookie-settings>Cookie Settings</a>
       <a href="about.html#contact">Contact Us</a>
       <a href="/reviews/">Reviews</a>
       <a href="about-me.html">About Me</a>
@@ -203,7 +205,7 @@
 
 <!-- supabase-js is loaded on demand by js/supabase.js — here that means the
      checkout click, via saveOrderToSupabase(). -->
-<script src="js/cart.js?v=264b7e3d" defer></script>
+<script src="js/cart.js?v=094e461f" defer></script>
 <script src="js/main.js?v=3b349517" defer></script>
 <script src="js/supabase-config.js?v=8879e998" defer></script>
 <script src="js/supabase.js?v=29d8750f" defer></script>
@@ -421,14 +423,19 @@
 
     // Wait for the Supabase write to finish before redirecting, but never hang
     // the user — cap the wait so a slow/failed write still opens WhatsApp.
+    // Analytics waits on the save itself (not this 4 s race): a purchase is
+    // reported only once the order row is confirmed, even if that is late.
+    const items = getCart();
+    const save = saveOrderToSupabase({
+      buyer_name: name, buyer_phone: phone, buyer_address: address,
+      delivery_zone: zone, delivery_charge: delivery,
+      subtotal, total: subtotal + delivery,
+      channel: 'whatsapp', cartItems: items
+    });
+    if (window.NawmeTrack) NawmeTrack.trackOrder(save, { channel: 'whatsapp', items, subtotal, delivery });
     try {
       const result = await Promise.race([
-        saveOrderToSupabase({
-          buyer_name: name, buyer_phone: phone, buyer_address: address,
-          delivery_zone: zone, delivery_charge: delivery,
-          subtotal, total: subtotal + delivery,
-          channel: 'whatsapp', cartItems: getCart()
-        }),
+        save,
         new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'timeout (>4s)' }), 4000))
       ]);
       // The order itself is NOT lost when this fails — it still reaches Nawmee
@@ -443,7 +450,11 @@
       console.error('[order] save threw:', e);
     }
 
-    if (!waWindow || waWindow.closed) window.location.href = url; // popup blocked → current tab
+    // Popup blocked → current tab. Only a null handle means blocked: WhatsApp's
+    // page sends Cross-Origin-Opener-Policy, which makes an open popup read as
+    // `closed` here — checking that sent the cart tab to WhatsApp as well (a
+    // second WhatsApp tab) and could cut off the order's purchase report.
+    if (!waWindow) window.location.href = url;
   }
 
   function checkoutMessenger() {
@@ -489,13 +500,15 @@
         startMessengerCountdown();
       });
 
-    // Save to Supabase silently in background
-    saveOrderToSupabase({
+    // Save to Supabase silently in background; the purchase is reported only
+    // once the order row is confirmed.
+    const save = saveOrderToSupabase({
       buyer_name: name, buyer_phone: phone, buyer_address: address,
       delivery_zone: zone, delivery_charge: delivery,
       subtotal, total,
       channel: 'messenger', cartItems: cart
     });
+    if (window.NawmeTrack) NawmeTrack.trackOrder(save, { channel: 'messenger', items: cart, subtotal, delivery });
 
     // Persist last order on client so user has confirmation after redirect
     try { saveLastOrderToSession({ buyer_name: name, buyer_phone: phone, buyer_address: address, delivery_zone: zone, delivery_charge: delivery, subtotal, total, channel: 'messenger', items: cart }); } catch(e){}
@@ -561,6 +574,13 @@
     } catch (e) {}
 
     renderCart();
+
+    // Analytics: begin_checkout once per page view — when the buyer starts the
+    // form or presses a checkout button (capture phase, before validation).
+    const startCheckout = () => { if (window.NawmeTrack) NawmeTrack.beginCheckout(getCart()); };
+    const form = document.querySelector('.buyer-info');
+    if (form) form.addEventListener('focusin', startCheckout, { once: true });
+    document.querySelectorAll('.checkout-btn').forEach(b => b.addEventListener('click', startCheckout, { capture: true }));
   });
 </script>
 </body>

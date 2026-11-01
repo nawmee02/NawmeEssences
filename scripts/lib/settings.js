@@ -46,6 +46,10 @@ const DEFAULTS = {
     { target: 100, suffix: '%', label: 'Authentic' },
   ],
   sound: true,
+  // Analytics/ads consent (scripts/lib/analytics.js, js/cart.js). Visitors from
+  // grantedRegions are granted by default; everyone else sees the banner and
+  // stays denied until they accept. Bump version to ask everyone again.
+  consent: { grantedRegions: ['BD'], version: 1 },
   trustBar: [
     '100% Authentic',
     '100+ Fragrances',

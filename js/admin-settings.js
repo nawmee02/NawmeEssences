@@ -9,6 +9,7 @@
   const $ = id => document.getElementById(id);
   let sb = null;
   let loaded = {};          // last-loaded settings (preserve unknown keys on save)
+  let consentVersion = 1;   // site_settings.consent.version (bumped by "Ask everyone again")
 
   // Fallback content for the How-to-Order / FAQ editors so they never load
   // blank (a blank editor + Save would wipe the live sections). Mirrors
@@ -133,6 +134,15 @@
   $('howto-add').addEventListener('click', () => addHowtoRow());
   $('faq-add').addEventListener('click', () => addFaqRow());
 
+  // "Ask everyone again": a new consent version makes stored choices stale, so
+  // every visitor outside the granted regions sees the banner again (on save).
+  function showConsentVersion() { $('consent-version').textContent = 'Consent version ' + consentVersion; }
+  $('consent-reask').addEventListener('click', () => {
+    consentVersion += 1;
+    showConsentVersion();
+    $('consent-version').textContent += ' (save to apply)';
+  });
+
   // ─── Load ──────────────────────────────────────────────────
   async function loadSettings() {
     $('settings-error').textContent = '';
@@ -205,6 +215,13 @@
     // Interactions
     $('s-sound').checked = s.sound !== false;   // default on
 
+    // Cookie consent (default: Bangladesh granted, version 1)
+    const cs = s.consent || {};
+    const regions = Array.isArray(cs.grantedRegions) ? cs.grantedRegions : ['BD'];
+    $('s-consent-bd').checked = regions.indexOf('BD') === -1;
+    consentVersion = Number.isInteger(cs.version) && cs.version > 0 ? cs.version : 1;
+    showConsentVersion();
+
     // Meta
     const m = s.meta || {};
     $('s-meta-title').value = m.homeTitle || '';
@@ -238,6 +255,11 @@
       announcements: anns,
       trustBar: trust,
       sound: $('s-sound').checked,
+      consent: {
+        // keep any other granted regions; only Bangladesh is toggled here
+        grantedRegions: (((loaded.consent || {}).grantedRegions) || ['BD']).filter(r => r !== 'BD').concat($('s-consent-bd').checked ? [] : ['BD']),
+        version: consentVersion,
+      },
       contact: { whatsapp: $('s-whatsapp').value.trim(), instagram: $('s-instagram').value.trim(), facebook: $('s-facebook').value.trim() },
       payment: { bkash: $('s-bkash').value.trim(), nagad: $('s-nagad').value.trim(), advanceNote: $('s-advance').value.trim() },
       delivery: {

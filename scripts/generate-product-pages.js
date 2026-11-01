@@ -20,6 +20,7 @@ const { renderCard, effectivePrice, priceCell } = require('./lib/render-card');
 const { renderMarkdown } = require('./lib/blog');
 const { renderReviewCard, reviewStats, countLabel } = require('./lib/reviews');
 const schema = require('./lib/schema');
+const analytics = require('./lib/analytics');
 const { pickupList, getDeliveryRates, announcementSpans } = require('./lib/facts');
 const ProductFaq = require('../js/product-faq');   // shared with the admin dashboard
 
@@ -430,6 +431,7 @@ ${FINDER_PUBLIC ? '      <a href="/recommend.html">Find a Scent</a>\n' : ''}    
       <a href="/about.html">Delivery &amp; Pickup</a>
       <a href="/about.html#payment">Payment Policy</a>
       <a href="/about.html#refund">Refund Policy</a>
+      <a href="/about.html#privacy" data-cookie-settings>Cookie Settings</a>
       <a href="/about.html#contact">Contact Us</a>
       <a href="/reviews/">Reviews</a>
       <a href="/about-me.html">About Me</a>
@@ -583,6 +585,7 @@ function renderPage(p, all, detailsMap) {
   <link rel="preconnect" href="https://cdn.nawmeessences.com" />
   <link rel="preload" as="image" href="${attr(heroMedium(p.id, v))}" fetchpriority="high" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -730,6 +733,13 @@ ${SCRIPTS}
     if (!ml || typeof selectSize !== 'function') return;
     var pill = document.querySelector('#size-' + PRODUCT.id + ' .size-pill[data-ml="' + String(Number(ml)) + '"]');
     if (pill && !pill.classList.contains('active')) selectSize(PRODUCT.id, pill);
+  });
+
+  // Analytics: one view_item per product page view, after the ?size preselect
+  // above (js/cart.js NawmeTrack queues it until the deferred tags load).
+  document.addEventListener('DOMContentLoaded', function () {
+    var v = selectedVariant();
+    if (v && window.NawmeTrack) NawmeTrack.viewItem(PRODUCT.id, PRODUCT.name, PRODUCT.brand, Number(v.pill.dataset.ml), Number(v.pill.dataset.price));
   });
 
   // Mobile "Read more": the description is clamped to a few lines by CSS below
@@ -1059,6 +1069,7 @@ ${others.map(brandTile).join('\n')}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -1169,6 +1180,7 @@ function renderBrandsIndex(groups) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -1282,6 +1294,7 @@ function renderBlogIndex(posts) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -1368,6 +1381,7 @@ function renderBlogPost(post) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -1506,6 +1520,7 @@ function renderReviewsPage(reviews) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(metaDesc)}" />
   <link rel="canonical" href="${attr(url)}" />
@@ -1656,6 +1671,7 @@ function render404Page() {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${schema.originTrialMeta()}
+  ${analytics.headSnippet()}
   <title>${esc(title)}</title>
   <meta name="description" content="${attr(desc)}" />
   <meta name="robots" content="noindex, follow" />

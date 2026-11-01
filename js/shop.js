@@ -217,6 +217,7 @@ function init() {
   // Honor ?q= from the header search / SEO SearchAction.
   const q = new URLSearchParams(location.search).get('q');
   if (q) document.getElementById('search-input').value = q;
+  if (q && window.NawmeTrack) NawmeTrack.search(q);   // analytics: header / overlay / agent searches land here
 
   applyFilters();
   // Refresh live stock on the server-rendered cards, then re-filter. Scheduled

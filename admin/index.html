@@ -224,6 +224,16 @@
         </fieldset>
 
         <fieldset class="admin-fieldset">
+          <legend>Cookie consent</legend>
+          <label class="admin-checkbox" style="flex-direction:row;align-items:center;gap:8px;"><input type="checkbox" id="s-consent-bd" style="width:auto;" /> Show the cookie banner to visitors in Bangladesh too</label>
+          <small class="admin-muted">Off: visitors in Bangladesh are measured by default (Google Analytics, Google Ads, Meta Pixel); visitors from other countries always get the banner. Takes effect on visitors' next page view after saving.</small>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <button type="button" id="consent-reask" class="btn-outline btn-sm">Ask everyone again</button>
+            <small class="admin-muted" id="consent-version"></small>
+          </div>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
           <legend>Contact</legend>
           <div class="admin-grid">
             <label>WhatsApp number<input type="text" id="s-whatsapp" placeholder="8801XXXXXXXXX" /><small class="admin-muted">Digits only, with country code.</small></label>
